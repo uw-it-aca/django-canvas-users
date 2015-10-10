@@ -1,0 +1,58 @@
+{% load templatetag_handlebars %}
+
+{% tplhandlebars "input-users-tmpl" %}
+<div id="{{modal_id}}" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Add People</h4>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label class="control-label" for="users-to-add">Provide a list of valid (student, faculty, or staff) UW NetIDs or Gmail Ids</label>
+            <textarea id="users-to-add" class="form-control" placeholder="netid, netid, googleid@gmail.com" aria-label="Enter the email addresses of the users you would like to add, seperated by commas"></textarea>
+            <small>Note: Canvas recognizes only current student, faculty, and staff NetIDs by default. To add other NetIDs or Gmail addresses, please read the <a href="http://www.washington.edu/itconnect/learn/tools/canvas/canvas-help-for-instructors/communicating/give-course-access-to-people-without-a-uw-netid/" target="_blank">UW course access guide</a> or contact <a href="mailto:help@uw.edu">help@uw.edu</a>.</small>
+          </div>
+          <div class="form-group row">
+            <label class="control-label text-right col-sm-2" for="added-users-role">Role</label>
+            <div class="col-sm-10">
+              <span class="loading"><i class="fa fa-spinner fa-spin"></i></span>
+              <select id="added-users-role" class="form-control">
+                <option value="-1"><span class="loading">loading ...</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="control-label text-right col-sm-2" for="added-users-section">Section</label>
+            <div class="col-sm-10">
+              <span class="loading"><i class="fa fa-spinner fa-spin"></i></span>
+              <select id="added-users-section" class="form-control">
+                <option value="-1"><span class="loading">loading ...</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button id="validate-users" type="button" class="btn btn-primary">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endtplhandlebars %}
+
+{% tplhandlebars "input-users-role-tmpl" %}
+    <option value="-1">choose ...</option>
+    {{#each roles}}
+    <option value="{{@index}}">{{ this }}</option>
+    {{/each}}
+{% endtplhandlebars %}
+
+{% tplhandlebars "input-users-sections-tmpl" %}
+    <option value="-1">choose ...</option>
+    {{#each sections}}
+    <option value="{{ this.id }}">{{ this.name }}</option>
+    {{/each}}
+{% endtplhandlebars %}

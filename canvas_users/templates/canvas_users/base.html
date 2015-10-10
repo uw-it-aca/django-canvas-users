@@ -1,0 +1,39 @@
+<!doctype html>
+<html class="no-js">
+<head>
+	<meta charset="utf-8">
+    {% load compress %}
+    {% load staticfiles %}
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+    {% compress css %}
+    <link rel="stylesheet" href="{% static "vendor/css/font-awesome-4.4.0.min.css" %}"/>
+    <link rel="stylesheet" type="text/less" href="{% static "canvas_users/css/mobile.less" %}"/>
+    {% block mobile_css %}{% endblock %}
+    {% endcompress %}
+
+
+</head>
+<body>
+
+  {% block content %}{% endblock %}
+
+  <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+  {% compress js %}
+  <script src="{% static "canvas_users/js/main.js"  %}"></script>
+  <script src="{% static "vendor/js/handlebars.min-v4.0.3.js"  %}"></script>
+  {% block compress_js %}{% endblock %}
+  {% endcompress %}
+
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+
+</body>
+</html>

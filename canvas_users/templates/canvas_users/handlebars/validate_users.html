@@ -1,0 +1,46 @@
+{% load templatetag_handlebars %}
+
+{% tplhandlebars "validated-users-tmpl" %}
+<div id="{{modal_id}}" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Add People</h4>
+      </div>
+      <div class="modal-body">
+        <div class="result">
+          Adding {{count}}{{#if exceptions}} of {{total}}{{/if}} users below to section "{{section_name}}" as a <b>{{role}}</b>
+        </div>
+        <div class="scrolled">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>status</th>
+                <th>login/email</th>
+                <th>name</th>
+                <th>comment</th>
+              </tr>
+            </thead>
+            <tbody>
+                {{#each users}}
+                <tr>
+                  <td>{{#if this.add}}<i class="fa fa-check" style="color: green;">{{else}}{{#if this.present}}<i class="fa fa-user">{{else}}<i class="fa fa-minus-circle" style="color: red;">{{/if}}{{/if}}</i></td>
+                  <td>{{this.login}}</td>
+                  <td>{{this.name}}</td>
+                  <td {{#if this.invalid}}style="color: red;"{{else}}{{#if this.add}}style="color: green;"{{/if}}{{/if}}>{{this.comment}}</td>
+                </tr>
+                {{/each}}
+            </tbody>
+
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="start-over" type="button" class="btn btn-default">Start Over</button>
+        <button id="validate-users" type="button" class="btn btn-primary">Add {{count}} Users</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endtplhandlebars %}
