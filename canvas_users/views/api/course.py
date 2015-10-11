@@ -20,7 +20,8 @@ class ValidCanvasCourseUsers(RESTDispatch):
             data = json.loads(request.body)
 
             login_ids = []
-            for login_id in data["login_ids"]:
+            for raw_login_id in data["login_ids"]:
+                login_id = self._normalize(raw_login_id)
                 if login_id not in login_ids:
                     login_ids.append(login_id)
 
@@ -33,7 +34,6 @@ class ValidCanvasCourseUsers(RESTDispatch):
 
             for login in login_ids:
                 try:
-                    login = self._normalize(login)
                     name = ''
                     status = 'valid'
                     comment = 'Will add'

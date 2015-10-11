@@ -33,16 +33,13 @@
         }
 
         function validateUsers(e) {
-            var tpl = Handlebars.compile($('#validated-users-tmpl').html()),
-                modal_id = randomId(32),
-                add_container = $('#' + window.canvas_users.add_id),
+            var add_container = $('#' + window.canvas_users.add_id),
                 raw_users = add_container.find('#users-to-add').val().trim(),
                 users_to_add = raw_users.split(/[ ,\n]+/),
                 add_as_role = add_container.find('#added-users-role option:selected'),
                 add_to_section = add_container.find('#added-users-section option:selected'),
                 course_id = window.canvas_users.canvas_course_id,
-                errors = false,
-                modal_container;
+                errors = false;
 
             e.stopPropagation();
 
@@ -61,24 +58,33 @@
                 errors = true;
             }
 
-            if (errors) {
-                return;
+            if (!errors) {
+                launchUserValidation(course_id, {
+                    login_ids: users_to_add,
+                    role: add_as_role.text(),
+                    section_name: add_to_section.text(),
+                    section_id: add_to_section.val()
+                });
             }
+        };
+
+        function launchUserValidation(course_id, users) {
+            var tpl = Handlebars.compile($('#validated-users-tmpl').html()),
+                add_container = $('#' + window.canvas_users.add_id);
+
+            add_container.find('input, button, select, textarea').prop('disabled', true);
 
             $.ajax({
                 type: 'POST',
                 url: 'api/v1/canvas/course/' + course_id + '/validate',
                 dataType: 'json',
                 contentType: 'application/json',
-                data: JSON.stringify({
-                    login_ids: users_to_add,
-                    role: add_as_role.text(),
-                    section_name: add_to_section.text(),
-                    section_id: add_to_section.val()
-                })
+                data: JSON.stringify(users)
             })
                 .done(function (data) {
-                    var validated_users = [],
+                    var modal_id = randomId(32),
+                        modal_container,
+                        validated_users = [],
                         validated_user_count = 0;
 
                     $.each(data.users, function () {
@@ -102,9 +108,9 @@
                         exceptions: (validated_user_count != data.users.length),
                         total: data.users.length,
                         users: validated_users,
-                        role: add_as_role.text(),
-                        section_name: add_to_section.text(),
-                        section_id: add_to_section.val()
+                        role: users.role,
+                        section_name: users.section_name,
+                        section_id: users.section_id
                     }));
 
                     add_container.modal('hide');
@@ -119,6 +125,7 @@
                     modal_container.find('#start-over').on('click', function () {
                         modal_container.modal('hide');
                         add_container.modal('show');
+                        add_container.find('input, button, select, textarea').removeProp('disabled');
                     });
 
                     modal_container.on('hidden.bs.modal', function () {
@@ -195,4 +202,3 @@
 
     });
 }(jQuery));
-
