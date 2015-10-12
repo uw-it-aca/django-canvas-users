@@ -54,15 +54,19 @@ button.has-spinner {
     .loading {
         position: absolute;
         z-index: 999;
-        color: white;
+        color: black;
         margin-left: -24px;
         i { font-size: 1.2em; }
     }
     button:disabled {
-        span.loading {
-            display: inline !important;
-            visibility: visible;
-        }
+        opacity: 0.4;
+    }
+    button:disabled + span.loading {
+        display: inline !important;
+        visibility: visible;
+        margin-top: 5px;
+        margin-left: -40px;
+        i { font-size: 1.5em }
     }
 }
 
