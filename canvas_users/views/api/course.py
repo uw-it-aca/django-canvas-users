@@ -37,10 +37,13 @@ class ValidCanvasCourseUsers(RESTDispatch):
                     name = ''
                     status = 'valid'
                     comment = 'Will add'
+                    regid = ''
                     user_policy.valid(login)
 
                     if '@' not in login:
-                        name = user_policy.get_person_by_netid(login).display_name
+                        person = user_policy.get_person_by_netid(login)
+                        name = person.display_name
+                        regid = person.uwregid
 
                     if enrollments:
                         for e in enrollments:
@@ -67,6 +70,7 @@ class ValidCanvasCourseUsers(RESTDispatch):
                 valid.append({
                     'login': login,
                     'name': name,
+                    'regid': regid,
                     'status': status,
                     'comment': comment
                 })
@@ -81,6 +85,53 @@ class ValidCanvasCourseUsers(RESTDispatch):
                       'deskmail.washington.edu']
         match = re.match(r'^(.*)@(%s)$' % '|'.join(uw_domains), login)
         return match.group(1) if match else login
+
+
+class ImportCanvasCourseUsers(RESTDispatch):
+    """ Exposes API to manage Canvas users 
+        GET returns 200 with user details
+    """
+    def GET(self, request, **kwargs):
+        sections = []
+        course_id = kwargs['canvas_course_id']
+        try:
+            import_id = request.GET['import_id']
+
+            import random
+            n = (random.random() * 10000) % 100
+
+            if n > 82:
+                progress = 100
+            else:
+                progress = (random.random() * 10000) % 100
+
+
+
+            return self.json_response({'progress': int(progress)})
+        except KeyError:
+            return self.error_response(400, message="Missing import_id")
+
+    def POST(self, request, **kwargs):
+        try:
+            course_id = kwargs['canvas_course_id']
+            data = json.loads(request.body)
+
+            from time import sleep
+            sleep(1.25)
+
+            import random
+            if ((random.random() * 10000) % 100) > 80:
+                return self.error_response(400, message="FAILED IMPORT")
+
+
+#            for login in data['login_ids']:
+#                try:
+#                except UserPolicyException as ex:
+#                    raise Exception('Invalid User: %s' % ex)
+
+            return self.json_response({'import': {'id': '123456'}})
+        except Exception as ex:
+            return self.error_response(400, message="Import Error %s" % ex)
 
 
 class CanvasCourseSections(RESTDispatch):
