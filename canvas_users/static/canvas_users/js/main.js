@@ -109,7 +109,8 @@
                 })
             })
                 .done(function (data) {
-                    var initial_percent = Math.floor((Math.random() * 15) + 5);
+                    var nth = Math.floor(75 / logins.length),
+                        initial_percent = nth + Math.floor((Math.random() * 15) + 5);
 
                     setProgress(valid_container, initial_percent);
 
