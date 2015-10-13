@@ -1,11 +1,15 @@
 from django.conf import settings
 from blti.views.rest_dispatch import RESTDispatch
-from sis_provisioner.models import User as CanvasUser
+from sis_provisioner.models import User as CanvasUser, Import
+from sis_provisioner.models import PRIORITY_DEFAULT
 from restclients.canvas.sections import Sections
 from restclients.canvas.courses import Courses
 from restclients.canvas.enrollments import Enrollments
 from restclients.exceptions import DataFailureException
+from sis_provisioner.csv_builder import CSVBuilder
 from sis_provisioner.policy import UserPolicy, UserPolicyException
+from sis_provisioner.models import CourseMember, Enrollment, \
+    MissingImportPathException
 import json
 import re
 
@@ -29,18 +33,21 @@ class ValidCanvasCourseUsers(RESTDispatch):
             user_policy = UserPolicy()
 
             enrollments = None
-            if len(login_ids) > 10:
+            if len(login_ids) > 5:
                 enrollments = Enrollments().get_enrollments_for_course(course_id)
 
             for login in login_ids:
                 try:
                     name = ''
                     status = 'valid'
-                    comment = 'Will add'
+                    comment = 'Prepared to add'
                     regid = ''
                     user_policy.valid(login)
 
-                    if '@' not in login:
+                    if '@' in login:
+                        canvas_user = user_policy.get_person_by_gmail_id(login)
+                        regid = canvas_user.sis_user_id
+                    else:
                         person = user_policy.get_person_by_netid(login)
                         name = person.display_name
                         regid = person.uwregid
@@ -50,18 +57,15 @@ class ValidCanvasCourseUsers(RESTDispatch):
                             if e.login_id == login:
                                 status = 'present'
                                 comment = 'Already in course'
-                    else:
+                    elif '@' not in login:
                         try:
-                            reg_id = login
-                            if '@' not in login:
-                                reg_id = CanvasUser.objects.get(net_id=login).reg_id
-
-                                for course in Courses().get_courses_for_regid(reg_id):
-                                    if course.course_id == course_id:
-                                        status = 'present'
-                                        comment = 'Already in course'
-                        except CanvasUser.DoesNotExist:
-                            pass
+                            for course in Courses().get_courses_for_regid(regid):
+                                if course.course_id == int(course_id):
+                                    status = 'present'
+                                    comment = 'Already in course'
+                        except DataFailureException as ex:
+                            if ex.status != 401:
+                                raise
 
                 except UserPolicyException as ex:
                     status = 'invalid'
@@ -92,22 +96,26 @@ class ImportCanvasCourseUsers(RESTDispatch):
         GET returns 200 with user details
     """
     def GET(self, request, **kwargs):
-        sections = []
         course_id = kwargs['canvas_course_id']
         try:
             import_id = request.GET['import_id']
+            imp = Import.objects.get(id=import_id)
 
-            import random
-            n = (random.random() * 10000) % 100
+            if not imp.canvas_id:
+                return self.error_response(400, message="Missing Canvas Id")
 
-            if n > 82:
-                progress = 100
-            else:
-                progress = (random.random() * 10000) % 100
+            imp.update_import_status()
+            imp = Import.objects.get(id=import_id)
+            if imp.is_imported():
+                return self.json_response({'progress': 100})
+            elif imp.monitor_status != 200 or imp.canvas_errors:
+                return self.error_response(
+                    400, message="Import Canvas error (%s): %s" % (
+                        imp.monitor_status, imp.canvas_errors))
 
-
-
-            return self.json_response({'progress': int(progress)})
+            return self.json_response({'progress': imp.canvas_progress})
+        except Import.DoesNotExist:
+            return self.json_response({'progress': 100})
         except KeyError:
             return self.error_response(400, message="Missing import_id")
 
@@ -116,22 +124,50 @@ class ImportCanvasCourseUsers(RESTDispatch):
             course_id = kwargs['canvas_course_id']
             data = json.loads(request.body)
 
-            from time import sleep
-            sleep(1.25)
+            # use group (enroll user in section) csv plumbing.
+            import_id = None
+            csv_builder = CSVBuilder()
+            role = data['role']
+            course_sis_id = data['course_sis_id']
+            section_id = data['section_id']
+            section_sis_id = data['section_sis_id']
 
-            import random
-            if ((random.random() * 10000) % 100) > 80:
-                return self.error_response(400, message="FAILED IMPORT")
+            if not (section_sis_id and len(section_sis_id) > 0):
+                raise Exception('need to apply sis_id %s' % ('section_%s' % section_id))
 
+            members = []
+            for login in data['logins']:
+                members.append(CourseMember(name=login['login'],
+                                            course_id=course_sis_id,
+                                            role=role,is_deleted=None,
+                                            member_type=CourseMember.EPPN_TYPE \
+                                                if '@' in login['login'] else \
+                                                CourseMember.UWNETID_TYPE))
 
-#            for login in data['login_ids']:
-#                try:
-#                except UserPolicyException as ex:
-#                    raise Exception('Invalid User: %s' % ex)
+            for member in members:
+                csv_builder.generate_csv_for_groupmember(member, section_sis_id,
+                                                 member.role,
+                                                 status=Enrollment.ACTIVE_STATUS)
 
-            return self.json_response({'import': {'id': '123456'}})
+            path = csv_builder._csv.write_files()
+            if not path:
+                return self.error_response(400, message="No CSV Path")
+
+            imp = Import(priority=PRIORITY_DEFAULT,
+                         csv_path=path,
+                         csv_type='enrollment')
+            imp.save()
+
+            try:
+                imp.import_csv()
+                return self.json_response({'import': {'id': imp.pk}})
+            except MissingImportPathException as ex:
+                error_msg = "Import CSV Error: %s" % (imp.csv_errors if imp.csv_errors else ex)
+                imp.delete()
+                return self.error_response(400, message=error_msg)
+
         except Exception as ex:
-            return self.error_response(400, message="Import Error %s" % ex)
+            return self.error_response(400, message="Import Error: %s" % ex)
 
 
 class CanvasCourseSections(RESTDispatch):
@@ -143,9 +179,11 @@ class CanvasCourseSections(RESTDispatch):
         course_id = kwargs['canvas_course_id']
 
         for s in Sections().get_sections_in_course(course_id):
-            sections.append({
-                'id': s.section_id,
-                'name': s.name
-            })
+            if not re.match(r'.*-groups$', s.sis_section_id):
+                sections.append({
+                    'id': s.section_id,
+                    'sis_id': s.sis_section_id,
+                    'name': s.name
+                })
 
         return self.json_response({'sections': sorted(sections, key=lambda k: k['name'])})

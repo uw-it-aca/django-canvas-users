@@ -32,6 +32,12 @@
             return id.join('');
         }
 
+        function setProgress(container, progress) {
+            container.find('.progress-bar').css('width', progress + '%')
+                .attr('aria-valuenow', progress)
+                .html(progress + '%');
+        };
+
         function problemAddingUsers(msg, add_container) {
             var tpl = Handlebars.compile($('#failure-tmpl').html()),
                 modal_id = randomId(32),
@@ -67,11 +73,17 @@
                 context = e.data.valid_context,
                 valid_container = e.data.valid_container,
                 add_container = e.data.add_container,
-                logins = [];
+                logins = [],
+                progress;
 
             e.stopPropagation();
 
             valid_container.find('button').prop('disabled', true);
+
+            progress = valid_container.find('.progress-overlay');
+            progress.height(valid_container.find('.modal-content').height());
+            progress.width(valid_container.find('.modal-content').width());
+            progress.removeClass('hidden');
 
             $.each(context.users, function () {
                 if (this.add) {
@@ -87,40 +99,49 @@
                 url: 'api/v1/canvas/course/' + course_id + '/import',
                 dataType: 'json',
                 contentType: 'application/json',
-                data: JSON.stringify({logins: logins})
+                data: JSON.stringify({
+                    logins: logins,
+                    role: context.role,
+                    course_id: window.canvas_users.canvas_course_id,
+                    course_sis_id: window.canvas_users.sis_course_id,
+                    section_id: context.section_id,
+                    section_sis_id: context.section_sis_id
+                })
             })
                 .done(function (data) {
-                    var progress = valid_container.find('.progress-overlay');
+                    var initial_percent = Math.floor((Math.random() * 15) + 5);
 
-                    progress.height(valid_container.find('.modal-content').height());
-                    progress.width(valid_container.find('.modal-content').width());
-                    progress.removeClass('hidden');
+                    setProgress(valid_container, initial_percent);
 
-                    (function () {
-                        var interval_id = setInterval(function () {
-                            $.ajax({
-                                type: 'GET',
-                                url: 'api/v1/canvas/course/' + course_id
-                                    + '/import?import_id=' + data.import.id
-                            })
-                                .done(function (data) {
-                                    if (parseInt(data.progress) >= 100) {
+                    if (data.import.id === null) {
+                        valid_container.modal('hide');
+                        add_container.remove();
+                    } else {
+                        (function () {
+                            var interval_id = setInterval(function () {
+                                $.ajax({
+                                    type: 'GET',
+                                    url: 'api/v1/canvas/course/' + course_id
+                                        + '/import?import_id=' + data.import.id
+                                })
+                                    .done(function (data) {
+                                        if (data.progress == null || parseInt(data.progress) >= 100) {
+                                            clearInterval(interval_id);
+                                            valid_container.modal('hide');
+                                            add_container.remove();
+                                        } else if (parseInt(data.progress) > initial_percent) {
+                                            setProgress(valid_container, data.progress);
+                                        }
+                                    })
+                                    .fail(function (msg) {
                                         clearInterval(interval_id);
                                         valid_container.modal('hide');
-                                        add_container.remove();
-                                    } else {
-                                        valid_container.find('.progress-bar').css('width', data.progress + '%');
-                                        valid_container.find('.progress-bar').html(data.progress + '%');
-                                    }
-                                })
-                                .fail(function (msg) {
-                                    clearInterval(interval_id);
-                                    valid_container.modal('hide');
-                                    problemAddingUsers(msg, add_container);
-                                });
-                        },
-                        500);
-                    })();
+                                        problemAddingUsers(msg, add_container);
+                                    });
+                            },
+                            1000);
+                        })();
+                    }
                 })
                 .fail(function (msg) {
                     valid_container.modal('hide');
@@ -134,12 +155,13 @@
                 users_to_add = raw_users.split(/[ ,\n]+/),
                 add_as_role_option = add_container.find('#added-users-role option:selected'),
                 add_to_section_option = add_container.find('#added-users-section option:selected'),
+                add_to_section_vals = add_to_section_option.val().split('|'),
                 course_id = window.canvas_users.canvas_course_id,
                 errors = false;
 
             e.stopPropagation();
 
-            // validae form
+            // validate form
             if (raw_users.length === 0 || users_to_add.length < 1) {
                 $('#users-to-add').closest('.form-group').addClass('has-error');
                 errors = true;
@@ -150,7 +172,7 @@
                 errors = true;
             }
 
-            if (parseInt(add_to_section_option.val()) < 0) {
+            if (add_to_section_vals.length !== 2) {
                 add_to_section_option.closest('.form-group').addClass('has-error');
                 errors = true;
             }
@@ -167,10 +189,7 @@
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    login_ids: users_to_add,
-                    role: add_as_role_option.text(),
-                    section_name: add_to_section_option.text(),
-                    section_id: add_to_section_option.val()
+                    login_ids: users_to_add
                 })
             })
                 .done(function (data) {
@@ -200,13 +219,16 @@
                     valid_context = {
                         modal_id: modal_id,
                         count: validated_user_count,
-                        plural: (validated_user_count > 1) ? 's' : '',
+                        no_logins: (validated_user_count < 1),
+                        count_plural: (validated_user_count > 1) ? 's' : '',
+                        total_plural: (data.users.length > 1) ? 's' : '',
                         exceptions: (validated_user_count != data.users.length),
                         total: data.users.length,
                         users: validated_users,
                         role: add_as_role_option.text(),
                         section_name: add_to_section_option.text(),
-                        section_id: add_to_section_option.val()
+                        section_id: add_to_section_vals[0],
+                        section_sis_id: add_to_section_vals[1]
                     };
 
                     $('body').append(tpl(valid_context));
@@ -235,7 +257,7 @@
                     });
                 })
                 .fail(function (msg) {
-                    modal_container.modal('hide');
+                    add_container.modal('hide');
                     problemAddingUsers(msg, add_container);
                 });
         }

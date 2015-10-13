@@ -29,7 +29,7 @@
             <div class="col-sm-10">
               <span class="loading"><i class="fa fa-spinner fa-spin"></i></span>
               <select id="added-users-section" class="form-control" disabled>
-                <option value="-1"><span class="loading">loading ...</option>
+                <option value=""><span class="loading">loading ...</option>
               </select>
             </div>
           </div>
@@ -51,8 +51,8 @@
 {% endtplhandlebars %}
 
 {% tplhandlebars "input-users-sections-tmpl" %}
-    <option value="-1">choose ...</option>
+    <option value="">choose ...</option>
     {{#each sections}}
-    <option value="{{ this.id }}">{{ this.name }}</option>
+    <option value="{{ this.id }}|{{ this.sis_id }}">{{ this.name }}</option>
     {{/each}}
 {% endtplhandlebars %}

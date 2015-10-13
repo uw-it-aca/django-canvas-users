@@ -47,6 +47,9 @@ button.has-spinner {
         margin-left: 200px;
         i { font-size: 1.2em; }
     }
+    td > i {
+        font-size: 1.1em;
+    }
 }
 
 .modal-footer {
@@ -61,7 +64,7 @@ button.has-spinner {
     button:disabled {
         opacity: 0.4;
     }
-    button:disabled + span.loading {
+    button:disabled:first-child + span.loading {
         display: inline !important;
         visibility: visible;
         margin-top: 5px;
