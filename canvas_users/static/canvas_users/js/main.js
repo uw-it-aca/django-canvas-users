@@ -275,6 +275,7 @@
                     select.removeProp('disabled');
                     select.prev('.loading').addClass('hidden');
                     select.html(tpl({
+                        plural: (data.roles.length > 1),
                         roles: data.roles
                     }));
                 });
@@ -292,6 +293,7 @@
                     select.removeProp('disabled');
                     select.prev('.loading').addClass('hidden');
                     select.html(tpl({
+                        plural: (data.sections.length > 1),
                         sections: data.sections
                     }));
                 });
