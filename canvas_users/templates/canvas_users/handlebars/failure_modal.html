@@ -10,17 +10,17 @@
       </div>
       <div class="modal-body">
         <p class="bad-result">
-          We're terribly sorry, but it appears we're unable to add the requested users at this time.
+          We're terribly sorry, but it appears we're unable to add users at this time.
         </p>
         <p>
-          Please click Start Over to try again, or Close to give up and call it a day.
+          Please click <span class="start-over">Start Over to give it another try now, or </span>Close to try again later.
           <div class="hidden">
             Reported Error: {{ error_message }}
           </div>
         </p>
       </div>
       <div class="modal-footer">
-        <button id="start-over" type="button" class="btn btn-primary">Start Over</button>
+        <button type="button" class="btn btn-primary start-over">Start Over</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div>

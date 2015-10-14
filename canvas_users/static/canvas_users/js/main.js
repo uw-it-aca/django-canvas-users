@@ -57,11 +57,15 @@
                 show: true
             });
 
-            modal_container.find('#start-over').on('click', function () {
-                modal_container.modal('hide');
-                add_container.modal('show');
-                add_container.find('input, button, select, textarea').removeProp('disabled');
-            });
+            if (add_container) {
+                modal_container.find('button.start-over').on('click', function () {
+                    modal_container.modal('hide');
+                    add_container.modal('show');
+                    add_container.find('input, button, select, textarea').removeProp('disabled');
+                });
+            } else {
+                modal_container.find('.start-over').hide();
+            }
 
             modal_container.on('hidden.bs.modal', function () {
                 modal_container.remove();
@@ -247,7 +251,7 @@
                         add_container: add_container,
                         valid_context: valid_context
                     }, importUsers);
-                    modal_container.find('#start-over').on('click', function () {
+                    modal_container.find('button.start-over').on('click', function () {
                         modal_container.modal('hide');
                         add_container.modal('show');
                         add_container.find('input, button, select, textarea').removeProp('disabled');
@@ -277,7 +281,14 @@
                     select.html(tpl({
                         plural: (data.roles.length > 1),
                         roles: data.roles
+
                     }));
+                })
+                .fail(function (msg) {
+                    if (container.hasClass('in')) {
+                        container.modal('hide');
+                        problemAddingUsers(msg);
+                    }
                 });
         };
 
@@ -296,9 +307,15 @@
                         plural: (data.sections.length > 1),
                         sections: data.sections
                     }));
+                })
+                .fail(function (msg) {
+                    if (container.hasClass('in')) {
+                        container.modal('hide');
+                        problemAddingUsers(msg);
+                    }
                 });
         };
-        
+
         function launchAddUsers() {
             var tpl = Handlebars.compile($('#input-users-tmpl').html()),
                 container_id = randomId(32),
