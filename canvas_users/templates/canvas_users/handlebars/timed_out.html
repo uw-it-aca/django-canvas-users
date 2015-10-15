@@ -1,0 +1,26 @@
+{% load templatetag_handlebars %}
+
+{% tplhandlebars "timed-out-tmpl" %}
+<div id="{{modal_id}}" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Add People</h4>
+      </div>
+      <div class="modal-body">
+        <p class="bad-result">
+          The specified users have been imported to Canvas, but it appears slow Canvas processing will delay their addition to the section.
+          We cannot report or estimate how long it will take Canvas to add them.
+        </p>
+        <p>
+          Please click Close and check the course's People page later to confirm that they've been added.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endtplhandlebars %}

@@ -72,6 +72,27 @@
             });
         };
 
+        function timeoutAddingUsers() {
+            var tpl = Handlebars.compile($('#timed-out-tmpl').html()),
+                modal_id = randomId(32),
+                modal_container,
+                error_msg;
+
+            $('body').append(tpl({
+                modal_id: modal_id
+            }));
+
+            modal_container = $('#' + modal_id);
+            modal_container.modal({
+                backdrop: 'static',
+                show: true
+            });
+
+            modal_container.on('hidden.bs.modal', function () {
+                modal_container.remove();
+            });
+        };
+
         function importUsers(e) {
             var course_id = window.canvas_users.canvas_course_id,
                 context = e.data.valid_context,
@@ -123,28 +144,38 @@
                         add_container.remove();
                     } else {
                         (function () {
-                            var interval_id = setInterval(function () {
-                                $.ajax({
-                                    type: 'GET',
-                                    url: 'api/v1/canvas/course/' + course_id
-                                        + '/import?import_id=' + data.import.id
-                                })
-                                    .done(function (data) {
-                                        if (data.progress == null || parseInt(data.progress) >= 100) {
-                                            clearInterval(interval_id);
-                                            valid_container.modal('hide');
-                                            add_container.remove();
-                                        } else if (parseInt(data.progress) > initial_percent) {
-                                            setProgress(valid_container, data.progress);
-                                        }
-                                    })
-                                    .fail(function (msg) {
+                            var times = 0,
+                                interval_id = setInterval(function () {
+                                    times += 1;
+
+                                    if (times > 60) {
                                         clearInterval(interval_id);
                                         valid_container.modal('hide');
-                                        problemAddingUsers(msg, add_container);
-                                    });
-                            },
-                            1000);
+                                        add_container.remove();
+                                        timeoutAddingUsers();
+                                    }
+
+                                    $.ajax({
+                                        type: 'GET',
+                                        url: 'api/v1/canvas/course/' + course_id
+                                            + '/import?import_id=' + data.import.id
+                                    })
+                                        .done(function (data) {
+                                            if (data.progress == null || parseInt(data.progress) >= 100) {
+                                                clearInterval(interval_id);
+                                                valid_container.modal('hide');
+                                                add_container.remove();
+                                            } else if (parseInt(data.progress) > initial_percent) {
+                                                setProgress(valid_container, data.progress);
+                                            }
+                                        })
+                                        .fail(function (msg) {
+                                            clearInterval(interval_id);
+                                            valid_container.modal('hide');
+                                            problemAddingUsers(msg, add_container);
+                                        });
+                                },
+                                1000);
                         })();
                     }
                 })
