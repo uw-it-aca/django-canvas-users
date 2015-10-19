@@ -29,13 +29,12 @@ class ValidCanvasCourseUsers(RESTDispatch):
                 if login_id not in login_ids:
                     login_ids.append(login_id)
 
+            if not login_ids:
+                return self.json_response({'users': []})
+
             valid = []
             user_policy = UserPolicy()
-
-            enrollments = None
-            if len(login_ids) > 5:
-                enrollments = Enrollments().get_enrollments_for_course(course_id)
-
+            enrollments = Enrollments()
             for login in login_ids:
                 try:
                     name = ''
@@ -52,21 +51,15 @@ class ValidCanvasCourseUsers(RESTDispatch):
                         name = person.display_name
                         regid = person.uwregid
 
-                    if enrollments:
-                        for e in enrollments:
-                            if e.login_id == login:
-                                status = 'present'
-                                comment = 'Already in course'
-                    elif '@' not in login:
-                        try:
-                            for course in Courses().get_courses_for_regid(regid):
-                                if course.course_id == int(course_id):
-                                    status = 'present'
-                                    comment = 'Already in course'
-                        except DataFailureException as ex:
-                            if ex.status != 401:
-                                raise
+                    for e in enrollments.search_enrollments_for_course(course_id, login):
+                        if e.login_id == login:
+                            status = 'present'
+                            comment = 'Already in course'
+                            break
 
+                except DataFailureException as ex:
+                    if ex.status != 401:
+                        raise
                 except UserPolicyException as ex:
                     status = 'invalid'
                     comment = "%s" % ex
