@@ -14,7 +14,7 @@
             crossDomain: false, // obviates need for sameOrigin test
             beforeSend: function (xhr, settings) {
                 if (window.canvas_users.session_id) {
-                    xhr.setRequestHeader("X-SessionId", window.canavs_users.session_id);
+                    xhr.setRequestHeader("X-SessionId", window.canvas_users.session_id);
                 }
                 if (!csrfSafeMethod(settings.type)) {
                     xhr.setRequestHeader("X-CSRFToken", window.canvas_users.csrftoken);

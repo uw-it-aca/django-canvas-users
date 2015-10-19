@@ -46,6 +46,7 @@ def CanvasUsers(request, template='canvas_users/add_user.html'):
         'SIS_COURSE_ID': sis_course_id,
         'CANVAS_COURSE_ID': canvas_course_id,
         'CANVAS_ACCOUNT_ID': account_id,
+        'session_id': request.session.session_key,
         'blti_json': json.dumps(blti_data),
         'VALIDATION_ERROR': validation_error
     })
