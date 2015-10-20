@@ -124,9 +124,9 @@ class ImportCanvasCourseUsers(RESTDispatch):
             course_sis_id = data['course_sis_id']
             section_id = data['section_id']
             section_sis_id = data['section_sis_id']
-
             if not (section_sis_id and len(section_sis_id) > 0):
-                raise Exception('need to apply sis_id %s' % ('section_%s' % section_id))
+                section_sis_id = 'section_%s' % section_id
+                Sections().update_section(section_id, None, section_sis_id)
 
             members = []
             for login in data['logins']:
@@ -172,7 +172,7 @@ class CanvasCourseSections(RESTDispatch):
         course_id = kwargs['canvas_course_id']
 
         for s in Sections().get_sections_in_course(course_id):
-            if not re.match(r'.*-groups$', s.sis_section_id):
+            if not (s.sis_section_id and re.match(r'.*-groups$', s.sis_section_id)):
                 sections.append({
                     'id': s.section_id,
                     'sis_id': s.sis_section_id,
