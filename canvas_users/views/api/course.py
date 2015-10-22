@@ -4,7 +4,7 @@ from sis_provisioner.models import User as CanvasUser, Import
 from sis_provisioner.models import PRIORITY_DEFAULT
 from restclients.canvas.sections import Sections
 from restclients.canvas.courses import Courses
-from restclients.canvas.enrollments import Enrollments
+from restclients.canvas.users import Users
 from restclients.exceptions import DataFailureException
 from sis_provisioner.csv_builder import CSVBuilder
 from sis_provisioner.policy import UserPolicy, UserPolicyException
@@ -34,7 +34,7 @@ class ValidCanvasCourseUsers(RESTDispatch):
 
             valid = []
             user_policy = UserPolicy()
-            enrollments = Enrollments()
+            users_api = Users()
             for login in login_ids:
                 try:
                     name = ''
@@ -51,7 +51,7 @@ class ValidCanvasCourseUsers(RESTDispatch):
                         name = person.display_name
                         regid = person.uwregid
 
-                    for e in enrollments.search_enrollments_for_course(course_id, login):
+                    for e in users_api.get_users_for_course(course_id, params={"search_term": login}):
                         if e.login_id == login:
                             status = 'present'
                             comment = 'Already in course'
