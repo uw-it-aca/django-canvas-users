@@ -16,15 +16,15 @@ def CanvasUsers(request, template='canvas_users/add_user.html'):
     validation_error = None
     sis_course_id = 'None'
     canvas_course_id = 'None'
+    account_id = 'None'
     status_code = 200
     policy = CoursePolicy()
 
     try:
         blti = BLTI()
-        blti_data = blti.validate(request)
+        blti_data = blti.validate(request, visibility=BLTI.ADMIN)
         canvas_login_id = blti_data.get('custom_canvas_user_login_id')
         canvas_course_id = blti_data.get('custom_canvas_course_id')
-        policy.valid_canvas_id(canvas_course_id)
         sis_course_id = blti_data.get('lis_course_offering_sourcedid',
                                       policy.adhoc_sis_id(canvas_course_id))
         account_id = blti_data.get('custom_canvas_account_id')
@@ -34,6 +34,7 @@ def CanvasUsers(request, template='canvas_users/add_user.html'):
     except (BLTIException, CoursePolicyException) as err:
         validation_error = err
         status_code = 401
+        template = 'blti/401.html'
     except DataFailureException as err:
         validation_error = err
         status_code = 500
