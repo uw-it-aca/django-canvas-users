@@ -165,6 +165,7 @@
                                                 clearInterval(interval_id);
                                                 valid_container.modal('hide');
                                                 add_container.remove();
+                                                finishAddUsers();
                                             } else if (parseInt(data.progress) > initial_percent) {
                                                 setProgress(valid_container, data.progress);
                                             }
@@ -288,6 +289,7 @@
                         add_container.find('input, button, select, textarea').removeProp('disabled');
                     });
 
+                    modal_container.delegate('button.close', 'click', finishAddUsers);
                     modal_container.on('hidden.bs.modal', function () {
                         modal_container.remove();
                     });
@@ -347,6 +349,13 @@
                 });
         };
 
+        function finishAddUsers(e) {
+            var canvas_host = window.canvas_users.canvas_host,
+                course_id = window.canvas_users.canvas_course_id;
+
+            top.location = 'https://' + canvas_host + '/courses/' + course_id + '/users';
+        };
+
         function launchAddUsers() {
             var tpl = Handlebars.compile($('#input-users-tmpl').html()),
                 container_id = randomId(32),
@@ -373,6 +382,8 @@
                                       function (e) {
                                           $(e.target).closest('.form-group').removeClass('has-error');
                                       });
+
+            modal_container.delegate('button.close', 'click', finishAddUsers);
 
             loadCourseRoles(account_id, modal_container);
             loadCourseSections(course_id, modal_container);

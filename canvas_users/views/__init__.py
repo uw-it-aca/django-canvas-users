@@ -28,6 +28,7 @@ def CanvasUsers(request, template='canvas_users/add_user.html'):
         sis_course_id = blti_data.get('lis_course_offering_sourcedid',
                                       policy.adhoc_sis_id(canvas_course_id))
         account_id = blti_data.get('custom_canvas_account_id')
+        canvas_host = blti_data.get('custom_canvas_api_domain')
 
         blti.set_session(request, user_id=canvas_login_id)
 
@@ -47,6 +48,7 @@ def CanvasUsers(request, template='canvas_users/add_user.html'):
         'SIS_COURSE_ID': sis_course_id,
         'CANVAS_COURSE_ID': canvas_course_id,
         'CANVAS_ACCOUNT_ID': account_id,
+        'CANVAS_HOSTNAME': canvas_host,
         'session_id': request.session.session_key,
         'blti_json': json.dumps(blti_data),
         'VALIDATION_ERROR': validation_error
