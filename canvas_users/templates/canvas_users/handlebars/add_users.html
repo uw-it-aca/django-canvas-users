@@ -24,7 +24,7 @@
             <div class="col-sm-6">
               <label class="control-label" for="added-users-role">Select role</label>
               <select id="added-users-role" class="form-control loading" disabled>
-                <option value="-1">Loading&hellip;</option>
+                <option value="">Loading&hellip;</option>
               </select><span><i class="fa fa-spinner fa-spin"></i></span>
             </div>
           </div>
@@ -43,7 +43,7 @@
     <option value="-1">select &hellip;</option>
     {{/if}}
     {{#each roles}}
-    <option value="{{@index}}">{{ this }}</option>
+    <option value="{{this.id}}|{{this.base}}">{{ this.role }}</option>
     {{/each}}
 {% endtplhandlebars %}
 

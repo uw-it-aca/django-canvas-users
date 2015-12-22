@@ -4,6 +4,8 @@
     "use strict";
     $(document).ready(function () {
 
+        var ferpa_base_roles = ['TeacherEnrollment', 'TaEnrollment'];
+
         // prep for api post/put
         function csrfSafeMethod(method) {
             // these HTTP methods do not require CSRF protection
@@ -38,11 +40,13 @@
                 .html(progress + '%');
         };
 
-        function confirmFERPA() {
+        function confirmFERPA(e) {
             var tpl = Handlebars.compile($('#ferpa-tmpl').html()),
                 modal_id = randomId(32),
                 modal_container,
-                error_msg;
+                error_msg,
+                $confirmation,
+                e_data = e.data;
 
             $('body').append(tpl({
                 modal_id: modal_id,
@@ -54,8 +58,19 @@
                 show: true
             });
 
-            modal_container.find('button.confirmation').on('click', function () {
-                    modal_container.modal('hide');
+            $confirmation = modal_container.find('button.confirmation');
+            $confirmation.on('click', function (e) {
+                modal_container.modal('hide');
+                e.data = e_data;
+                importUsers(e);
+            });
+
+            modal_container.find('#confirmed').on('change', function () {
+                if ($(this).is(':checked')) {
+                    $confirmation.removeProp('disabled');
+                } else {
+                    $confirmation.prop('disabled', true);
+                }
             });
 
             modal_container.on('hidden.bs.modal', function () {
@@ -218,7 +233,7 @@
                 $button = $dialog.find('#validate-users');
 
             if ($dialog.find('#users-to-add').val().trim().length
-                && $dialog.find('#added-users-role option:selected').val() >= 0
+                && $dialog.find('#added-users-role option:selected').val().length
                 && $dialog.find('#added-users-section option:selected').val().length) {
                 $button.removeProp('disabled');
             } else {
@@ -234,7 +249,9 @@
                 add_to_section_option = add_container.find('#added-users-section option:selected'),
                 add_to_section_vals = add_to_section_option.val().split('|'),
                 course_id = window.canvas_users.canvas_course_id,
-                errors = false;
+                errors = false,
+                role_value,
+                is_ferpa_role = false;
 
             e.stopPropagation();
 
@@ -244,7 +261,10 @@
                 errors = true;
             }
 
-            if (parseInt(add_as_role_option.val()) < 0) {
+            role_value = add_as_role_option.val();
+            if (role_value.length) {
+                is_ferpa_role = (ferpa_base_roles.indexOf(role_value.split('|')[1]) >= 0);
+            } else {
                 add_as_role_option.closest('.form-group').addClass('has-error');
                 errors = true;
             }
@@ -323,7 +343,7 @@
                         valid_container: modal_container,
                         add_container: add_container,
                         valid_context: valid_context
-                    }, importUsers);
+                    }, (is_ferpa_role) ? confirmFERPA : importUsers);
 
                     modal_container.find('button.start-over').on('click', function () {
                         modal_container.modal('hide');
@@ -357,7 +377,6 @@
                     select.html(tpl({
                         plural: (data.roles.length > 1),
                         roles: data.roles
-
                     }));
                 })
                 .fail(function (msg) {

@@ -12,6 +12,6 @@ class CanvasAccountCourseRoles(RESTDispatch):
         roles = []
         account_id = kwargs['canvas_account_id']
         for r in Roles().get_effective_course_roles_in_account(account_id):
-            roles.append(r.label)
+            roles.append({'role': r.label, 'id': r.role_id, 'base': r.base_role_type})
 
         return self.json_response({'roles': roles})
