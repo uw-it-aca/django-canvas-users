@@ -326,7 +326,7 @@
                     var tpl = Handlebars.compile($('#input-users-role-tmpl').html()),
                         select = container.find('#added-users-role');
 
-                    select.removeProp('disabled');
+                    select.removeProp('disabled').removeClass('loading');
                     select.prev('.loading').addClass('hidden');
                     select.html(tpl({
                         plural: (data.roles.length > 1),
@@ -351,7 +351,7 @@
                     var tpl = Handlebars.compile($('#input-users-sections-tmpl').html()),
                         select = container.find('#added-users-section');
 
-                    select.removeProp('disabled');
+                    select.removeProp('disabled').removeClass('loading');
                     select.prev('.loading').addClass('hidden');
                     select.html(tpl({
                         plural: (data.sections.length > 1),

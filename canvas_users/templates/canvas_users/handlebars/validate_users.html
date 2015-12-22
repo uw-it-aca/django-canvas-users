@@ -2,7 +2,7 @@
 
 {% tplhandlebars "validated-users-tmpl" %}
 <div id="{{modal_id}}" class="modal fade" role="dialog">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog">
     <div class="progress-overlay hidden">
       <div class="progress progress-striped">
         <div class="progress-bar progress-bar-striped active" role="progressbar"
@@ -18,24 +18,27 @@
       </div>
       <div class="modal-body">
         <div class="result">
-          Adding {{count}}{{#if exceptions}} of {{total}}{{/if}} user{{total_plural}} below to section "{{section_name}}" as {{#if count_plural}}{{else}}a {{/if}}{{role}}{{count_plural}}
+          {{#if no_logins}}
+          No {{role}}s validated for {{section_name}}
+          {{else}}
+          Validated {{count}}{{#if exceptions}} of {{total}} {{role}}s{{else}}{{role}}{{count_plural}}{{/if}} for {{section_name}}
+          {{/if}}
         </div>
         <div class="scrolled">
           <table class="table">
             <thead>
               <tr>
-                <th>status</th>
-                <th>login/email</th>
-                <th>name</th>
-                <th>comment</th>
+                <th>User</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
                 {{#each users}}
                 <tr>
+                  <!--
                   <td>{{#if this.add}}<i class="fa fa-check xfa-user-plus xfa-thumbs-o-up" style="color: green;">{{else}}{{#if this.present}}<i class="fa xfa-user fa-users" style="color: #382465;">{{else}}<i class="fa fa-minus-circle xfa-thumbs-o-down" style="color: red;">{{/if}}{{/if}}</i></td>
-                  <td>{{this.login}}</td>
-                  <td>{{this.name}}</td>
+                  -->
+                  <td>{{this.login}}{{#if this.name}} ({{this.name}}){{/if}}</td>
                   <td {{#if this.invalid}}style="color: red;"{{else}}{{#if this.add}}style="color: green;"{{/if}}{{/if}}>{{this.comment}}</td>
                 </tr>
                 {{/each}}
@@ -46,7 +49,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default start-over">Start Over</button>
-        <button id="validate-users" type="button" class="btn btn-primary" {{#if no_logins}}disabled{{/if}}>Add {{count}} User{{count_plural}}</button><span class="loading hidden"><i class="fa fa-spinner fa-spin"></i></span>
+        <button id="validate-users" type="button" class="btn btn-primary">{{#if no_logins}}Done{{else}}Add {{count}} User{{count_plural}}{{/if}}</button><span class="loading hidden"><i class="fa fa-spinner fa-spin"></i></span>
       </div>
     </div>
   </div>

@@ -39,13 +39,16 @@ button.has-spinner {
     #users-to-add { height: 160px; }
     label { font-weight: 400; }
     div.scrolled { height: 280px; overflow: scroll;}
-    div.result { padding: 3px 6px; background-color: #FEFFD6; border: 1px solid #FFFB7A;}
-    span.loading {
+    div.result { padding: 3px 6px; font-weight: 600; xbackground-color: #FEFFD6; xborder: 1px solid #FFFB7A;}
+    select + span {
+        display: none;
         position: absolute;
-        z-index: 999;
-        margin-top: 5px;
-        margin-left: 200px;
+        margin-top: -27px;
+        margin-left: 78px;
         i { font-size: 1.2em; }
+    }
+    select.loading + span {
+        display: inline-block;
     }
     td > i {
         font-size: 1.1em;
