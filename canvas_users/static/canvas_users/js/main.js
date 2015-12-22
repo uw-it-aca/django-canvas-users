@@ -38,6 +38,31 @@
                 .html(progress + '%');
         };
 
+        function confirmFERPA() {
+            var tpl = Handlebars.compile($('#ferpa-tmpl').html()),
+                modal_id = randomId(32),
+                modal_container,
+                error_msg;
+
+            $('body').append(tpl({
+                modal_id: modal_id,
+            }));
+
+            modal_container = $('#' + modal_id);
+            modal_container.modal({
+                backdrop: 'static',
+                show: true
+            });
+
+            modal_container.find('button.confirmation').on('click', function () {
+                    modal_container.modal('hide');
+            });
+
+            modal_container.on('hidden.bs.modal', function () {
+                modal_container.remove();
+            });
+        };
+
         function problemAddingUsers(msg, add_container) {
             var tpl = Handlebars.compile($('#failure-tmpl').html()),
                 modal_id = randomId(32),
@@ -299,6 +324,7 @@
                         add_container: add_container,
                         valid_context: valid_context
                     }, importUsers);
+
                     modal_container.find('button.start-over').on('click', function () {
                         modal_container.modal('hide');
                         add_container.modal('show');
@@ -410,6 +436,5 @@
         };
 
         launchAddUsers();
-
     });
 }(jQuery));
