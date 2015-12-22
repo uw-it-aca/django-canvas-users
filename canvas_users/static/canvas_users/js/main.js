@@ -339,11 +339,15 @@
                         show: true
                     });
 
-                    modal_container.find('#validate-users').on('click', {
-                        valid_container: modal_container,
-                        add_container: add_container,
-                        valid_context: valid_context
-                    }, (is_ferpa_role) ? confirmFERPA : importUsers);
+                    if (validated_user_count < 1) {
+                        modal_container.find('#validate-users').attr('data-dismiss', 'modal');
+                    } else {
+                        modal_container.find('#validate-users').on('click', {
+                            valid_container: modal_container,
+                            add_container: add_container,
+                            valid_context: valid_context
+                        }, (is_ferpa_role) ? confirmFERPA : importUsers);
+                    }
 
                     modal_container.find('button.start-over').on('click', function () {
                         modal_container.modal('hide');
