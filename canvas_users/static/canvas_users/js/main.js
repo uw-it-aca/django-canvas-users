@@ -61,6 +61,7 @@
                 modal_container.find('button.start-over').on('click', function () {
                     modal_container.modal('hide');
                     add_container.modal('show');
+                    add_container.find('button').removeClass('working');
                     add_container.find('input, button, select, textarea').removeProp('disabled');
                 });
             } else {
@@ -186,6 +187,20 @@
                 });
         };
 
+        function validatableUsers(e) {
+            var $this = $(this), 
+                $dialog = $this.closest('.modal-dialog'),
+                $button = $dialog.find('#validate-users');
+
+            if ($dialog.find('#users-to-add').val().trim().length
+                && $dialog.find('#added-users-role option:selected').val() >= 0
+                && $dialog.find('#added-users-section option:selected').val().length) {
+                $button.removeProp('disabled');
+            } else {
+                $button.prop('disabled', true);
+            }
+        }
+
         function validateUsers(e) {
             var add_container = e.data.add_container,
                 raw_users = add_container.find('#users-to-add').val().trim(),
@@ -218,6 +233,7 @@
                 return;
             }
 
+            add_container.find('button').addClass('working');
             add_container.find('input, button, select, textarea').prop('disabled', true);
 
             $.ajax({
@@ -286,6 +302,7 @@
                     modal_container.find('button.start-over').on('click', function () {
                         modal_container.modal('hide');
                         add_container.modal('show');
+                        add_container.find('button').removeClass('working');
                         add_container.find('input, button, select, textarea').removeProp('disabled');
                     });
 
@@ -378,11 +395,14 @@
                                                            add_container: modal_container
                                                        },
                                                        validateUsers);
+
             modal_container.delegate('input, textarea, select', 'focus',
                                       function (e) {
                                           $(e.target).closest('.form-group').removeClass('has-error');
                                       });
 
+            modal_container.find('#users-to-add').on('keyup', validatableUsers);
+            modal_container.find('select').on('change', validatableUsers);
             modal_container.delegate('button.close', 'click', finishAddUsers);
 
             loadCourseRoles(account_id, modal_container);
