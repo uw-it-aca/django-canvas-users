@@ -256,11 +256,11 @@
                 raw_users = add_container.find('#users-to-add').val().trim(),
                 users_to_add = raw_users.split(/[ ,\n]+/),
                 add_as_role_option = add_container.find('#added-users-role option:selected'),
+                add_as_role_vals = add_as_role_option.val().split('|'),
                 add_to_section_option = add_container.find('#added-users-section option:selected'),
                 add_to_section_vals = add_to_section_option.val().split('|'),
                 course_id = window.canvas_users.canvas_course_id,
                 errors = false,
-                role_value,
                 is_ferpa_role = false;
 
             e.stopPropagation();
@@ -271,9 +271,8 @@
                 errors = true;
             }
 
-            role_value = add_as_role_option.val();
-            if (role_value.length) {
-                is_ferpa_role = (ferpa_base_roles.indexOf(role_value.split('|')[1]) >= 0);
+            if (add_as_role_vals.length === 2) {
+                is_ferpa_role = (ferpa_base_roles.indexOf(add_as_role_vals[1]) >= 0);
             } else {
                 add_as_role_option.closest('.form-group').addClass('has-error');
                 errors = true;

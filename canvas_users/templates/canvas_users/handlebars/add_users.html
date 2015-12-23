@@ -40,7 +40,7 @@
 
 {% tplhandlebars "input-users-role-tmpl" %}
     {{#if plural}}
-    <option value="-1">select &hellip;</option>
+    <option value="">select &hellip;</option>
     {{/if}}
     {{#each roles}}
     <option value="{{this.id}}|{{this.base}}">{{ this.role }}</option>
