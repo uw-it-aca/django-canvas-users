@@ -4,7 +4,7 @@
     "use strict";
     $(document).ready(function () {
 
-        var ferpa_base_roles = ['TeacherEnrollment', 'TaEnrollment'];
+        var ferpa_base_roles = ['TeacherEnrollment', 'TaEnrollment', 'DesignerEnrollment'];
 
         // prep for api post/put
         function csrfSafeMethod(method) {
