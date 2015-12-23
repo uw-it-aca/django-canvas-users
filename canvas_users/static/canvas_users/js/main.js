@@ -97,7 +97,7 @@
 
             $('body').append(tpl({
                 modal_id: modal_id,
-                error_message: 'THIS IS  PROBLEM'
+                error_message: 'PROBLEM IS ' + (msg ? msg : 'unspecified')
             }));
 
             modal_container = $('#' + modal_id);
