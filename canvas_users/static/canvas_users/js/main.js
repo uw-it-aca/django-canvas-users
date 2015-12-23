@@ -24,6 +24,15 @@
             }
         });
 
+        function postWindowMessage(subject, message) {
+            window.parent.postMessage('{ "subject": "'
+                                      + subject
+                                      + '", "message": "'
+                                      + (message ? message : '')
+                                      + '" }',
+                                      'https://' + window.canvas_users.canvas_host);
+        }
+
         function randomId(len) {
             var id = [];
 
@@ -49,7 +58,7 @@
                 e_data = e.data;
 
             $('body').append(tpl({
-                modal_id: modal_id,
+                modal_id: modal_id
             }));
 
             modal_container = $('#' + modal_id);
@@ -206,6 +215,7 @@
                                                 clearInterval(interval_id);
                                                 valid_container.modal('hide');
                                                 add_container.remove();
+                                                postWindowMessage('lti.uw.setSuccessMessage', 'Import Success');
                                                 finishAddUsers();
                                             } else if (parseInt(data.progress) > initial_percent) {
                                                 setProgress(valid_container, data.progress);
