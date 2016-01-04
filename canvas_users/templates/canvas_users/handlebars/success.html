@@ -1,6 +1,6 @@
 {% load templatetag_handlebars %}
 
-{% tplhandlebars "timed-out-tmpl" %}
+{% tplhandlebars "success-tmpl" %}
 <div id="{{modal_id}}" class="modal fade" role="dialog">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -9,19 +9,17 @@
         <h4 class="modal-title">Add People</h4>
       </div>
       <div class="modal-body">
-        <div class="row delayed">
-          <div class="col-sm-2 text-right">
-            <span class="fa-stack warning">
+        <div class="row success">
+          <div class="col-sm-4 text-right">
+            <span class="fa-stack checked">
               <i class="fa fa-circle-thin fa-stack-2x"></i>
-              <i class="fa fa-exclamation fa-stack-1x"></i>
+              <i class="fa fa-check fa-stack-1x"></i>
             </span>
           </div>
-          <div class="col-sm-10">
+          <div class="col-sm-8">
             <div>
               <p>
-                We're adding your users, but Canvas is responding slowly.
-              </p><p>
-                Please check the People page in a few minutes to verify that your new users have been added.
+                Successfully added {{count}} {{role}}{{plural}}
               </p>
             </div>
           </div>

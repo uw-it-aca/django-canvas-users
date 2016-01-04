@@ -53,6 +53,31 @@ button.has-spinner {
     td > i {
         font-size: 1.1em;
     }
+    .success, .delayed {
+        height: 200px;
+        > div:first-child {
+            line-height: 200px;
+            span {
+                font-size: 24px;
+            }
+            span.warning {
+                color: darkred;
+            }
+            span.checked {
+                color: green;
+            }
+        }
+        div:last-child {
+            div {
+                height: 200px;
+                display: table-cell;
+                vertical-align: middle;
+                p {
+                   font-size: 18px;
+                }
+            }
+        }
+    }
 }
 
 .modal-body.ferpa {
