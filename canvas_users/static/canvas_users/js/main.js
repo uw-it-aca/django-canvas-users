@@ -143,32 +143,6 @@
             });
         };
 
-        function successAddingUsers(count, role) {
-            var tpl = Handlebars.compile($('#success-tmpl').html()),
-                modal_id = randomId(32),
-                modal_container,
-                error_msg;
-
-            $('body').append(tpl({
-                modal_id: modal_id,
-                count: count,
-                role: role,
-                plural: (count > 1) ? 's' : ''
-            }));
-
-            modal_container = $('#' + modal_id);
-            modal_container.modal({
-                backdrop: 'static',
-                show: true
-            });
-
-            modal_container.delegate('button[data-dismiss="modal"]', 'click', finishAddUsers);
-
-            modal_container.on('hidden.bs.modal', function () {
-                modal_container.remove();
-            });
-        };
-
         function importUsers(e) {
             var course_id = window.canvas_users.canvas_course_id,
                 context = e.data.valid_context,
@@ -241,8 +215,11 @@
                                                 clearInterval(interval_id);
                                                 valid_container.modal('hide');
                                                 add_container.remove();
-                                                postWindowMessage('lti.uw.setSuccessMessage', 'Import Success');
-                                                successAddingUsers(logins.length, context.role);
+                                                postWindowMessage('lti.uw.setSuccessMessage',
+                                                                  'Added ' + logins.length + ' '
+                                                                  + context.role
+                                                                  + ((logins.length > 1) ? 's' : ''));
+                                                finishAddUsers();
                                             } else if (parseInt(data.progress) > initial_percent) {
                                                 setProgress(valid_container, data.progress);
                                             }
