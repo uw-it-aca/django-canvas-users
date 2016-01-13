@@ -48,9 +48,10 @@
 {% endtplhandlebars %}
 
 {% tplhandlebars "input-users-sections-tmpl" %}
-    {{#if plural}}
+<!--    {{#if plural}}
     <option value="">select &hellip;</option>
     {{/if}}
+-->
     {{#each sections}}
     <option value="{{ this.id }}|{{ this.sis_id }}">{{ this.name }}</option>
     {{/each}}
