@@ -466,6 +466,8 @@
             modal_container.find('select').on('change', validatableUsers);
             modal_container.delegate('button.close', 'click', finishAddUsers);
 
+            modal_container.find('#users-to-add').focus();
+
             loadCourseRoles(account_id, modal_container);
             loadCourseSections(course_id, modal_container);
         };
