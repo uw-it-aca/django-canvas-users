@@ -130,19 +130,19 @@ class ImportCanvasCourseUsers(RESTDispatch):
                 section_sis_id = 'section_%s' % section_id
                 Sections().update_section(section_id, None, section_sis_id)
 
-            members = []
             for login in data['logins']:
-                members.append(CourseMember(name=login['login'],
-                                            course_id=course_sis_id,
-                                            role=role,is_deleted=None,
-                                            member_type=CourseMember.EPPN_TYPE \
-                                                if '@' in login['login'] else \
-                                                CourseMember.UWNETID_TYPE))
+                member = CourseMember(name=login['login'],
+                                      course_id=course_sis_id,
+                                      role=role,is_deleted=None,
+                                      member_type=CourseMember.UWNETID_TYPE)
 
-            for member in members:
-                csv_builder.generate_csv_for_groupmember(member, section_sis_id,
-                                                 member.role,
-                                                 status=Enrollment.ACTIVE_STATUS)
+                if '@' in member.name:
+                    member.member_type = CourseMember.EPPN_TYPE
+                    member.login = member.name
+
+                csv_builder.generate_csv_for_groupmember(
+                    member, section_sis_id, member.role,
+                    status=Enrollment.ACTIVE_STATUS)
 
             path = csv_builder._csv.write_files()
             if not path:
