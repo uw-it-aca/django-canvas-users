@@ -2,7 +2,8 @@ from django.conf import settings
 from django.template import Context, loader
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.core.context_processors import csrf
+#from django.core.context_processors import csrf
+#from django.middleware.csrf import get_token
 from blti import BLTI, BLTIException
 from restclients.canvas.roles import Roles
 from restclients.exceptions import DataFailureException
@@ -51,11 +52,13 @@ def CanvasUsers(request, template='canvas_users/launch_add_user.html'):
         'CANVAS_ACCOUNT_ID': account_id,
         'CANVAS_HOSTNAME': canvas_host,
         'session_id': request.session.session_key,
+#        'csrf_token': get_token(request),
         'blti_json': json.dumps(blti_data),
-        'VALIDATION_ERROR': validation_error
+        'VALIDATION_ERROR': validation_error,
+        'HTTP_HOST': request.META['HTTP_HOST']
     })
 
-    c.update(csrf(request))
+#    c.update(csrf(request))
     return HttpResponse(t.render(c), status=status_code)
 
 
@@ -96,17 +99,19 @@ def CanvasAddUsers(request, template='canvas_users/add_user.html'):
         'CANVAS_COURSE_ID': canvas_course_id,
         'CANVAS_ACCOUNT_ID': account_id,
         'CANVAS_HOSTNAME': canvas_host,
+        'HTTP_HOST': request.META['HTTP_HOST'],
         'session_id': request.session.session_key,
+#        'csrf_token': get_token(request),
         'blti_json': json.dumps(blti_data),
         'VALIDATION_ERROR': validation_error
     })
 
-    c.update(csrf(request))
+#    c.update(csrf(request))
     response = HttpResponse(t.render(c), status=status_code)
     if request.method == 'OPTIONS':
         response['Access-Control-Allow-Origin'] = "*"
         response['Access-Control-Allow-Methods'] = "POST, GET"
-        response['Access-Control-Allow-Headers'] = 'Content-Type, X-SessionId, X-CSRFToken'
+        response['Access-Control-Allow-Headers'] = 'Content-Type, X-SessionId, X-CSRFToken, X-CSRF-Token, X-Requested-With'
 
-    response['Access-Control-Allow-Origin'] = 'https://%s' % (canvas_host) if canvas_host else settings.RESTCLIENTS_CANVAS_HOST
+    response['Access-Control-Allow-Origin'] = ('https://%s' % canvas_host) if canvas_host else settings.RESTCLIENTS_CANVAS_HOST
     return response

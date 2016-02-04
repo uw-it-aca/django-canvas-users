@@ -1,6 +1,4 @@
-from django.conf import settings
-from blti.views.rest_dispatch import RESTDispatch
-from sis_provisioner.models import User as CanvasUser, Import
+from sis_provisioner.models import Import
 from sis_provisioner.models import PRIORITY_DEFAULT
 from restclients.canvas.sections import Sections
 from restclients.canvas.courses import Courses
@@ -10,11 +8,12 @@ from sis_provisioner.csv_builder import CSVBuilder
 from sis_provisioner.policy import UserPolicy, UserPolicyException
 from sis_provisioner.models import CourseMember, Enrollment, \
     MissingImportPathException
+from canvas_users.views.api.rest_dispatch import UserRESTDispatch
 import json
 import re
 
 
-class ValidCanvasCourseUsers(RESTDispatch):
+class ValidCanvasCourseUsers(UserRESTDispatch):
     """ Exposes API to manage Canvas users 
         GET returns 200 with user details
     """
@@ -86,7 +85,7 @@ class ValidCanvasCourseUsers(RESTDispatch):
         return match.group(1) if match else login
 
 
-class ImportCanvasCourseUsers(RESTDispatch):
+class ImportCanvasCourseUsers(UserRESTDispatch):
     """ Exposes API to manage Canvas users 
         GET returns 200 with user details
     """
@@ -165,7 +164,7 @@ class ImportCanvasCourseUsers(RESTDispatch):
             return self.error_response(400, message="Import Error: %s" % ex)
 
 
-class CanvasCourseSections(RESTDispatch):
+class CanvasCourseSections(UserRESTDispatch):
     """ Performs actions on Canvas Course Sections
         GET returns 200 with course sections.
     """
