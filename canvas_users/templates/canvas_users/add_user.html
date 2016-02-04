@@ -1,23 +1,38 @@
-{% extends 'canvas_users/base.html' %}
-
-{% block content %}
-
+<!doctype html>
+<html class="no-js">
+<head>
+    {% load staticfiles %}
+	<meta charset="utf-8">
     <script type="text/javascript">
       window.canvas_users = {
-      csrftoken: '{{ csrf_token }}',
       session_id: '{{ session_id }}',
       sis_course_id: '{{ SIS_COURSE_ID|safe }}',
       canvas_course_id: '{{ CANVAS_COURSE_ID }}',
       canvas_account_id: '{{ CANVAS_ACCOUNT_ID }}',
       canvas_host: '{{ CANVAS_HOSTNAME }}',
-      blti: {{ blti_json|safe }}
+      canvas_users_host: '{{HTTP_HOST}}',
+      blti: {{ blti_json|safe }},
+      css: 'https://{{HTTP_HOST}}{% static "canvas_users/css/uw-users.css" %}'
       };
+
+      var csrf_input = document.getElementsByName('csrfmiddlewaretoken');
+      window.canvas_users.csrftoken = (csrf_input.length) ? csrf_input[0].value : null;
     </script>
+</head>
+<body>
 
-{% include "canvas_users/handlebars/add_users.html" %}
-{% include "canvas_users/handlebars/validate_users.html" %}
-{% include "canvas_users/handlebars/failure_modal.html" %}
-{% include "canvas_users/handlebars/ferpa.html" %}
-{% include "canvas_users/handlebars/timed_out.html" %}
+  <form>
+    {% csrf_token %}
+    </form>
 
-{% endblock content %}
+    <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/add_users.tmpl.js"  %}"></script>
+    <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/add_users_role.tmpl.js"  %}"></script>
+    <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/add_users_section.tmpl.js"  %}"></script>
+    <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/add_users_button.tmpl.js"  %}"></script>
+    <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/validate_users.tmpl.js"  %}"></script>
+    <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/failure_modal.tmpl.js"  %}"></script>
+    <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/main.js"  %}"></script>
+
+</body>
+</html>
+

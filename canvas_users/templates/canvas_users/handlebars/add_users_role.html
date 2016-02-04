@@ -1,0 +1,6 @@
+{{#if plural}}
+<option value="">select &hellip;</option>
+{{/if}}
+{{#each roles}}
+<option value="{{this.id}}|{{this.base}}">{{ this.role }}</option>
+{{/each}}

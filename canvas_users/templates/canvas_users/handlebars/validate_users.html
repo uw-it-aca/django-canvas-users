@@ -1,57 +1,33 @@
-{% load templatetag_handlebars %}
-
-{% tplhandlebars "validated-users-tmpl" %}
-<div id="{{modal_id}}" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-    <div class="progress-overlay hidden">
-      <div class="progress progress-striped">
-        <div class="progress-bar progress-bar-striped active" role="progressbar"
-             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0">
-          0%
-        </div>
-      </div>
-    </div>
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Add People</h4>
-      </div>
-      <div class="modal-body">
-        <div class="result">
-          {{#if no_logins}}
-          No {{role}}s validated for {{section_name}}
-          {{else}}
-          Validated {{count}} {{#if exceptions}}of {{total}} {{role}}s{{else}}{{role}}{{count_plural}}{{/if}} for {{section_name}}
-          {{/if}}
-        </div>
-        <div class="scrolled">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-                {{#each users}}
-                <tr>
-                  <!--
-                  <td>{{#if this.add}}<i class="fa fa-check xfa-user-plus xfa-thumbs-o-up" style="color: green;">{{else}}{{#if this.present}}<i class="fa xfa-user fa-users" style="color: #382465;">{{else}}<i class="fa fa-minus-circle xfa-thumbs-o-down" style="color: red;">{{/if}}{{/if}}</i></td>
-                  -->
-                  <td>{{this.login}}{{#if this.name}} ({{this.name}}){{/if}}</td>
-                  <td {{#if this.invalid}}style="color: red;"{{else}}{{#if this.add}}style="color: green;"{{/if}}{{/if}}>{{this.comment}}</td>
-                </tr>
-                {{/each}}
-            </tbody>
-
-          </table>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default start-over">Start Over</button>
-        <button id="validate-users" type="button" class="btn btn-primary">{{#if no_logins}}Done{{else}}Add {{count}} User{{count_plural}}{{/if}}</button><span class="loading hidden"><i class="fa fa-spinner fa-spin"></i></span>
-      </div>
-    </div>
+<div class="uw-add-people-progress-overlay" style="display: none;">
+  <div id="progressbar">
+    <div class="progress-label"></div>
   </div>
 </div>
-{% endtplhandlebars %}
+<div class="uw-add-people-validation-result">
+  {{#if no_logins}}
+  No {{role}}s validated for {{section_name}}
+  {{else}}
+  Validated {{count}} {{#if exceptions}}of {{total}} {{role}}s{{else}}{{role}}{{count_plural}}{{/if}} for {{section_name}}
+  {{/if}}
+  <form style="display: none;">
+    <input type="hidden" name="uw-add-people-role" value="{{role_name}}">
+  </form>
+</div>
+<div class="uw-add-people-validation-scrolled">
+  <table class="ic-Table ic-Table--condensed">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+        {{#each users}}
+        <tr>
+          <td>{{this.login}}{{#if this.name}} ({{this.name}}){{/if}}</td>
+          <td {{#if this.invalid}}style="color: red;"{{else}}{{#if this.add}}style="color: green;"{{/if}}{{/if}}>{{this.comment}}</td>
+        </tr>
+        {{/each}}
+    </tbody>
+  </table>
+</div>

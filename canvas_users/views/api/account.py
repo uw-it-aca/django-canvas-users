@@ -1,10 +1,9 @@
-from django.conf import settings
-from blti.views.rest_dispatch import RESTDispatch
 from restclients.canvas.roles import Roles
 from restclients.exceptions import DataFailureException
+from canvas_users.views.api.rest_dispatch import UserRESTDispatch
 
 
-class CanvasAccountCourseRoles(RESTDispatch):
+class CanvasAccountCourseRoles(UserRESTDispatch):
     """ Performs actions on a Canvas account course roles
         GET returns 200 with account course roles.
     """

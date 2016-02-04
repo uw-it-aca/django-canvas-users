@@ -1,0 +1,29 @@
+<!doctype html>
+<html class="no-js">
+<head>
+	<meta charset="utf-8">
+
+    <script type="text/javascript">
+      window.canvas_users = {
+      csrftoken: '{{ csrf_token }}',
+      session_id: '{{ session_id }}',
+      sis_course_id: '{{ SIS_COURSE_ID|safe }}',
+      canvas_course_id: '{{ CANVAS_COURSE_ID }}',
+      canvas_account_id: '{{ CANVAS_ACCOUNT_ID }}',
+      canvas_host: '{{ CANVAS_HOSTNAME }}',
+      blti: {{ blti_json|safe }}
+      };
+
+      window.parent.postMessage('{ "subject": "lti.uw.addUserUrl",'
+                                 + '"message": { '
+                                                  + '"url": "https://' + '{{HTTP_HOST}}/users/add",'
+                                                  + '"session_id": "{{session_id}}"'
+                                            + '}'
+                                 + '}',
+                                'https://{{ CANVAS_HOSTNAME }}');
+    </script>
+
+</head>
+<body>
+</body>
+</html>
