@@ -382,10 +382,10 @@
         function loadCourseRoles(account_id, container) {
             $.ajax({
                 type: 'GET',
-                url: 'api/v1/canvas/account/' + account_id + '/course/roles'
+                url: 'https://128.208.33.115:8088/canvas_users/api/v1/canvas/account/' + account_id + '/course/roles'
             })
                 .done(function (data) {
-                    var tpl = Handlebars.compile($('#input-users-role-tmpl').html()),
+                    var tpl = Handlebars.templates['add_users_role'],
                         select = container.find('#added-users-role');
 
                     select.removeProp('disabled').removeClass('loading');
@@ -406,10 +406,10 @@
         function loadCourseSections(course_id, container) {
             $.ajax({
                 type: 'GET',
-                url: 'api/v1/canvas/course/' + course_id + '/sections'
+                url: 'https://128.208.33.115:8088/canvas_users/api/v1/canvas/course/' + course_id + '/sections'
             })
                 .done(function (data) {
-                    var tpl = Handlebars.compile($('#input-users-sections-tmpl').html()),
+                    var tpl = Handlebars.templates['add_users_section'],
                         select = container.find('#added-users-section');
 
                     select.removeProp('disabled').removeClass('loading');
@@ -435,17 +435,19 @@
         };
 
         function launchAddUsers() {
-            var tpl = Handlebars.compile($('#input-users-tmpl').html()),
-                container_id = randomId(32),
+            var tpl = Handlebars.templates['add_users'],
                 account_id = window.canvas_users.canvas_account_id,
                 course_id = window.canvas_users.canvas_course_id,
                 modal_container;
 
-            $('body').append(tpl({
+            debugger
+
+            modal_container = $(tpl({
                 modal_id: container_id
             }));
 
-            modal_container = $('#' + container_id);
+            $('body').append(modal_container);
+
             modal_container.modal({
                 backdrop: 'static',
                 show: true
@@ -458,15 +460,14 @@
                                                        validateUsers);
 
             modal_container.delegate('input, textarea, select', 'focus',
-                                      function (e) {
-                                          $(e.target).closest('.form-group').removeClass('has-error');
-                                      });
-
+                                     function (e) {
+                                         $(e.target).closest('.form-group').removeClass('has-error');
+                                     });
             modal_container.find('#users-to-add').on('keyup', validatableUsers);
             modal_container.find('select').on('change', validatableUsers);
             modal_container.delegate('button.close', 'click', finishAddUsers);
-
             modal_container.find('#users-to-add').focus();
+
 
             loadCourseRoles(account_id, modal_container);
             loadCourseSections(course_id, modal_container);

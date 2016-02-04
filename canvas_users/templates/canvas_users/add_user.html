@@ -1,7 +1,7 @@
-{% extends 'canvas_users/base.html' %}
-
-{% block content %}
-
+<!doctype html>
+<html class="no-js">
+<head>
+	<meta charset="utf-8">
     <script type="text/javascript">
       window.canvas_users = {
       csrftoken: '{{ csrf_token }}',
@@ -13,11 +13,20 @@
       blti: {{ blti_json|safe }}
       };
     </script>
+</head>
+<body>
+    {% load staticfiles %}
 
-{% include "canvas_users/handlebars/add_users.html" %}
-{% include "canvas_users/handlebars/validate_users.html" %}
-{% include "canvas_users/handlebars/failure_modal.html" %}
-{% include "canvas_users/handlebars/ferpa.html" %}
-{% include "canvas_users/handlebars/timed_out.html" %}
+    <script src="https://128.208.33.115:8808{% static "canvas_users/js/add_users.tmpl.js"  %}"></script>
+    <script src="https://128.208.33.115:8808{% static "canvas_users/js/add_users_role.tmpl.js"  %}"></script>
+    <script src="https://128.208.33.115:8808{% static "canvas_users/js/add_users_section.tmpl.js"  %}"></script>
+    <script src="https://128.208.33.115:8808{% static "canvas_users/js/validate_users.tmpl.js"  %}"></script>
+    <script src="https://128.208.33.115:8808{% static "canvas_users/js/failure_modal.tmpl.js"  %}"></script>
+    <script src="https://128.208.33.115:8808{% static "canvas_users/js/ferpa.tmpl.js"  %}"></script>
+    <script src="https://128.208.33.115:8808{% static "canvas_users/js/timed_out.tmpl.js"  %}"></script>
 
-{% endblock content %}
+    <script src="https://128.208.33.115:8808{% static "canvas_users/js/main.js"  %}"></script>
+
+</body>
+</html>
+

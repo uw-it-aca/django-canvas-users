@@ -1,0 +1,92 @@
+/* CSS for inserted UW Add People Modal */
+
+#uw-add-people-slightofhand .ReactModal__Body {
+    x-padding-top: 0;
+    x-padding-bottom: 0;
+}
+
+#uw-add-people-slightofhand .ReactModal__Body .content-box {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.uw-add-people-gather #uw-users-to-add {
+    height: 160px;
+    width: 100%;
+}
+
+.uw-add-people-gather #uw-added-users-role,
+.uw-add-people-gather #uw-added-users-section {
+    width: 300px;
+}
+
+.uw-add-people-confirm .uw-add-people-validation-scrolled {
+    height: 280px;
+    overflow: scroll;
+}
+
+.uw-add-people-confirm .uw-add-people-validation-result {
+    font-weight: 600;
+}
+
+.uw-add-people-progress-overlay {
+    position: absolute;
+    z-index: 101;
+    background-color: rgba(0,0,0,0.3);
+}
+
+.uw-add-people-progress-overlay #progressbar {
+    margin-top: 200px;
+    vertical-align: middle;
+    margin-left: 5%;
+    width: 90%;
+}
+
+.uw-add-people-progress-overlay #progressbar .progress-label {
+    position: absolute;
+    top: 205px;
+    left: 50%;
+}
+
+.uw-add-people-working {
+    position: absolute;
+    color: black;
+    opacity: .6;
+    display: none;
+    -webkit-animation: spin 1s infinite linear;
+    -moz-animation: spin 1s infinite linear;
+    -o-animation: spin 1s infinite linear;
+    -ms-animation: spin 1s infinite linear;
+}
+
+@-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg);}
+    100% { -webkit-transform: rotate(360deg);}
+}
+
+@-moz-keyframes spin {
+    0% { -moz-transform: rotate(0deg);}
+    100% { -moz-transform: rotate(360deg);}
+}
+
+@-o-keyframes spin {
+    0% { -o-transform: rotate(0deg);}
+    100% { -o-transform: rotate(360deg);}
+}
+
+@-ms-keyframes spin {
+    0% { -ms-transform: rotate(0deg);}
+    100% { -ms-transform: rotate(360deg);}
+}
+
+select.uw-add-people-loading + .uw-add-people-working {
+    display: inline-block !important;
+    margin-top: -38px;
+    margin-left: 265px;
+}
+
+button#uw-add-people-validate.uw-add-people-loading + .uw-add-people-working {
+    display: inline-block !important;
+    margin-top: 8px;
+    margin-left: -37px;
+}

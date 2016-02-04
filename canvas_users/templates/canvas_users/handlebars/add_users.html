@@ -1,6 +1,3 @@
-{% load templatetag_handlebars %}
-
-{% tplhandlebars "input-users-tmpl" %}
 <div id="{{modal_id}}" class="modal fade" role="dialog">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -36,23 +33,3 @@
     </div>
   </div>
 </div>
-{% endtplhandlebars %}
-
-{% tplhandlebars "input-users-role-tmpl" %}
-    {{#if plural}}
-    <option value="">select &hellip;</option>
-    {{/if}}
-    {{#each roles}}
-    <option value="{{this.id}}|{{this.base}}">{{ this.role }}</option>
-    {{/each}}
-{% endtplhandlebars %}
-
-{% tplhandlebars "input-users-sections-tmpl" %}
-<!--    {{#if plural}}
-    <option value="">select &hellip;</option>
-    {{/if}}
--->
-    {{#each sections}}
-    <option value="{{ this.id }}|{{ this.sis_id }}">{{ this.name }}</option>
-    {{/each}}
-{% endtplhandlebars %}
