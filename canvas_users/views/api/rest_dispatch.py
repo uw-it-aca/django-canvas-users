@@ -12,7 +12,8 @@ class UserRESTDispatch(RESTDispatch):
 
     @csrf_exempt
     def run(self, *args, **named_args):
-        return super(UserRESTDispatch, self).run(*args, **named_args)
+        request = args[0]
+        if request.method == 'OPTIONS':
+            return self._http_response("", status=200)
 
-    def OPTIONS(self, request, **kwargs):
-        return self._http_response(200)
+        return super(UserRESTDispatch, self).run(*args, **named_args)
