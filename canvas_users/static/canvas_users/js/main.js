@@ -103,10 +103,6 @@
         };
 
         function timeoutAddingUsers($modal) {
-            $modal.find('button.uw-add-people-timedout').on('click', function () {
-                alert('foobar');
-            });
-
             showPeopleTimedOut($modal);
         };
 
@@ -139,7 +135,6 @@
                 $progressbaroverlay = $modal.find('.uw-add-people-confirm .uw-add-people-progress-overlay'),
                 $progressbar = $progressbaroverlay.find('#progressbar'),
                 $progressbarlabel = $progressbaroverlay.find('#progressbar .progress-label'),
-                course_id = window.canvas_users.canvas_course_id,
                 context = window.canvas_users.validated_context,
                 logins = [],
                 progress;
@@ -157,7 +152,6 @@
                 }
             });
 
-
             $progressbaroverlay.offset({
                 top: $modalbox.offset().top,
                 left: $modalbox.offset().left
@@ -174,11 +168,14 @@
                 }
             });
 
+            debugger
+
             $.ajax({
                 type: 'POST',
                 url: 'https://'
                     + window.canvas_users.canvas_users_host
-                    + '/users/api/v1/canvas/course/' + course_id + '/import',
+                    + '/users/api/v1/canvas/course/'
+                    + window.canvas_users.canvas_course_id + '/import',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -191,54 +188,98 @@
                 })
             })
                 .done(function (data) {
-                    var nth = Math.floor(75 / logins.length),
-                        initial_percent = nth + Math.floor((Math.random() * 15) + 5);
-
-                    $progressbar.progressbar('value', initial_percent);
-
-                    if (data.import.id !== null) {
-                        (function () {
-                            var times = 0,
-                                interval_id = setInterval(function () {
-                                    times += 1;
-
-                                    if (times > 60) {
-                                        clearInterval(interval_id);
-                                        timeoutAddingUsers($modal);
-                                    }
-
-                                    $.ajax({
-                                        type: 'GET',
-                                        url: 'https://'
-                                            + window.canvas_users.canvas_users_host
-                                            + '/users/api/v1/canvas/course/' + course_id
-                                            + '/import?import_id=' + data.import.id
-                                    })
-                                        .done(function (data) {
-                                            if (data.progress == null || parseInt(data.progress) >= 100) {
-                                                clearInterval(interval_id);
-                                                finishAddPeople(e);
-                                                canvasFlashMessage('success',
-                                                                   'Added ' + logins.length + ' '
-                                                                   + context.role
-                                                                   + ((logins.length > 1) ? 's' : ''));
-                                            } else if (parseInt(data.progress) > initial_percent) {
-                                                $progressbar.progressbar('value', data.progress);
-                                            }
-                                        })
-                                        .fail(function (msg) {
-                                            clearInterval(interval_id);
-                                            problemAddingUsers(msg, $modal);
-                                        });
-                                },
-                                1000);
-                        })();
+                    debugger
+                    if (data.import.id === null) {
+                        finishImport(logins.length, context.role, $modal);
+                    } else {
+                        monitorImport(data.import.id, logins.length, context.role, $modal);
                     }
                 })
                 .fail(function (msg) {
+                    debugger
                     problemAddingUsers(msg, $modal);
                 });
-        };
+        }
+
+        function monitorImport(import_id, user_count, role, $modal) {
+            var $progressbar = $modal.find('.uw-add-people-progress-overlay #progressbar'),
+                nth = Math.floor(75 / user_count),
+                initial_percent = nth + Math.floor((Math.random() * 15) + 5),
+                timeout_id,
+                interval_id;
+
+            debugger
+
+            $progressbar.progressbar('value', initial_percent);
+
+            // we have 60 seconds to finish
+            timeout_id = window.setTimeout(function () {
+                $progressbar.trigger('uw-add-user.import-timeout');
+            }, 60 * 1000);
+
+            // poll once every second, but don't block
+            interval_id = window.setInterval(function () {
+                monitorImportProgress(import_id, $progressbar);
+            }, 1000);
+
+            $progressbar.off('uw-add-user.import-progress')
+                .on('uw-add-user.import-progress', function (e, progress) {
+                    if (progress > initial_percent) {
+                        $progressbar.progressbar('value', progress);
+                    }
+                });
+
+            $progressbar.off('uw-add-user.import-success')
+                .on('uw-add-user.import-success', function () {
+                    window.clearInterval(interval_id);
+                    window.clearTimeout(timeout_id);
+                    finishImport(user_count, role, $modal);
+                });
+
+            $progressbar.off('uw-add-user.import-fail')
+                .on('uw-add-user.import-fail', function (e, msg) {
+                    window.clearInterval(interval_id);
+                    window.clearTimeout(timeout_id);
+                    problemAddingUsers(msg, $modal);
+                });
+
+            $progressbar.off('uw-add-user.import-timeout')
+                .on('uw-add-user.import-timeout', function () {
+                    window.clearInterval(interval_id);
+                    timeoutAddingUsers($modal);
+                });
+        }
+
+        function monitorImportProgress(import_id, $progressbar) {
+            $.ajax({
+                type: 'GET',
+                url: 'https://'
+                    + window.canvas_users.canvas_users_host
+                    + '/users/api/v1/canvas/course/'
+                    + window.canvas_users.canvas_course_id
+                    + '/import?import_id=' + import_id
+            })
+                .done(function (data) {
+                    var progress = (data.progress) ? parseInt(data.progress) : 100;
+
+                    if (progress >= 100) {
+                        $progressbar.trigger('uw-add-user.import-success');
+                    } else {
+                        $progressbar.trigger('uw-add-user.import-progress',
+                                             [ progress ]);
+                    }
+                })
+                .fail(function (msg) {
+                    $progressbar.trigger('uw-add-user.import-fail', [msg]);
+                });
+        }
+
+        function finishImport(count, role, $modal) {
+            finishAddPeopleModal($modal);
+            canvasFlashMessage('success',
+                               'Added ' + count + ' '
+                               + role + ((count > 1) ? 's' : ''));
+        }
 
         function validatableUsers(e) {
             validateGatherForm(getModal(e));
@@ -264,7 +305,6 @@
                 add_as_role_vals = add_as_role_option.val().split('|'),
                 add_to_section_option = $modal.find('#uw-added-users-section option:selected'),
                 add_to_section_vals = add_to_section_option.val().split('|'),
-                course_id = window.canvas_users.canvas_course_id,
                 errors = false;
 
             e.stopPropagation();
@@ -296,7 +336,9 @@
                 type: 'POST',
                 url: 'https://'
                     + window.canvas_users.canvas_users_host
-                    + '/users/api/v1/canvas/course/' + course_id + '/validate',
+                    + '/users/api/v1/canvas/course/'
+                    + window.canvas_users.canvas_course_id
+                    + '/validate',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -419,8 +461,11 @@
         };
 
         function finishAddPeople(e) {
-            var $modal = getModal(e),
-                $gather = $modal.find('.uw-add-people-gather'),
+            finishAddPeopleModal(getModal(e));
+        }
+
+        function finishAddPeopleModal($modal) {
+            var $gather = $modal.find('.uw-add-people-gather'),
                 $role_select = $gather.find('#uw-added-users-role'),
                 $section_select = $gather.find('#uw-added-users-section'),
                 $button = $modal.find('button#uw-add-people-validate');
@@ -437,7 +482,8 @@
         function launchAddPeople() {
             var tpl = Handlebars.templates['add_users'],
                 $modal,
-                $confirm;
+                $confirm,
+                $progressbar;
 
             $('head').append('<link rel="stylesheet" type="text/css" href="'
                              + window.canvas_users.css
