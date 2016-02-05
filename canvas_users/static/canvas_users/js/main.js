@@ -52,8 +52,11 @@
         }
 
         function showPeopleFERPA($modal) {
+            var $ferpa = $modal.find('.uw-add-people-ferpa');
+
             hideModalPanels($modal);
-            $modal.find('.uw-add-people-ferpa').show();
+            $ferpa.show();
+            $ferpa.find('#confirmed').focus();
         }
 
         function showPeopleTimedOut($modal) {
