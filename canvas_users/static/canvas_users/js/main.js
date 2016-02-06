@@ -225,6 +225,7 @@
 
             $progressbar.off('uw-add-user.import-success')
                 .on('uw-add-user.import-success', function () {
+                    $progressbar.off('uw-add-user.import-success');
                     window.clearInterval(interval_id);
                     window.clearTimeout(timeout_id);
                     finishImport(user_count, role, $modal);
