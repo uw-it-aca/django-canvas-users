@@ -168,8 +168,6 @@
                 }
             });
 
-            debugger
-
             $.ajax({
                 type: 'POST',
                 url: 'https://'
@@ -188,7 +186,6 @@
                 })
             })
                 .done(function (data) {
-                    debugger
                     if (data.import.id === null) {
                         finishImport(logins.length, context.role, $modal);
                     } else {
@@ -196,7 +193,6 @@
                     }
                 })
                 .fail(function (msg) {
-                    debugger
                     problemAddingUsers(msg, $modal);
                 });
         }
@@ -207,8 +203,6 @@
                 initial_percent = nth + Math.floor((Math.random() * 15) + 5),
                 timeout_id,
                 interval_id;
-
-            debugger
 
             $progressbar.progressbar('value', initial_percent);
 
