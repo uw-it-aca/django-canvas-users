@@ -92,8 +92,7 @@
         };
 
         function problemAddingUsers(msg, $modal) {
-            var tpl = Handlebars.templates['failure_modal'],
-                error_msg;
+            var tpl = Handlebars.templates['failure_modal'];
 
             $modal.find('div.uw-add-people-problem').html(tpl({
                 error_message: 'PROBLEM IS ' + (msg ? msg : 'unspecified')
@@ -481,10 +480,13 @@
                 $progressbar;
 
             $('head').append('<link rel="stylesheet" type="text/css" href="'
-                             + window.canvas_users.css
-                             + '"/>'
-                             + '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com'
-                             + '/font-awesome/4.5.0/css/font-awesome.min.css"/>');
+                             + window.canvas_users.css + '"/>'
+                             + '<style>'
+                             + '.uw-add-user-timedout-icon { background-image: url('
+                             + window.canvas_users.images + 'circle_bang.png' + ')}'
+                             + '.uw-add-user-problem-icon { background-image: url('
+                             + window.canvas_users.images + 'circle_bang.png' +')}'
+                             + '</style>');
 
             $modal = $('#uw-add-people-slightofhand');
             $modal.append($(tpl()));
@@ -495,11 +497,13 @@
                                              .removeClass('ic-Form-control--has-error');
                                      });
             $modal.find('#uw-users-to-add').on('keyup', validatableUsers);
-            $modal.find('select').on('change', validatableUsers);
-            $modal.delegate('button.uw-add-people-close', 'click', finishAddPeople);
+            $modal.find('#uw-added-users-section,'
+                        + '#uw-added-users-role').on('change', validatableUsers);
+            $modal.find('button.uw-add-people-close').on('click', finishAddPeople);
 
             $modal.find('button#uw-add-people-startover').on('click', startOver);
             $modal.find('button#uw-add-people-import').on('click', confirmFERPA);
+
             $confirm = $modal.find('button#uw-add-people-ferpa-confirm');
             $confirm.on('click', importUsers);
             $modal.find('div.uw-add-people-ferpa #confirmed').on('change', function () {

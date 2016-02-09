@@ -3,28 +3,22 @@
 <head>
     {% load staticfiles %}
 	<meta charset="utf-8">
+
     <script type="text/javascript">
       window.canvas_users = {
-      session_id: '{{ session_id }}',
-      sis_course_id: '{{ SIS_COURSE_ID|safe }}',
-      canvas_course_id: '{{ CANVAS_COURSE_ID }}',
-      canvas_account_id: '{{ CANVAS_ACCOUNT_ID }}',
-      canvas_host: '{{ CANVAS_HOSTNAME }}',
-      canvas_users_host: '{{HTTP_HOST}}',
-      blti: {{ blti_json|safe }},
-      css: 'https://{{HTTP_HOST}}{% static "canvas_users/css/uw-users.css" %}'
+          session_id: '{{ session_id }}',
+          sis_course_id: '{{ SIS_COURSE_ID|safe }}',
+          canvas_course_id: '{{ CANVAS_COURSE_ID }}',
+          canvas_account_id: '{{ CANVAS_ACCOUNT_ID }}',
+          canvas_users_host: '{{HTTP_HOST}}',
+          blti: {{ blti_json|safe }},
+          css: 'https://{{HTTP_HOST}}{% static "canvas_users/css/uw-users.css" %}',
+          images: 'https://{{HTTP_HOST}}{% static "canvas_users/img/" %}'
       };
-
-      var csrf_input = document.getElementsByName('csrfmiddlewaretoken');
-      window.canvas_users.csrftoken = (csrf_input.length) ? csrf_input[0].value : null;
     </script>
+
 </head>
 <body>
-
-  <form>
-    {% csrf_token %}
-    </form>
-
     <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/add_users.tmpl.js"  %}"></script>
     <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/add_users_role.tmpl.js"  %}"></script>
     <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/add_users_section.tmpl.js"  %}"></script>
@@ -32,7 +26,6 @@
     <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/validate_users.tmpl.js"  %}"></script>
     <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/failure_modal.tmpl.js"  %}"></script>
     <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/main.js"  %}"></script>
-
 </body>
 </html>
 

@@ -2,8 +2,6 @@ from django.conf import settings
 from django.template import Context, loader
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-#from django.core.context_processors import csrf
-#from django.middleware.csrf import get_token
 from blti import BLTI, BLTIException
 from restclients.canvas.roles import Roles
 from restclients.exceptions import DataFailureException
@@ -52,13 +50,11 @@ def CanvasUsers(request, template='canvas_users/launch_add_user.html'):
         'CANVAS_ACCOUNT_ID': account_id,
         'CANVAS_HOSTNAME': canvas_host,
         'session_id': request.session.session_key,
-#        'csrf_token': get_token(request),
         'blti_json': json.dumps(blti_data),
         'VALIDATION_ERROR': validation_error,
         'HTTP_HOST': request.META['HTTP_HOST']
     })
 
-#    c.update(csrf(request))
     return HttpResponse(t.render(c), status=status_code)
 
 
@@ -101,12 +97,10 @@ def CanvasAddUsers(request, template='canvas_users/add_user.html'):
         'CANVAS_HOSTNAME': canvas_host,
         'HTTP_HOST': request.META['HTTP_HOST'],
         'session_id': request.session.session_key,
-#        'csrf_token': get_token(request),
         'blti_json': json.dumps(blti_data),
         'VALIDATION_ERROR': validation_error
     })
 
-#    c.update(csrf(request))
     response = HttpResponse(t.render(c), status=status_code)
     if request.method == 'OPTIONS':
         response['Access-Control-Allow-Origin'] = "*"

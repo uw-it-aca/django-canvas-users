@@ -90,3 +90,8 @@ button#uw-add-people-validate.uw-add-people-loading + .uw-add-people-working {
     margin-top: 8px;
     margin-left: -37px;
 }
+
+.uw-add-user-timedout-icon, .uw-add-user-problem-icon {
+    background-repeat: no-repeat;
+    background-position: center;
+}
