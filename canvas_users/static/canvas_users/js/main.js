@@ -482,7 +482,9 @@
 
             $('head').append('<link rel="stylesheet" type="text/css" href="'
                              + window.canvas_users.css
-                             + '"/>');
+                             + '"/>'
+                             + '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com'
+                             + '/font-awesome/4.5.0/css/font-awesome.min.css"/>');
 
             $modal = $('#uw-add-people-slightofhand');
             $modal.append($(tpl()));

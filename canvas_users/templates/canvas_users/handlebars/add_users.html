@@ -1,21 +1,21 @@
 <div class="ReactModalPortal">
-  <div x-data-reactid=".1" class="ReactModal__Overlay ReactModal__Overlay--after-open ReactModal__Overlay--canvas" style="background-color: rgba(0, 0, 0, 0.498039);">
-    <div style="position:static;top:0px;left:0px;right:auto;bottom:auto;border-radius:0px;border:none;padding:0px;" class="ReactModal__Content ReactModal__Content--after-open ReactModal__Content--canvas" tabindex="-1" x-data-reactid=".1.0">
-      <div class="ReactModal__Layout" x-data-reactid=".1.0.0">
-        <div class="ReactModal__Header" x-data-reactid=".1.0.0.0">
-          <div class="ReactModal__Header-Title" x-data-reactid=".1.0.0.0.0">
-            <h4 x-data-reactid=".1.0.0.0.0.0">Add People</h4>
+  <div class="ReactModal__Overlay ReactModal__Overlay--after-open ReactModal__Overlay--canvas" style="background-color: rgba(0, 0, 0, 0.498039);">
+    <div style="position:static;top:0px;left:0px;right:auto;bottom:auto;border-radius:0px;border:none;padding:0px;" class="ReactModal__Content ReactModal__Content--after-open ReactModal__Content--canvas" tabindex="-1">
+      <div class="ReactModal__Layout">
+        <div class="ReactModal__Header">
+          <div class="ReactModal__Header-Title">
+            <h4>Add People</h4>
           </div>
-          <div class="ReactModal__Header-Actions" x-data-reactid=".1.0.0.0.1">
-            <button class="Button Button--icon-action uw-add-people-close" type="button" x-data-reactid=".1.0.0.0.1.0">
-              <i class="icon-x" x-data-reactid=".1.0.0.0.1.0.0">
+          <div class="ReactModal__Header-Actions">
+            <button class="Button Button--icon-action uw-add-people-close" type="button">
+              <i class="icon-x">
               </i>
-              <span class="screenreader-only" x-data-reactid=".1.0.0.0.1.0.1">Close
+              <span class="screenreader-only">Close
               </span>
             </button>
           </div>
         </div>
-        <div class="ReactModal__Body" x-data-reactid=".1.0.0.1">
+        <div class="ReactModal__Body">
           <div class="content-box">
           <div class="uw-add-people-gather">
             <form>
@@ -50,8 +50,11 @@
           <div class="uw-add-people-timedout" style="display:none;">
             <div class="content-box">
               <div class="grid-row delayed">
-                <div class="col-sm-2 text-right">
-                  <i class="icon-warning text-warning"></i>
+                <div class="col-sm-2">
+                  <span class="fa-stack fa-2x text-error">
+                    <i class="fa fa-circle-thin fa-stack-2x"></i>
+                    <i class="fa fa-exclamation fa-stack-1x"></i>
+                  </span>
                 </div>
                 <div class="col-sm-10">
                   <div>
@@ -79,8 +82,8 @@
           </div>
           </div>
         </div>
-        <div class="ReactModal__Footer" x-data-reactid=".1.0.0.2">
-          <div class="ReactModal__Footer-Actions" x-data-reactid=".1.0.0.2.0">
+        <div class="ReactModal__Footer">
+          <div class="ReactModal__Footer-Actions">
             <button type="button" id="uw-add-people-startover" class="Button uw-add-people-confirm uw-add-people-ferpa uw-add-people-problem" style="display:none;">Start Over</button>
             <button type="button" id="uw-add-people-validate" class="Button Button--primary uw-add-people-gather" disabled style="display:none;">Next</button><span class="uw-add-people-working" style="display:none;"><i class="icon-refresh"></i></span>
             <button type="button" id="uw-add-people-import" class="Button Button--primary uw-add-people-confirm" style="display:none;">Add Users</button>
