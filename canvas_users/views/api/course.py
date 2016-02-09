@@ -43,8 +43,11 @@ class ValidCanvasCourseUsers(UserRESTDispatch):
                     user_policy.valid(login)
 
                     if '@' in login:
-                        canvas_user = user_policy.get_person_by_gmail_id(login)
-                        regid = canvas_user.sis_user_id
+                        try:
+                            canvas_user = user_policy.get_person_by_gmail_id(login)
+                            regid = canvas_user.sis_user_id
+                        except UserPolicyException:
+                            raise UserPolicyException('Invalid user ID')
                     elif len(login) < 3:
                         raise UserPolicyException('Invalid NetID')
                     else:
