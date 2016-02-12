@@ -33,15 +33,12 @@ class AddUserManager(models.Manager):
             user = AddUser(login=login)
             self._user_policy.valid(user.login)
             if '@' in login:
-                try:
-                    user.email = user.login
-                    user.name = user.login.split("@")[0]
-                    canvas_user = self._user_policy.get_person_by_gmail_id(user.login)
-                    user.regid = canvas_user.sis_user_id
-                except UserPolicyException:
-                    raise UserPolicyException('Invalid user ID')
+                user.email = user.login
+                user.name = user.login.split("@")[0]
+                canvas_user = self._user_policy.get_person_by_gmail_id(user.login)
+                user.regid = canvas_user.sis_user_id
             elif len(user.login) < 3:
-                raise UserPolicyException('Invalid NetID')
+                raise UserPolicyException('Invalid UW NetID')
             else:
                 person = self._user_policy.get_person_by_netid(user.login)
                 user.name = person.full_name if (
@@ -63,13 +60,17 @@ class AddUserManager(models.Manager):
                 raise
         except UserPolicyException as ex:
             user.status = 'invalid'
-            user.comment = "%s" % ex
+            user.comment = "%s" % self._prettify(str(ex))
 
         return user
 
     def _normalize(self, login):
         match = self._re_uw_domain.match(login)
         return match.group(1) if match else login
+
+    def _prettify(self, err_str):
+        match = re.match(r'^Invalid Gmail (username|domain): ', err_str)
+        return 'Not a UW Netid or Gmail address' if match else err_str
 
 
 class AddUser(models.Model):
