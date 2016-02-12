@@ -120,7 +120,8 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                             u.name, u.login, u.regid))
                         canvas_user = users_api.create_user(
                             CanvasUser(name=u.name,login_id=u.login,
-                                       sis_user_id=u.regid))
+                                       sis_user_id=u.regid,
+                                       email=u.email))
                     else:
                         raise Exception('Cannot create user %s: %s' % (u.login, ex))
 

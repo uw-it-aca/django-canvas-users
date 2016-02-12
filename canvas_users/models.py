@@ -34,6 +34,8 @@ class AddUserManager(models.Manager):
             self._user_policy.valid(user.login)
             if '@' in login:
                 try:
+                    user.email = user.login
+                    user.name = user.login.split("@")[0]
                     canvas_user = self._user_policy.get_person_by_gmail_id(user.login)
                     user.regid = canvas_user.sis_user_id
                 except UserPolicyException:
@@ -44,6 +46,7 @@ class AddUserManager(models.Manager):
                 person = self._user_policy.get_person_by_netid(user.login)
                 user.name = person.full_name if (
                     isinstance(person, Person)) else person.display_name
+                user.email = "%s@uw.edu" % user.login
 
                 user.regid = person.uwregid
 
@@ -86,6 +89,7 @@ class AddUser(models.Model):
     login = models.CharField(max_length=256)
     name = models.CharField(max_length=256,default='')
     regid = models.CharField(max_length=128,default='')
+    email = models.CharField(max_length=128,default='')
     status= models.SlugField(max_length=8, choices=STATUS_CHOICES,default=USER_VALID)
     comment = models.CharField(max_length=80,default='Prepared to add')
 
