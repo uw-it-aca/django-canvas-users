@@ -1,8 +1,9 @@
 from django.conf.urls import patterns, url, include
 from canvas_users.views import CanvasUsers, CanvasAddUsers
 from canvas_users.views.api.account import CanvasAccountCourseRoles
-from canvas_users.views.api.course import CanvasCourseSections, \
-    ValidCanvasCourseUsers, ImportCanvasCourseUsers
+from canvas_users.views.api.course import ValidCanvasCourseUsers, \
+    ImportCanvasCourseUsers
+from canvas_users.views.api.section import CanvasCourseSections
 
 
 urlpatterns = patterns('',

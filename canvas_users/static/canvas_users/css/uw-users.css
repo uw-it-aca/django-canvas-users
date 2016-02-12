@@ -36,7 +36,7 @@
 }
 
 .uw-add-people-progress-overlay #progressbar {
-    margin-top: 200px;
+    margin-top: 190px;
     vertical-align: middle;
     margin-left: 5%;
     width: 90%;
@@ -44,7 +44,7 @@
 
 .uw-add-people-progress-overlay #progressbar .progress-label {
     position: absolute;
-    top: 205px;
+    top: 195px;
     left: 50%;
 }
 

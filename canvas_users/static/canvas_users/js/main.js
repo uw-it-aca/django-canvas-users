@@ -78,11 +78,11 @@
 
         function confirmFERPA(e) {
             var $modal = getModal(e),
-                role = $modal.find('.uw-add-people-validation-result form input').val();
+                context = window.canvas_users.validated_context;
 
             e.stopPropagation();
             e.preventDefault();
-            if (ferpa_base_roles.indexOf(role) >= 0) {
+            if (ferpa_base_roles.indexOf(context.role_base) >= 0) {
                 $modal.find('div.uw-add-people-ferpa #confirmed').prop('checked', false);
                 $modal.find('button#uw-add-people-ferpa-confirm').prop('disabled', true);
                 showPeopleFERPA($modal);
@@ -136,6 +136,7 @@
                 $progressbarlabel = $progressbaroverlay.find('#progressbar .progress-label'),
                 context = window.canvas_users.validated_context,
                 logins = [],
+                start_value = Math.floor(Math.random() * 10),
                 progress;
 
             e.stopPropagation();
@@ -145,18 +146,20 @@
 
             $progressbaroverlay.show();
             $progressbar.progressbar({
-                value: 3,
+                value: start_value,
                 change: function () {
                     $progressbarlabel.text($progressbar.progressbar('value') + '%');
                 }
             });
 
             $progressbaroverlay.offset({
-                top: $modalbox.offset().top,
+                top: $modalbox.offset().top/*  + 48*/,
                 left: $modalbox.offset().left
             });
-            $progressbaroverlay.css('height', $modalbox.height());
+            $progressbaroverlay.css('height', $modalbox.height()/* - 48 - 62*/);
             $progressbaroverlay.css('width',$modalbox.width());
+
+            $progressbarlabel.text(start_value + '%');
 
             $.each(context.users, function () {
                 if (this.add) {
@@ -178,6 +181,8 @@
                 data: JSON.stringify({
                     logins: logins,
                     role: context.role,
+                    role_id: context.role_id,
+                    role_base: context.role_base,
                     course_id: window.canvas_users.canvas_course_id,
                     course_sis_id: window.canvas_users.sis_course_id,
                     section_id: context.section_id,
@@ -185,10 +190,10 @@
                 })
             })
                 .done(function (data) {
-                    if (data.import.id === null) {
+                    if (data.import_id === null) {
                         finishImport(logins.length, context.role, $modal);
                     } else {
-                        monitorImport(data.import.id, logins.length, context.role, $modal);
+                        monitorImport(data.import_id, logins.length, context.role, $modal);
                     }
                 })
                 .fail(function (msg) {
@@ -198,8 +203,8 @@
 
         function monitorImport(import_id, user_count, role, $modal) {
             var $progressbar = $modal.find('.uw-add-people-progress-overlay #progressbar'),
-                nth = Math.floor(75 / user_count),
-                initial_percent = nth + Math.floor((Math.random() * 15) + 5),
+                current_percent = $progressbar.progressbar('value'),
+                initial_percent = current_percent + Math.floor((100 - current_percent) / (user_count + 1)),
                 timeout_id,
                 interval_id;
 
@@ -254,7 +259,7 @@
                     + '/import?import_id=' + import_id
             })
                 .done(function (data) {
-                    var progress = (data.progress) ? parseInt(data.progress) : 100;
+                    var progress = parseInt(data.progress);
 
                     if (progress >= 100) {
                         $progressbar.trigger('uw-add-user.import-success');
@@ -371,7 +376,8 @@
                         total: data.users.length,
                         users: validated_users,
                         role: add_as_role_option.text(),
-                        role_name: add_as_role_vals[1],
+                        role_id: add_as_role_vals[0],
+                        role_base: add_as_role_vals[1],
                         section_name: add_to_section_option.text(),
                         section_id: add_to_section_vals[0],
                         section_sis_id: add_to_section_vals[1]
@@ -523,13 +529,6 @@
                         e.stopPropagation();
                         e.preventDefault();
                     }
-                });
-
-            $modal.find('.uw-add-people-confirm '
-                        + '.uw-add-people-progress-overlay')
-                .on('click', function (e) {
-                    e.stopPropagation();
-                    e.preventDefault();
                 });
 
             showPeopleGather($modal);
