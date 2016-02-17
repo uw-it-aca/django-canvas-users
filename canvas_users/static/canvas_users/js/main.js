@@ -186,7 +186,8 @@
                     course_id: window.canvas_users.canvas_course_id,
                     course_sis_id: window.canvas_users.sis_course_id,
                     section_id: context.section_id,
-                    section_sis_id: context.section_sis_id
+                    section_sis_id: context.section_sis_id,
+                    section_only: context.section_only
                 })
             })
                 .done(function (data) {
@@ -304,6 +305,7 @@
                 add_as_role_vals = add_as_role_option.val().split('|'),
                 add_to_section_option = $modal.find('#uw-added-users-section option:selected'),
                 add_to_section_vals = add_to_section_option.val().split('|'),
+                section_only = ($modal.find('#section-only:checked').length === 1),
                 errors = false;
 
             e.stopPropagation();
@@ -380,7 +382,9 @@
                         role_base: add_as_role_vals[1],
                         section_name: add_to_section_option.text(),
                         section_id: add_to_section_vals[0],
-                        section_sis_id: add_to_section_vals[1]
+                        section_sis_id: add_to_section_vals[1],
+                        section_only: section_only
+
                     };
 
                     window.canvas_users.validated_context = valid_context;
@@ -476,6 +480,7 @@
             $gather.find('#uw-users-to-add').val('');
             $role_select.val($role_select.find('option:first').val());
             $section_select.val($section_select.find('option:first').val());
+            $gather.find('#section-only:checked').removeAttr('checked');
             showPeopleGather($modal);
         };
 

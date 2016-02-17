@@ -71,14 +71,15 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
             users = AddUser.objects.users_in_course(
                 course_id, [x['login'] for x in data["logins"]],
                 as_user=importer_id)
-            section = CanvasSection(
-                section_id=data['section_id'],
-                sis_section_id=data['section_sis_id'],
-                course_id=course_id)
             role = CanvasRole(
                 role_id=data['role_id'],
                 label=data['role'],
                 base_role_type=data['role_base'])
+            section = CanvasSection(
+                section_id=data['section_id'],
+                sis_section_id=data['section_sis_id'],
+                course_id=course_id)
+            section_only = data['section_only']
             imp = AddUsersImport(
                 importer=importer,
                 importer_id=importer_id,
@@ -90,7 +91,7 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
 
             connection.close()
             p = Process(target=self._api_import_users,
-                        args=(imp.pk, users, role, section))
+                        args=(imp.pk, users, role, section, section_only))
             p.start()
 
             return self.json_response(imp.json_data())
@@ -99,7 +100,7 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
         except Exception as ex:
             return self.error_response(400, message="Import Error: %s" % ex)
 
-    def _api_import_users(self, import_id, users, role, section):
+    def _api_import_users(self, import_id, users, role, section, section_only):
         try:
             imp = AddUsersImport.objects.get(id=import_id)
             imp.import_pid = os.getpid()
@@ -125,16 +126,19 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                     else:
                         raise Exception('Cannot create user %s: %s' % (u.login, ex))
 
-                self._log.info('%s ADDING %s (%s) TO %s (%s) AS %s (%s)' % (
+                self._log.info('%s ADDING %s (%s) TO %s%s (%s) AS %s (%s)' % (
                     imp.importer, canvas_user.login_id, canvas_user.user_id,
-                    section.sis_section_id, section.section_id,
-                    role.label, role.role_id))
+                    section.sis_section_id,
+                    ' ONLY' if section_only else '',
+                    section.section_id, role.label, role.role_id))
 
                 enroll_api.enroll_user_in_course(
                     section.course_id, canvas_user.user_id,
                     role.base_role_type,
                     course_section_id=section.section_id,
-                    role_id=role.role_id)
+                    role_id=role.role_id,
+                    limit_privileges_to_course_section=section_only
+                )
 
                 imp.imported += 1
                 imp.save()
