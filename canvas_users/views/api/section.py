@@ -1,4 +1,5 @@
 from restclients.canvas.sections import Sections
+from restclients.canvas.courses import Courses
 from canvas_users.views.api.rest_dispatch import UserRESTDispatch
 from blti import BLTI
 import re
@@ -20,5 +21,12 @@ class CanvasCourseSections(UserRESTDispatch):
                     'sis_id': s.sis_section_id,
                     'name': s.name
                 })
+
+        if not len(sections):
+            sections.append({
+                'id': 0,
+                'sis_id': '',
+                'name': Courses(as_user=importer_id).get_course(course_id).name
+            })
 
         return self.json_response({'sections': sorted(sections, key=lambda k: k['name'])})

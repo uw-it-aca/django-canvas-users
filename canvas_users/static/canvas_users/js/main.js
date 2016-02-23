@@ -187,7 +187,8 @@
                     course_sis_id: window.canvas_users.sis_course_id,
                     section_id: context.section_id,
                     section_sis_id: context.section_sis_id,
-                    section_only: context.section_only
+                    section_only: context.section_only,
+                    notify_users: context.notify_users
                 })
             })
                 .done(function (data) {
@@ -306,6 +307,7 @@
                 add_to_section_option = $modal.find('#uw-added-users-section option:selected'),
                 add_to_section_vals = add_to_section_option.val().split('|'),
                 section_only = ($modal.find('#section-only:checked').length === 1),
+                notify_users = ($modal.find('#notify-users:checked').length === 1),
                 errors = false;
 
             e.stopPropagation();
@@ -383,8 +385,8 @@
                         section_name: add_to_section_option.text(),
                         section_id: add_to_section_vals[0],
                         section_sis_id: add_to_section_vals[1],
-                        section_only: section_only
-
+                        section_only: section_only,
+                        notify_users: notify_users
                     };
 
                     window.canvas_users.validated_context = valid_context;
@@ -481,6 +483,7 @@
             $role_select.val($role_select.find('option:first').val());
             $section_select.val($section_select.find('option:first').val());
             $gather.find('#section-only:checked').removeAttr('checked');
+            $gather.find('#notify-users:checked').removeAttr('checked');
             showPeopleGather($modal);
         };
 
