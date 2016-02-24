@@ -105,7 +105,11 @@ def CanvasAddUsers(request, template='canvas_users/add_user.html'):
     if request.method == 'OPTIONS':
         response['Access-Control-Allow-Origin'] = "*"
         response['Access-Control-Allow-Methods'] = "POST, GET"
-        response['Access-Control-Allow-Headers'] = 'Content-Type, X-SessionId, X-CSRFToken, X-CSRF-Token, X-Requested-With'
+        response['Access-Control-Allow-Headers'] = ', '.join(
+            ['Content-Type', 'X-SessionId', 'X-CSRFToken',
+             'X-CSRF-Token', 'X-Requested-With'])
 
-    response['Access-Control-Allow-Origin'] = ('https://%s' % canvas_host) if canvas_host else settings.RESTCLIENTS_CANVAS_HOST
+    response['Access-Control-Allow-Origin'] = (
+        'https://%s' % canvas_host) if canvas_host \
+        else settings.RESTCLIENTS_CANVAS_HOST
     return response

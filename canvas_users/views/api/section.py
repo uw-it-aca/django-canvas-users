@@ -14,8 +14,10 @@ class CanvasCourseSections(UserRESTDispatch):
         course_id = kwargs['canvas_course_id']
         importer_id = BLTI().get_session(request)['custom_canvas_user_id']
 
-        for s in Sections(as_user=importer_id).get_sections_in_course(course_id):
-            if not (s.sis_section_id and re.match(r'.*-groups$', s.sis_section_id)):
+        sections_api = Sections(as_user=importer_id)
+        for s in sections_api.get_sections_in_course(course_id):
+            if not (s.sis_section_id and
+                    re.match(r'.*-groups$', s.sis_section_id)):
                 sections.append({
                     'id': s.section_id,
                     'sis_id': s.sis_section_id,
@@ -23,10 +25,13 @@ class CanvasCourseSections(UserRESTDispatch):
                 })
 
         if not len(sections):
+            courses_api = Courses(as_user=importer_id)
             sections.append({
                 'id': 0,
                 'sis_id': '',
-                'name': Courses(as_user=importer_id).get_course(course_id).name
+                'name': courses_api.get_course(course_id).name
             })
 
-        return self.json_response({'sections': sorted(sections, key=lambda k: k['name'])})
+        return self.json_response({
+            'sections': sorted(sections, key=lambda k: k['name'])
+        })

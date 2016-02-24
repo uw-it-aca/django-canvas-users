@@ -35,7 +35,8 @@ class AddUserManager(models.Manager):
             if '@' in login:
                 user.email = user.login
                 user.name = user.login.split("@")[0]
-                canvas_user = self._user_policy.get_person_by_gmail_id(user.login)
+                canvas_user = self._user_policy.get_person_by_gmail_id(
+                    user.login)
                 user.regid = canvas_user.sis_user_id
             elif len(user.login) < 3:
                 raise UserPolicyException('Invalid UW NetID')
@@ -88,11 +89,12 @@ class AddUser(models.Model):
     )
 
     login = models.CharField(max_length=256)
-    name = models.CharField(max_length=256,default='')
-    regid = models.CharField(max_length=128,default='')
-    email = models.CharField(max_length=128,default='')
-    status= models.SlugField(max_length=8, choices=STATUS_CHOICES,default=USER_VALID)
-    comment = models.CharField(max_length=80,default='Prepared to add')
+    name = models.CharField(max_length=256, default='')
+    regid = models.CharField(max_length=128, default='')
+    email = models.CharField(max_length=128, default='')
+    status = models.SlugField(
+        max_length=8, choices=STATUS_CHOICES, default=USER_VALID)
+    comment = models.CharField(max_length=80, default='Prepared to add')
 
     objects = AddUserManager()
 
@@ -135,6 +137,7 @@ class AddUsersImport(models.Model):
             'section_id': self.section_id,
             'role': self.role,
             'start_date': localtime(self.start_date).isoformat(),
-            'finish_date': localtime(self.finish_date).isoformat() if self.finish_date else None,
+            'finish_date': localtime(
+                self.finish_date).isoformat() if self.finish_date else None,
             'import_error': self.import_error
         }

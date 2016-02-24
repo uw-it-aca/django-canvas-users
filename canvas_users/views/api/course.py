@@ -16,9 +16,8 @@ import sys
 import os
 
 
-
 class ValidCanvasCourseUsers(UserRESTDispatch):
-    """ Exposes API to manage Canvas users 
+    """ Exposes API to manage Canvas users
         GET returns 200 with user details
     """
     def POST(self, request, **kwargs):
@@ -37,7 +36,7 @@ class ValidCanvasCourseUsers(UserRESTDispatch):
 
 
 class ImportCanvasCourseUsers(UserRESTDispatch):
-    """ Exposes API to manage Canvas users 
+    """ Exposes API to manage Canvas users
     """
     def __init__(self):
         self._log = getLogger(__name__)
@@ -98,9 +97,11 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
 
             return self.json_response(imp.json_data())
         except KeyError as ex:
-            return self.error_response(400, message="Incomplete Request: %s" % ex)
+            return self.error_response(
+                400, message="Incomplete Request: %s" % ex)
         except Exception as ex:
-            return self.error_response(400, message="Import Error: %s" % ex)
+            return self.error_response(
+                400, message="Import Error: %s" % ex)
 
     def _api_import_users(self, import_id, users, role,
                           section, section_only, notify_users):
@@ -120,14 +121,17 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                     canvas_user = users_api.get_user_by_sis_id(u.regid)
                 except DataFailureException as ex:
                     if ex.status == 404:
-                        self._log.info('CREATE USER "%s" login: %s reg_id: %s' % (
-                            u.name, u.login, u.regid))
+                        self._log.info(
+                            'CREATE USER "%s" login: %s reg_id: %s' % (
+                                u.name, u.login, u.regid))
                         canvas_user = users_api.create_user(
-                            CanvasUser(name=u.name,login_id=u.login,
+                            CanvasUser(name=u.name,
+                                       login_id=u.login,
                                        sis_user_id=u.regid,
                                        email=u.email))
                     else:
-                        raise Exception('Cannot create user %s: %s' % (u.login, ex))
+                        raise Exception(
+                            'Cannot create user %s: %s' % (u.login, ex))
 
                 enroll_params = {
                     'role_id': role.role_id,
@@ -140,10 +144,12 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                     enroll_params['course_section_id'] = section.section_id
 
                 self._log.info(
-                    '%s ADDING %s (%s) TO %s: %s (%s) AS %s (%s) - O:%s, N:%s' % (
-                        imp.importer, canvas_user.login_id, canvas_user.user_id,
-                        section.course_id, section.sis_section_id,
-                        section.section_id, role.label, role.role_id,
+                    '%s ADDING %s (%s) TO %s: %s '
+                    '(%s) AS %s (%s) - O:%s, N:%s' % (
+                        imp.importer, canvas_user.login_id,
+                        canvas_user.user_id, section.course_id,
+                        section.sis_section_id, section.section_id, role.label,
+                        role.role_id,
                         enroll_params['limit_privileges_to_course_section'],
                         enroll_params['notify']))
 
