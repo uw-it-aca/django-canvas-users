@@ -16,7 +16,7 @@ setup(
     install_requires = [
         'setuptools',
         'django==1.7.11',
-        'django-compressor',
+        'django-compressor<2.0',
         'django-templatetag-handlebars'
     ],
     license='Apache License, Version 2.0',  # example license
