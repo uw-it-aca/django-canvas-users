@@ -6,12 +6,9 @@ from django.views.decorators.csrf import csrf_exempt
 class UserRESTDispatch(RESTDispatch):
     extra_response_headers = {
         'Access-Control-Allow-Methods': "POST, GET",
-        'Access-Control-Allow-Headers': ', '.join([
-            'Content-Type',
-            'X-SessionId',
-            'X-CSRFToken',
-            'X-CSRF-Token',
-            'X-Requested-With'])
+        'Access-Control-Allow-Headers': 'Content-Type, X-SessionId, '
+                                        'X-CSRFToken, X-CSRF-Token, '
+                                        'X-Requested-With',
         'Access-Control-Allow-Origin': settings.RESTCLIENTS_CANVAS_HOST
     }
 
