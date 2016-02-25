@@ -2,14 +2,14 @@ sudo: false
 language: python
 python:
   - "2.7"
-install: pip install -r requirements.txt
+install: pip install -r travis-ci/requirements.txt
 before_script:
   - pip install coverage
   - pip install python-coveralls
   - pip install pep8
   - cp travis-ci/manage.py manage.py
 script:
-  - pep8 canvas_users/ --exclude=migrations,management,test,views,csv_builder.py
+  - pep8 canvas_users/ --exclude=migrations,management,test
   - coverage run --source=canvas_users/ manage.py test canvas_users
 after_script:
   - coveralls
