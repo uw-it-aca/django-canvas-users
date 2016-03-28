@@ -38,8 +38,6 @@ class AddUserManager(models.Manager):
                 canvas_user = self._user_policy.get_person_by_gmail_id(
                     user.login)
                 user.regid = canvas_user.sis_user_id
-            elif len(user.login) < 3:
-                raise UserPolicyException('Invalid UW NetID')
             else:
                 person = self._user_policy.get_person_by_netid(user.login)
                 user.name = person.full_name if (
