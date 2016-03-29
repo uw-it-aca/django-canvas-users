@@ -15,7 +15,8 @@ class AddUserManager(models.Manager):
         self._re_uw_domain = re.compile(r'^(.*)@(%s)$' % '|'.join(uw_domains))
         self._user_policy = UserPolicy()
 
-        course_users = Users().get_users_for_course(course_id)
+        course_users = Users().get_users_for_course(course_id,
+                                                    params={'per_page': 1000})
         self._course_users = dict((u.sis_user_id, u) for u in course_users)
 
         return map(self._get_user_from_login, self._normalize_list(logins))
