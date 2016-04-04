@@ -2,3 +2,4 @@
 -e git+https://github.com/uw-it-aca/django-userservice#egg=Django-UserService
 -e git+https://github.com/uw-it-aca/uw-restclients#egg=RestClients
 -e git+https://github.com/uw-it-aca/canvas-sis-provisioner.git#egg=sis_provisioner
+-e git+https://github.com/uw-it-aca/canvas-eos-import#egg=canvas-eos-import
