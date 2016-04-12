@@ -1,5 +1,4 @@
 from restclients.canvas.sections import Sections
-from restclients.canvas.courses import Courses
 from restclients.util.retry import retry
 from restclients.exceptions import DataFailureException
 from sis_provisioner.policy import CoursePolicy, CoursePolicyException
@@ -22,6 +21,7 @@ class CanvasCourseSections(UserRESTDispatch):
         sections = []
         course_id = kwargs['canvas_course_id']
         user_id = blti_session['custom_canvas_user_id']
+        course_name = blti_session['context_title']
         course_sis_id = blti_session.get('lis_course_offering_sourcedid', None)
 
         @retry(SSLError, tries=3, delay=1, logger=logger)
@@ -42,13 +42,12 @@ class CanvasCourseSections(UserRESTDispatch):
                 try:
                     CoursePolicy().valid_academic_course_sis_id(course_sis_id)
                     return self.error_response(
-                        400, 'Course contains no sections')
+                        401, 'Adding users to this course not allowed')
                 except CoursePolicyException:
-                    courses_api = Courses(as_user=user_id)
                     sections.append({
                         'id': 0,
                         'sis_id': '',
-                        'name': courses_api.get_course(course_id).name
+                        'name': course_name
                     })
 
         except DataFailureException as err:

@@ -30,5 +30,7 @@ class CanvasAccountCourseRoles(UserRESTDispatch):
                 })
         except DataFailureException as err:
             return self.error_response(500, err.msg)
+        except Exception as err:
+            return self.error_response(500, err)
 
         return self.json_response({'roles': roles})
