@@ -3,8 +3,6 @@ from django.template import Context, loader
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from blti import BLTI, BLTIException
-from restclients.canvas.roles import Roles
-from restclients.exceptions import DataFailureException
 from sis_provisioner.policy import CoursePolicy, CoursePolicyException
 import json
 
@@ -82,9 +80,6 @@ def CanvasAddUsers(request, template='canvas_users/add_user.html'):
             validation_error = err
             status_code = 401
             template = 'blti/401.html'
-    except DataFailureException as err:
-        validation_error = err
-        status_code = 500
     except Exception as err:
         validation_error = err
         status_code = 400
