@@ -5,6 +5,7 @@ from sis_provisioner.policy import CoursePolicy, CoursePolicyException
 from canvas_users.views.api.rest_dispatch import UserRESTDispatch
 from urllib3.exceptions import SSLError
 from blti import BLTI
+import traceback
 import logging
 import re
 
@@ -22,7 +23,7 @@ class CanvasCourseSections(UserRESTDispatch):
         course_id = kwargs['canvas_course_id']
         user_id = blti_session['custom_canvas_user_id']
         course_name = blti_session['context_title']
-        course_sis_id = blti_session.get('lis_course_offering_sourcedid', None)
+        course_sis_id = blti_session.get('lis_course_offering_sourcedid', '')
 
         @retry(SSLError, tries=3, delay=1, logger=logger)
         def _get_sections(course_id, user_id):
@@ -51,9 +52,9 @@ class CanvasCourseSections(UserRESTDispatch):
                     })
 
         except DataFailureException as err:
-            return self.error_response(500, err.msg)
+            return self.error_response(500, message=err.msg)
         except Exception as err:
-            return self.error_response(500, err)
+            return self.error_response(500, message=traceback.format_exc(err))
 
         return self.json_response({
             'sections': sorted(sections, key=lambda k: k['name'])
