@@ -4,7 +4,6 @@ from restclients.exceptions import DataFailureException
 from sis_provisioner.policy import CoursePolicy, CoursePolicyException
 from canvas_users.views.api.rest_dispatch import UserRESTDispatch
 from urllib3.exceptions import SSLError
-from blti import BLTI
 import traceback
 import logging
 import re
@@ -18,12 +17,13 @@ class CanvasCourseSections(UserRESTDispatch):
         GET returns 200 with course sections.
     """
     def GET(self, request, **kwargs):
-        blti_session = BLTI().get_session(request)
         sections = []
         course_id = kwargs['canvas_course_id']
-        user_id = blti_session['custom_canvas_user_id']
-        course_name = blti_session['context_title']
-        course_sis_id = blti_session.get('lis_course_offering_sourcedid', '')
+
+        blti_data = self.get_session(request)
+        user_id = blti_data.get('custom_canvas_user_id')
+        course_name = blti_data.get('context_title')
+        course_sis_id = blti_data.get('lis_course_offering_sourcedid', '')
 
         @retry(SSLError, tries=3, delay=1, logger=logger)
         def _get_sections(course_id, user_id):

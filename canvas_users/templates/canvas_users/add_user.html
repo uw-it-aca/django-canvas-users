@@ -7,25 +7,24 @@
     <script type="text/javascript">
       window.canvas_users = {
           session_id: '{{ session_id }}',
-          sis_course_id: '{{ SIS_COURSE_ID|safe }}',
-          canvas_course_id: '{{ CANVAS_COURSE_ID }}',
-          canvas_account_id: '{{ CANVAS_ACCOUNT_ID }}',
-          canvas_users_host: '{{HTTP_HOST}}',
-          blti: {{ blti_json|safe }},
-          css: 'https://{{HTTP_HOST}}{% static "canvas_users/css/uw-users.css" %}',
-          images: 'https://{{HTTP_HOST}}{% static "canvas_users/img/" %}'
+          sis_course_id: '{{ sis_course_id|safe }}',
+          canvas_course_id: '{{ canvas_course_id }}',
+          canvas_account_id: '{{ canvas_account_id }}',
+          canvas_users_host: '{{ http_host }}',
+          css: 'https://{{ http_host }}{% static "canvas_users/css/uw-users.css" %}',
+          images: 'https://{{ http_host }}{% static "canvas_users/img/" %}'
       };
     </script>
 
 </head>
 <body>
-    <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/add_users.tmpl.js"  %}"></script>
-    <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/add_users_role.tmpl.js"  %}"></script>
-    <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/add_users_section.tmpl.js"  %}"></script>
-    <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/add_users_button.tmpl.js"  %}"></script>
-    <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/validate_users.tmpl.js"  %}"></script>
-    <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/failure_modal.tmpl.js"  %}"></script>
-    <script src="https://{{HTTP_HOST}}{% static "canvas_users/js/main.js"  %}"></script>
+    <script src="https://{{ http_host }}{% static "canvas_users/js/add_users.tmpl.js"  %}"></script>
+    <script src="https://{{ http_host }}{% static "canvas_users/js/add_users_role.tmpl.js"  %}"></script>
+    <script src="https://{{ http_host }}{% static "canvas_users/js/add_users_section.tmpl.js"  %}"></script>
+    <script src="https://{{ http_host }}{% static "canvas_users/js/add_users_button.tmpl.js"  %}"></script>
+    <script src="https://{{ http_host }}{% static "canvas_users/js/validate_users.tmpl.js"  %}"></script>
+    <script src="https://{{ http_host }}{% static "canvas_users/js/failure_modal.tmpl.js"  %}"></script>
+    <script src="https://{{ http_host }}{% static "canvas_users/js/main.js"  %}"></script>
 </body>
 </html>
 

@@ -5,22 +5,20 @@
 
     <script type="text/javascript">
       window.canvas_users = {
-      csrftoken: '{{ csrf_token }}',
-      session_id: '{{ session_id }}',
-      sis_course_id: '{{ SIS_COURSE_ID|safe }}',
-      canvas_course_id: '{{ CANVAS_COURSE_ID }}',
-      canvas_account_id: '{{ CANVAS_ACCOUNT_ID }}',
-      canvas_host: '{{ CANVAS_HOSTNAME }}',
-      blti: {{ blti_json|safe }}
+          session_id: '{{ session_id }}',
+          sis_course_id: '{{ sis_course_id|safe }}',
+          canvas_course_id: '{{ canvas_course_id }}',
+          canvas_account_id: '{{ canvas_account_id }}',
+          canvas_host: '{{ canvas_hostname }}'
       };
 
       window.parent.postMessage('{ "subject": "lti.uw.addUserUrl",'
                                  + '"message": { '
-                                                  + '"url": "https://' + '{{HTTP_HOST}}/users/add",'
-                                                  + '"session_id": "{{session_id}}"'
+                                                  + '"url": "https://' + '{{ http_host }}/users/add",'
+                                                  + '"session_id": "{{ session_id }}"'
                                             + '}'
                                  + '}',
-                                'https://{{ CANVAS_HOSTNAME }}');
+                                'https://{{ canvas_hostname }}');
     </script>
 
 </head>
