@@ -51,7 +51,8 @@ class AddUsersView(BLTIView):
     def options(self, request, *args, **kwargs):
         try:
             params = self.validate(request)
-            canvas_host = blti_data.get('custom_canvas_api_domain')
+            canvas_host = 'https://%s' % blti_data.get(
+                'custom_canvas_api_domain')
         except BLTIException as err:
             canvas_host = getattr(settings, 'RESTCLIENTS_CANVAS_HOST', '')
 
@@ -61,5 +62,5 @@ class AddUsersView(BLTIView):
         response['Access-Control-Allow-Headers'] = ', '.join(
             ['Content-Type', 'X-SessionId', 'X-CSRFToken',
              'X-CSRF-Token', 'X-Requested-With'])
-        response['Access-Control-Allow-Origin'] = 'https://%s' % canvas_host
+        response['Access-Control-Allow-Origin'] = canvas_host
         return response
