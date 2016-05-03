@@ -1,4 +1,4 @@
-/*jslint browser: true, plusplus: true */
+/*jslint browser: true, plusplus: true, unparam: true */
 /*global jQuery, Handlebars, top */
 
 
@@ -20,9 +20,9 @@
                 if (window.canvas_users.session_id) {
                     xhr.setRequestHeader("X-SessionId", window.canvas_users.session_id);
                 }
-                if (window.canvas_users.hasOwnProperty('csrftoken')
-                    && window.canvas_users.csrftoken
-                    && !csrfSafeMethod(settings.type)) {
+                if (window.canvas_users.hasOwnProperty('csrftoken') &&
+                        window.canvas_users.csrftoken &&
+                        !csrfSafeMethod(settings.type)) {
                     xhr.setRequestHeader("X-CSRFToken", window.canvas_users.csrftoken);
                 }
             }
@@ -33,9 +33,9 @@
         }
 
         function hideModalPanels($modal) {
-            $modal.find('.uw-add-people-gather, .uw-add-people-confirm,'
-                        + '.uw-add-people-ferpa, .uw-add-people-problem,'
-                        + '.uw-add-people-timedout,').hide();
+            $modal.find('.uw-add-people-gather, .uw-add-people-confirm,' +
+                        '.uw-add-people-ferpa, .uw-add-people-problem,' +
+                        '.uw-add-people-timedout,').hide();
         }
 
         function showPeopleGather($modal) {
@@ -76,40 +76,31 @@
             showPeopleGather($modal);
         }
 
-        function confirmFERPA(e) {
-            var $modal = getModal(e),
-                context = window.canvas_users.validated_context;
-
-            e.stopPropagation();
-            e.preventDefault();
-            if (ferpa_base_roles.indexOf(context.role_base) >= 0) {
-                $modal.find('div.uw-add-people-ferpa #confirmed').prop('checked', false);
-                $modal.find('button#uw-add-people-ferpa-confirm').prop('disabled', true);
-                showPeopleFERPA($modal);
-            } else {
-                importUsers(e);
-            }
-        };
-
         function problemAddingUsers(msg, $modal) {
-            var tpl = Handlebars.templates['failure_modal'];
+            var tpl = Handlebars.templates.failure_modal,
+                error_text;
+
+            try {
+                error_text = JSON.parse(msg).error;
+            } catch (e) {
+                error_text = 'unspecified';
+            }
 
             $modal.find('div.uw-add-people-problem').html(tpl({
-                error_message: 'PROBLEM IS ' + (msg ? msg : 'unspecified')
+                error_message: 'PROBLEM IS: ' + error_text
             }));
 
             showPeopleProblem($modal);
-        };
+        }
 
         function timeoutAddingUsers($modal) {
             showPeopleTimedOut($modal);
-        };
+        }
 
         function canvasFlashMessage(type, message) {
             var $holder = $('#flash_message_holder'),
-                $li = $('<li class="ic-flash-' + type + '"><i></i>'
-                        + message
-                        + '<a href="#" class="close_link icon-end">Close</a></li>');
+                $li = $('<li class="ic-flash-' + type + '"><i></i>' +
+                        message + '<a href="#" class="close_link icon-end">Close</a></li>');
 
             $li.appendTo($holder).
                 css('z-index', 1).
@@ -128,6 +119,17 @@
                 });
         }
 
+        function finishAddPeople(e) {
+            finishAddPeopleModal(getModal(e));
+        }
+
+        function finishImport(count, role, $modal) {
+            finishAddPeopleModal($modal);
+            canvasFlashMessage('success',
+                               'Added ' + count + ' ' + role +
+                               ((count > 1) ? 's' : ''));
+        }
+
         function importUsers(e) {
             var $modal = getModal(e),
                 $modalbox = $modal.find('.ReactModal__Layout'),
@@ -136,8 +138,7 @@
                 $progressbarlabel = $progressbaroverlay.find('#progressbar .progress-label'),
                 context = window.canvas_users.validated_context,
                 logins = [],
-                start_value = Math.floor(Math.random() * 10),
-                progress;
+                start_value = Math.floor(Math.random() * 10);
 
             e.stopPropagation();
             e.preventDefault();
@@ -153,11 +154,11 @@
             });
 
             $progressbaroverlay.offset({
-                top: $modalbox.offset().top/*  + 48*/,
+                top: $modalbox.offset().top,
                 left: $modalbox.offset().left
             });
-            $progressbaroverlay.css('height', $modalbox.height()/* - 48 - 62*/);
-            $progressbaroverlay.css('width',$modalbox.width());
+            $progressbaroverlay.css('height', $modalbox.height());
+            $progressbaroverlay.css('width', $modalbox.width());
 
             $progressbarlabel.text(start_value + '%');
 
@@ -172,10 +173,10 @@
 
             $.ajax({
                 type: 'POST',
-                url: 'https://'
-                    + window.canvas_users.canvas_users_host
-                    + '/users/api/v1/canvas/course/'
-                    + window.canvas_users.canvas_course_id + '/import',
+                url: 'https://' +
+                    window.canvas_users.canvas_users_host +
+                    '/users/api/v1/canvas/course/' +
+                    window.canvas_users.canvas_course_id + '/import',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -199,8 +200,23 @@
                     }
                 })
                 .fail(function (msg) {
-                    problemAddingUsers(msg, $modal);
+                    problemAddingUsers(msg.resonseText, $modal);
                 });
+        }
+
+        function confirmFERPA(e) {
+            var $modal = getModal(e),
+                context = window.canvas_users.validated_context;
+
+            e.stopPropagation();
+            e.preventDefault();
+            if (ferpa_base_roles.indexOf(context.role_base) >= 0) {
+                $modal.find('div.uw-add-people-ferpa #confirmed').prop('checked', false);
+                $modal.find('button#uw-add-people-ferpa-confirm').prop('disabled', true);
+                showPeopleFERPA($modal);
+            } else {
+                importUsers(e);
+            }
         }
 
         function monitorImport(import_id, user_count, role, $modal) {
@@ -241,7 +257,7 @@
                 .on('uw-add-user.import-fail', function (e, msg) {
                     window.clearInterval(interval_id);
                     window.clearTimeout(timeout_id);
-                    problemAddingUsers(msg, $modal);
+                    problemAddingUsers(msg.responseText, $modal);
                 });
 
             $progressbar.off('uw-add-user.import-timeout')
@@ -254,14 +270,14 @@
         function monitorImportProgress(import_id, $progressbar) {
             $.ajax({
                 type: 'GET',
-                url: 'https://'
-                    + window.canvas_users.canvas_users_host
-                    + '/users/api/v1/canvas/course/'
-                    + window.canvas_users.canvas_course_id
-                    + '/import?import_id=' + import_id
+                url: 'https://' +
+                    window.canvas_users.canvas_users_host +
+                    '/users/api/v1/canvas/course/' +
+                    window.canvas_users.canvas_course_id +
+                    '/import?import_id=' + import_id
             })
                 .done(function (data) {
-                    var progress = parseInt(data.progress);
+                    var progress = parseInt(data.progress, 10);
 
                     if (progress >= 100) {
                         $progressbar.trigger('uw-add-user.import-success');
@@ -275,13 +291,6 @@
                 });
         }
 
-        function finishImport(count, role, $modal) {
-            finishAddPeopleModal($modal);
-            canvasFlashMessage('success',
-                               'Added ' + count + ' '
-                               + role + ((count > 1) ? 's' : ''));
-        }
-
         function validatableUsers(e) {
             validateGatherForm(getModal(e));
         }
@@ -289,9 +298,9 @@
         function validateGatherForm($modal) {
             var $button = $modal.find('button#uw-add-people-validate');
 
-            if ($modal.find('#uw-users-to-add').val().trim().length
-                && $modal.find('#uw-added-users-role option:selected').val().length
-                && $modal.find('#uw-added-users-section option:selected').val().length) {
+            if ($modal.find('#uw-users-to-add').val().trim().length &&
+                    $modal.find('#uw-added-users-role option:selected').val().length &&
+                    $modal.find('#uw-added-users-section option:selected').val().length) {
                 $button.removeProp('disabled');
             } else {
                 $button.prop('disabled', true);
@@ -337,11 +346,11 @@
 
             $.ajax({
                 type: 'POST',
-                url: 'https://'
-                    + window.canvas_users.canvas_users_host
-                    + '/users/api/v1/canvas/course/'
-                    + window.canvas_users.canvas_course_id
-                    + '/validate',
+                url: 'https://' +
+                    window.canvas_users.canvas_users_host +
+                    '/users/api/v1/canvas/course/' +
+                    window.canvas_users.canvas_course_id +
+                    '/validate',
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -349,21 +358,21 @@
                 })
             })
                 .done(function (data) {
-                    var tpl = Handlebars.templates['validate_users'],
-                        tpl_button = Handlebars.templates['add_users_button'],
+                    var tpl = Handlebars.templates.validate_users,
+                        tpl_button = Handlebars.templates.add_users_button,
                         valid_context,
                         validated_users = [],
                         validated_user_count = 0;
 
                     $.each(data.users, function () {
-                        if (this.status == 'valid') {
+                        if (this.status === 'valid') {
                             validated_user_count++;
                         }
 
                         validated_users.push({
-                            add: (this.status == 'valid'),
-                            present: (this.status == 'present'),
-                            invalid: (this.status == 'invalid'),
+                            add: (this.status === 'valid'),
+                            present: (this.status === 'present'),
+                            invalid: (this.status === 'invalid'),
                             login: this.login,
                             regid: this.regid,
                             name: this.name,
@@ -376,7 +385,7 @@
                         no_logins: (validated_user_count < 1),
                         count_plural: (validated_user_count > 1) ? 's' : '',
                         total_plural: (data.users.length > 1) ? 's' : '',
-                        exceptions: (validated_user_count != data.users.length),
+                        exceptions: (validated_user_count !== data.users.length),
                         total: data.users.length,
                         users: validated_users,
                         role: add_as_role_option.text(),
@@ -406,7 +415,7 @@
                     }
                 })
                 .fail(function (msg) {
-                    problemAddingUsers(msg, $modal);
+                    problemAddingUsers(msg.responseText, $modal);
                 })
                 .always(function () {
                     $modal.find('.uw-add-people-loading').removeClass('uw-add-people-loading');
@@ -419,13 +428,13 @@
 
             $.ajax({
                 type: 'GET',
-                url: 'https://'
-                    + window.canvas_users.canvas_users_host
-                    + '/users/api/v1/canvas/account/' + account_id + '/course/roles',
+                url: 'https://' +
+                    window.canvas_users.canvas_users_host +
+                    '/users/api/v1/canvas/account/' + account_id + '/course/roles',
                 async: true
             })
                 .done(function (data) {
-                    var tpl = Handlebars.templates['add_users_role'];
+                    var tpl = Handlebars.templates.add_users_role;
 
                     $select.html(tpl({
                         plural: (data.roles.length > 1),
@@ -433,25 +442,25 @@
                     }));
                 })
                 .fail(function (msg) {
-                    problemAddingUsers(msg, $modal);
+                    problemAddingUsers(msg.responseText, $modal);
                 })
                 .always(function () {
                     $select.removeProp('disabled').removeClass('uw-add-people-loading');
                 });
-        };
+        }
 
         function loadCourseSections(course_id, $modal) {
             var $select = $modal.find('#uw-added-users-section');
 
             $.ajax({
                 type: 'GET',
-                url: 'https://'
-                    + window.canvas_users.canvas_users_host
-                    + '/users/api/v1/canvas/course/' + course_id + '/sections',
+                url: 'https://' +
+                    window.canvas_users.canvas_users_host +
+                    '/users/api/v1/canvas/course/' + course_id + '/sections',
                 async: true
             })
                 .done(function (data) {
-                    var tpl = Handlebars.templates['add_users_section'];
+                    var tpl = Handlebars.templates.add_users_section;
 
                     $select.html(tpl({
                         plural: (data.sections.length > 1),
@@ -459,22 +468,17 @@
                     }));
                 })
                 .fail(function (msg) {
-                    problemAddingUsers(msg, $modal);
+                    problemAddingUsers(msg.responseText, $modal);
                 })
                 .always(function () {
                     $select.removeProp('disabled').removeClass('uw-add-people-loading');
                 });
-        };
-
-        function finishAddPeople(e) {
-            finishAddPeopleModal(getModal(e));
         }
 
         function finishAddPeopleModal($modal) {
             var $gather = $modal.find('.uw-add-people-gather'),
                 $role_select = $gather.find('#uw-added-users-role'),
-                $section_select = $gather.find('#uw-added-users-section'),
-                $button = $modal.find('button#uw-add-people-validate');
+                $section_select = $gather.find('#uw-added-users-section');
 
             $('#uw-add-people-slightofhand').find('.ReactModalPortal').hide();
 
@@ -485,34 +489,33 @@
             $gather.find('#section-only:checked').removeAttr('checked');
             $gather.find('#notify-users:checked').removeAttr('checked');
             showPeopleGather($modal);
-        };
+        }
 
         function launchAddPeople() {
-            var tpl = Handlebars.templates['add_users'],
+            var tpl = Handlebars.templates.add_users,
                 $modal,
-                $confirm,
-                $progressbar;
+                $confirm;
 
-            $('head').append('<link rel="stylesheet" type="text/css" href="'
-                             + window.canvas_users.css + '"/>'
-                             + '<style>'
-                             + '.uw-add-user-timedout-icon { background-image: url('
-                             + window.canvas_users.images + 'circle_bang.png' + ')}'
-                             + '.uw-add-user-problem-icon { background-image: url('
-                             + window.canvas_users.images + 'circle_bang.png' +')}'
-                             + '</style>');
+            $('head').append('<link rel="stylesheet" type="text/css" href="' +
+                             window.canvas_users.css + '"/>' +
+                             '<style>' +
+                             '.uw-add-user-timedout-icon { background-image: url(' +
+                             window.canvas_users.images + 'circle_bang.png' + ')}' +
+                             '.uw-add-user-problem-icon { background-image: url(' +
+                             window.canvas_users.images + 'circle_bang.png' + ')}' +
+                             '</style>');
 
             $modal = $('#uw-add-people-slightofhand');
             $modal.append($(tpl()));
             $modal.find('button#uw-add-people-validate').on('click', validateUsers);
-            $modal.delegate('input, textarea, select', 'focus',
-                                     function (e) {
-                                         $(e.target).closest('.ic-Form-control')
-                                             .removeClass('ic-Form-control--has-error');
-                                     });
+            $modal.delegate('input, textarea, select', 'focus', function (e) {
+                $(e.target)
+                    .closest('.ic-Form-control')
+                    .removeClass('ic-Form-control--has-error');
+            });
             $modal.find('#uw-users-to-add').on('keyup', validatableUsers);
-            $modal.find('#uw-added-users-section,'
-                        + '#uw-added-users-role').on('change', validatableUsers);
+            $modal.find('#uw-added-users-section,' +
+                        '#uw-added-users-role').on('change', validatableUsers);
             $modal.find('button.uw-add-people-close').on('click', finishAddPeople);
 
             $modal.find('button#uw-add-people-startover').on('click', startOver);
@@ -532,8 +535,8 @@
                 .on('mousewheel DOMMouseScroll', function (e) {
                     var $node = $(e.target);
 
-                    if (!($node.closest('.uw-add-people-validation-scrolled').length === 1
-                          || $node.closest('.uw-users-to-add') === 1)) {
+                    if (!($node.closest('.uw-add-people-validation-scrolled').length === 1 ||
+                              $node.closest('.uw-users-to-add') === 1)) {
                         e.stopPropagation();
                         e.preventDefault();
                     }
@@ -543,7 +546,7 @@
 
             loadCourseRoles(window.canvas_users.canvas_account_id, $modal);
             loadCourseSections(window.canvas_users.canvas_course_id, $modal);
-        };
+        }
 
         launchAddPeople();
 

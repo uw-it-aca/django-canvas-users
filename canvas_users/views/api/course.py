@@ -8,7 +8,6 @@ from restclients.exceptions import DataFailureException
 from sis_provisioner.models import CourseMember, Enrollment
 from canvas_users.views.api.rest_dispatch import UserRESTDispatch
 from canvas_users.models import AddUser, AddUsersImport
-from blti import BLTI
 from multiprocessing import Process
 import json
 import re
@@ -22,7 +21,8 @@ class ValidCanvasCourseUsers(UserRESTDispatch):
     """
     def POST(self, request, **kwargs):
         try:
-            importer_id = BLTI().get_session(request)['custom_canvas_user_id']
+            blti_data = self.get_session(request)
+            importer_id = blti_data.get('custom_canvas_user_id')
             course_id = kwargs['canvas_course_id']
             data = json.loads(request.body)
             return self.json_response({
@@ -64,9 +64,9 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
         try:
             course_id = kwargs['canvas_course_id']
             data = json.loads(request.body)
-            blti = BLTI().get_session(request)
-            importer = blti['custom_canvas_user_login_id']
-            importer_id = blti['custom_canvas_user_id']
+            blti_data = self.get_session(request)
+            importer = blti_data.get('custom_canvas_user_login_id')
+            importer_id = blti_data.get('custom_canvas_user_id')
             users = AddUser.objects.users_in_course(
                 course_id, [x['login'] for x in data["logins"]],
                 as_user=importer_id)
