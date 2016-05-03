@@ -48,7 +48,8 @@ class AddUsersView(BLTIView):
         }
         return context
 
-    def get_headers(self, **kwargs):
+    def add_headers(self, **kwargs):
+        response = kwargs.get('response')
         blti_data = kwargs.get('blti_params', None)
         if blti_data is not None:
             canvas_host = 'https://%s' % blti_data.get(
@@ -56,14 +57,13 @@ class AddUsersView(BLTIView):
         else:
             canvas_host = getattr(settings, 'RESTCLIENTS_CANVAS_HOST', '')
 
-        return {
-            'Access-Control-Allow-Methods': 'POST, GET',
-            'Access-Control-Allow-Headers': ', '.join(
-                ['Content-Type', 'X-SessionId', 'X-CSRFToken', 'X-CSRF-Token',
-                 'X-Requested-With']),
-            'Access-Control-Allow-Origin': canvas_host
-        }
+        response['Access-Control-Allow-Methods'] = 'POST, GET'
+        response['Access-Control-Allow-Headers'] = ', '.join(
+            ['Content-Type', 'X-SessionId', 'X-CSRFToken', 'X-CSRF-Token',
+             'X-Requested-With'])
+        response['Access-Control-Allow-Origin'] = canvas_host
 
     def options(self, request, *args, **kwargs):
-        response_kwargs = self.get_headers()
-        return HttpResponse('GET', **response_kwargs)
+        response = HttpResponse('GET')
+        self.add_headers(response=response, **kwargs)
+        return response
