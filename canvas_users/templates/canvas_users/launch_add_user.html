@@ -14,7 +14,7 @@
 
       window.parent.postMessage('{ "subject": "lti.uw.addUserUrl",'
                                  + '"message": { '
-                                                  + '"url": "https://' + '{{ http:host }}/users/add",'
+                                                  + '"url": "https://' + '{{ http_host }}/users/add",'
                                                   + '"session_id": "{{ session_id }}"'
                                             + '}'
                                  + '}',
