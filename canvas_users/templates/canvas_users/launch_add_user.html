@@ -1,26 +1,14 @@
 <!doctype html>
 <html class="no-js">
 <head>
-	<meta charset="utf-8">
-
-    <script type="text/javascript">
-      window.canvas_users = {
-          session_id: '{{ session_id }}',
-          sis_course_id: '{{ sis_course_id|safe }}',
-          canvas_course_id: '{{ canvas_course_id }}',
-          canvas_account_id: '{{ canvas_account_id }}',
-          canvas_host: '{{ canvas_hostname }}'
-      };
-
-      window.parent.postMessage('{ "subject": "lti.uw.addUserUrl",'
-                                 + '"message": { '
-                                                  + '"url": "https://' + '{{ http_host }}/users/add",'
-                                                  + '"session_id": "{{ session_id }}"'
-                                            + '}'
-                                 + '}',
-                                'https://{{ canvas_hostname }}');
+  <meta charset="utf-8">
+  <script type="text/javascript">
+      window.top.postMessage(
+        '{"subject": "lti.uw.addUserUrl",' +
+         '"message": {"url": "https://{{ http_host }}/users/add",' +
+                      '"session_id": "{{ session_id }}"}}',
+         'https://{{ canvas_hostname }}');
     </script>
-
 </head>
 <body>
 </body>
