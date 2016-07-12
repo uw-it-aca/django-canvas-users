@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'templatetag_handlebars',
     'restclients',
     'userservice',
+    'sis_provisioner',
     'canvas_users',
 )
 
