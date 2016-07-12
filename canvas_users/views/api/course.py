@@ -1,4 +1,4 @@
-from django.utils.log import getLogger
+from logging import getLogger
 from django.db import connection
 from restclients.canvas.courses import Courses
 from restclients.canvas.users import Users
