@@ -15,8 +15,8 @@ setup(
     include_package_data=True,
     install_requires = [
         'setuptools',
-        'django==1.7.11',
-        'django-compressor<2.0',
+        'django==1.9',
+        'django-compressor',
         'django-templatetag-handlebars'
     ],
     license='Apache License, Version 2.0',  # example license
@@ -32,7 +32,6 @@ setup(
         'License :: OSI Approved :: Apache Software License', # example license
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
     ],
 )
