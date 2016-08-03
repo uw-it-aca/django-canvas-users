@@ -3,6 +3,20 @@ from django.http import HttpResponse
 from blti.views import BLTIView, BLTILaunchView
 from blti import BLTIException
 from sis_provisioner.policy import CoursePolicy
+import re
+
+
+def allow_origin(request):
+    canvas_host = getattr(settings, 'RESTCLIENTS_CANVAS_HOST')
+    origin = request.META.get('HTTP_ORIGIN', '')
+    if origin != canvas_host:
+        m = re.match(r'^https://.*\.([a-z]+\.[a-z]+)$', origin)
+        if m:
+            domain = m.group(1)
+            if canvas_host[-len(domain):] == domain:
+                canvas_host = origin
+
+    return canvas_host
 
 
 class LaunchView(BLTILaunchView):
@@ -41,13 +55,14 @@ class AddUsersView(BLTIView):
         return context
 
     def add_headers(self, **kwargs):
+        request = kwargs.get('request')
         response = kwargs.get('response')
         blti_data = kwargs.get('blti_params', None)
         if blti_data is not None:
             canvas_host = 'https://%s' % blti_data.get(
                 'custom_canvas_api_domain')
         else:
-            canvas_host = getattr(settings, 'RESTCLIENTS_CANVAS_HOST', '')
+            canvas_host = allow_origin(request)
 
         response['Access-Control-Allow-Methods'] = 'POST, GET'
         response['Access-Control-Allow-Headers'] = ', '.join(
@@ -55,7 +70,7 @@ class AddUsersView(BLTIView):
              'X-Requested-With'])
         response['Access-Control-Allow-Origin'] = canvas_host
 
-    def options(self, request, *args, **kwargs):
+    def options(self, *args, **kwargs):
         response = HttpResponse('GET')
-        self.add_headers(response=response, **kwargs)
+        self.add_headers(request=args[0], response=response, **kwargs)
         return response
