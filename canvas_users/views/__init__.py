@@ -11,9 +11,10 @@ def allow_origin(request):
     origin = request.META.get('HTTP_ORIGIN', '')
     if origin != canvas_host:
         m = re.match(r'^https://.*\.([a-z]+\.[a-z]+)$', origin)
-        domain = m.group(1)
-        if m and canvas_host[-len(domain):] == domain:
-            canvas_host = origin
+        if m:
+            domain = m.group(1)
+            if canvas_host[-len(domain):] == domain:
+                canvas_host = origin
 
     return canvas_host
 
