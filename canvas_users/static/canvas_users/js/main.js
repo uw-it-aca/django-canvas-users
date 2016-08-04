@@ -99,8 +99,12 @@
 
         function canvasFlashMessage(type, message) {
             var $holder = $('#flash_message_holder'),
-                $li = $('<li class="ic-flash-' + type + '"><i></i>' +
-                        message + '<a href="#" class="close_link icon-end">Close</a></li>');
+                $li = $('<li class="ic-flash-' + type + '" style="z-index: 2;">' +
+                        '<div class="ic-flash__icon" aria-hidden="true"><i class="icon-check"></i></div>' +
+                        message +
+                        '<button type="button" class="Button Button--icon-action close_link">' +
+                        '<span class="screenreader-only">Close</span>' +
+                        '<i class="icon-x" aria-hidden="true"></i></button></li>');
 
             $li.appendTo($holder).
                 css('z-index', 1).
