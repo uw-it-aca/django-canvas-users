@@ -4,7 +4,7 @@ from restclients.canvas.users import Users
 from restclients.models.sws import Person
 from restclients.exceptions import DataFailureException
 from sis_provisioner.dao.user import get_person_by_netid, user_email,\
-    user_fullname, get_person_by_gmail_id
+    user_fullname, user_sis_id, get_person_by_gmail_id
 from sis_provisioner.exceptions import UserPolicyException
 import re
 
