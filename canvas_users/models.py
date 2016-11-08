@@ -36,7 +36,7 @@ class AddUserManager(models.Manager):
         try:
             try:
                 person = get_person_by_gmail_id(login)
-                user.login = canvas_user.login_id
+                user.login = person.login_id
             except UserPolicyException:
                 person = get_person_by_netid(login)
                 user.login = person.uwnetid
