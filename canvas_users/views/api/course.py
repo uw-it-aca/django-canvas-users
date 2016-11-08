@@ -1,11 +1,10 @@
 from logging import getLogger
 from django.db import connection
-from restclients.canvas.courses import Courses
-from restclients.canvas.users import Users
 from restclients.canvas.enrollments import Enrollments
 from restclients.models.canvas import CanvasUser, CanvasSection, CanvasRole
 from restclients.exceptions import DataFailureException
 from sis_provisioner.models import CourseMember, Enrollment
+from sis_provisioner.dao.canvas import get_user_by_sis_id, create_user
 from canvas_users.views.api.rest_dispatch import UserRESTDispatch
 from canvas_users.models import AddUser, AddUsersImport
 from multiprocessing import Process
@@ -110,25 +109,24 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
             imp.import_pid = os.getpid()
             imp.save()
 
-            # get users/add as "admin" on behalf of importer
-            users_api = Users()
-
-            # but reflect importer enrollments privilege
+            # reflect importer enrollments privilege
             enroll_api = Enrollments(as_user=imp.importer_id)
 
             for u in users:
                 try:
-                    canvas_user = users_api.get_user_by_sis_id(u.regid)
+                    canvas_user = get_user_by_sis_id(u.regid)
                 except DataFailureException as ex:
                     if ex.status == 404:
                         self._log.info(
                             'CREATE USER "%s" login: %s reg_id: %s' % (
                                 u.name, u.login, u.regid))
-                        canvas_user = users_api.create_user(
-                            CanvasUser(name=u.name,
-                                       login_id=u.login,
-                                       sis_user_id=u.regid,
-                                       email=u.email))
+
+                        # add user as "admin" on behalf of importer
+                        canvas_user = create_user(CanvasUser(
+                            name=u.name,
+                            login_id=u.login,
+                            sis_user_id=u.regid,
+                            email=u.email))
                     else:
                         raise Exception(
                             'Cannot create user %s: %s' % (u.login, ex))
