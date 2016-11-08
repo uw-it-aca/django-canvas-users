@@ -1,12 +1,6 @@
-from restclients.canvas.roles import Roles
-from restclients.util.retry import retry
 from restclients.exceptions import DataFailureException
 from canvas_users.views.api.rest_dispatch import UserRESTDispatch
-from urllib3.exceptions import SSLError
-import logging
-
-
-logger = logging.getLogger(__name__)
+from sis_provisioner.dao.canvas import get_course_roles_in_account
 
 
 class CanvasAccountCourseRoles(UserRESTDispatch):
@@ -17,20 +11,17 @@ class CanvasAccountCourseRoles(UserRESTDispatch):
         roles = []
         account_id = kwargs['canvas_account_id']
 
-        @retry(SSLError, tries=3, delay=1, logger=logger)
-        def _get_roles(account_id):
-            return Roles().get_effective_course_roles_in_account(account_id)
-
         try:
-            for r in _get_roles(account_id):
+            for r in get_course_roles_in_account(account_id):
                 roles.append({
                     'role': r.label,
                     'id': r.role_id,
                     'base': r.base_role_type
                 })
+
+            return self.json_response({'roles': roles})
+
         except DataFailureException as err:
             return self.error_response(500, err.msg)
         except Exception as err:
             return self.error_response(500, err)
-
-        return self.json_response({'roles': roles})

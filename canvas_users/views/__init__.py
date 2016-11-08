@@ -2,7 +2,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from blti.views import BLTIView, BLTILaunchView
 from blti import BLTIException
-from sis_provisioner.policy import CoursePolicy
+from sis_provisioner.dao.course import adhoc_course_sis_id
 import re
 
 
@@ -45,7 +45,7 @@ class AddUsersView(BLTIView):
         context = {
             'sis_course_id': blti_data.get(
                 'lis_course_offering_sourcedid',
-                CoursePolicy().adhoc_sis_id(canvas_course_id)),
+                adhoc_course_sis_id(canvas_course_id)),
             'canvas_course_id': canvas_course_id,
             'canvas_account_id': blti_data.get('custom_canvas_account_id'),
             'canvas_hostname': blti_data.get('custom_canvas_api_domain'),
