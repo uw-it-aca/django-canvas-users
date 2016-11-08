@@ -1,7 +1,8 @@
 from restclients.canvas.sections import Sections
 from restclients.util.retry import retry
 from restclients.exceptions import DataFailureException
-from sis_provisioner.policy import CoursePolicy, CoursePolicyException
+from sis_provisioner.exceptions import CoursePolicyException
+from sis_provisioner.dao.course import valid_academic_course_sis_id
 from canvas_users.views.api.rest_dispatch import UserRESTDispatch
 from urllib3.exceptions import SSLError
 import traceback
@@ -41,7 +42,7 @@ class CanvasCourseSections(UserRESTDispatch):
 
             if not len(sections):
                 try:
-                    CoursePolicy().valid_academic_course_sis_id(course_sis_id)
+                    valid_academic_course_sis_id(course_sis_id)
                     return self.error_response(
                         401, 'Adding users to this course not allowed')
                 except CoursePolicyException:
