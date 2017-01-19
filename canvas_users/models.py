@@ -19,8 +19,6 @@ class AddUserManager(models.Manager):
     def users_in_course(self, course_id, section_id, role, logins):
         self._section_id = str(section_id)
         self._role = role
-        self._re_allowed_domains = re.compile(r'^(.*)@(%s)$' % '|'.join(
-            getattr(settings, 'ADD_USER_DOMAIN_WHITELIST', [])))
 
         course_users = Users().get_users_for_course(
             course_id, params={'per_page': 1000, 'include': ['enrollments']})
@@ -91,6 +89,10 @@ class AddUserManager(models.Manager):
                     return enrollment.role
 
     def _normalize(self, login):
+        if not hasattr(self, '_re_allowed_domains'):
+            self._re_allowed_domains = re.compile(r'^(.*)@(%s)$' % '|'.join(
+                getattr(settings, 'ADD_USER_DOMAIN_WHITELIST', [])))
+
         match = self._re_allowed_domains.match(login)
         return match.group(1) if match else login
 
