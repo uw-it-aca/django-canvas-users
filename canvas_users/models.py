@@ -1,23 +1,30 @@
 from django.db import models
+from django.conf import settings
 from django.utils.timezone import utc, localtime
 from restclients.canvas.users import Users
 from restclients.models.sws import Person
 from restclients.exceptions import DataFailureException
-from sis_provisioner.dao.user import get_person_by_netid, user_email,\
-    user_fullname, user_sis_id, get_person_by_gmail_id
+from sis_provisioner.dao.user import (
+    get_person_by_netid, user_email, user_fullname, user_sis_id,
+    get_person_by_gmail_id)
 from sis_provisioner.exceptions import UserPolicyException
+from logging import getLogger
 import re
 
 
-class AddUserManager(models.Manager):
-    def users_in_course(self, course_id, logins, as_user=None):
-        uw_domains = ['uw.edu', 'washington.edu',
-                      'u.washington.edu', 'cac.washington.edu',
-                      'deskmail.washington.edu']
-        self._re_uw_domain = re.compile(r'^(.*)@(%s)$' % '|'.join(uw_domains))
+logger = getLogger(__name__)
 
-        course_users = Users().get_users_for_course(course_id,
-                                                    params={'per_page': 1000})
+
+class AddUserManager(models.Manager):
+    def users_in_course(self, course_id, section_id, role, logins):
+        self._section_id = section_id
+        self._role = role
+        self._re_allowed_domains = re.compile(r'^(.*)@(%s)$' % '|'.join(
+            getattr(settings, 'ADD_USER_DOMAIN_WHITELIST', [])))
+
+        course_users = Users().get_users_for_course(
+            course_id, params={'per_page': 1000, 'include': ['enrollments']})
+
         self._course_users = dict((u.sis_user_id, u) for u in course_users)
 
         return map(self._get_user_from_login, self._normalize_list(logins))
@@ -46,8 +53,17 @@ class AddUserManager(models.Manager):
             user.regid = user_sis_id(person)
 
             if user.regid in self._course_users:
+                for enrollment in self._course_users[user.regid].enrollments:
+                    logger.info('Section: %s, %s' % (
+                        self._section_id, enrollment.section_id))
+                    logger.info('Role: %s, %s' % (
+                        self._role, enrollment.role))
+                    if enrollment.role == self._role:
+                        pass
+                    else:
+                        user.status = 'present'
+
                 user.name = self._course_users[user.regid].name
-                user.status = 'present'
                 user.comment = 'Already in course'
 
         except DataFailureException as ex:
@@ -55,12 +71,12 @@ class AddUserManager(models.Manager):
                 raise
         except UserPolicyException as ex:
             user.status = 'invalid'
-            user.comment = "%s" % self._prettify(str(ex))
+            user.comment = self._prettify(str(ex))
 
         return user
 
     def _normalize(self, login):
-        match = self._re_uw_domain.match(login)
+        match = self._re_allowed_domains.match(login)
         return match.group(1) if match else login
 
     def _prettify(self, err_str):
