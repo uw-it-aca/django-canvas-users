@@ -17,7 +17,7 @@ logger = getLogger(__name__)
 
 class AddUserManager(models.Manager):
     def users_in_course(self, course_id, section_id, role, logins):
-        self._section_id = section_id
+        self._section_id = str(section_id)
         self._role = role
         self._re_allowed_domains = re.compile(r'^(.*)@(%s)$' % '|'.join(
             getattr(settings, 'ADD_USER_DOMAIN_WHITELIST', [])))
@@ -49,39 +49,57 @@ class AddUserManager(models.Manager):
                 user.login = person.uwnetid
 
             user.email = user_email(person)
-            user.name = user_fullname(person)
             user.regid = user_sis_id(person)
 
             if user.regid in self._course_users:
-                for enrollment in self._course_users[user.regid].enrollments:
-                    logger.info('Section: %s, %s' % (
-                        self._section_id, enrollment.section_id))
-                    logger.info('Role: %s, %s' % (
-                        self._role, enrollment.role))
-                    if enrollment.role == self._role:
-                        pass
-                    else:
-                        user.status = 'present'
-
                 user.name = self._course_users[user.regid].name
-                user.comment = 'Already in course'
+
+                existing_role = self._get_existing_role(user)
+                if existing_role:
+                    # User has a different role in the course
+                    user.status = 'present'
+                    user.comment = 'Already enrolled as %s' % (
+                        self._format_role(existing_role))
+
+                elif self._user_in_section(user):
+                    # User already in selected section with selected role
+                    user.status = 'present'
+                    user.comment = 'Already in this section'
+            else:
+                user.name = user_fullname(person)
 
         except DataFailureException as ex:
             if ex.status != 401:
                 raise
         except UserPolicyException as ex:
             user.status = 'invalid'
-            user.comment = self._prettify(str(ex))
+            user.comment = self._format_invalid_user(str(ex))
 
         return user
+
+    def _user_in_section(self, user):
+        if user.regid in self._course_users:
+            for enrollment in self._course_users[user.regid].enrollments:
+                if str(enrollment.section_id) == self._section_id:
+                    return True
+        return False
+
+    def _get_existing_role(self, user):
+        if user.regid in self._course_users:
+            for enrollment in self._course_users[user.regid].enrollments:
+                if enrollment.role != self._role:
+                    return enrollment.role
 
     def _normalize(self, login):
         match = self._re_allowed_domains.match(login)
         return match.group(1) if match else login
 
-    def _prettify(self, err_str):
+    def _format_invalid_user(self, err_str):
         match = re.match(r'^Invalid Gmail (username|domain): ', err_str)
         return 'Not a UW Netid or Gmail address' if match else err_str
+
+    def _format_role(self, role):
+        return re.sub(r'Enrollment$', '', role)
 
 
 class AddUser(models.Model):

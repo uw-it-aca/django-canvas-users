@@ -25,7 +25,8 @@ class ValidCanvasCourseUsers(UserRESTDispatch):
             data = json.loads(request.body)
 
             course_users = AddUser.objects.users_in_course(
-                course_id, data['section_id'], data['role'], data['login_ids'])
+                course_id, data['section_id'], data['role_base'],
+                data['login_ids'])
 
             return self.json_response({
                 'users': map(lambda u: u.json_data(), course_users)})
