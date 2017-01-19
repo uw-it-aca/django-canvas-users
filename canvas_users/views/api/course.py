@@ -68,7 +68,7 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
             importer = blti_data.get('custom_canvas_user_login_id')
             importer_id = blti_data.get('custom_canvas_user_id')
             users = AddUser.objects.users_in_course(
-                course_id, data['section_id'], data['role'],
+                course_id, data['section_id'], data['role_base'],
                 [x['login'] for x in data['logins']])
             role = CanvasRole(
                 role_id=data['role_id'],

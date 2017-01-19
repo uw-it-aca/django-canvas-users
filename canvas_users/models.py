@@ -56,7 +56,7 @@ class AddUserManager(models.Manager):
 
                 existing_role = self._get_existing_role(user)
                 if existing_role:
-                    # User has a different role in the course
+                    # User already has a different role in the course
                     user.status = 'present'
                     user.comment = 'Already enrolled as %s' % (
                         self._format_role(existing_role))
