@@ -58,6 +58,7 @@ def get_course_sections(course, user_id):
 
     return sections
 
+
 def valid_group_section(sis_section_id):
     return True if (
         sis_section_id is not None and
