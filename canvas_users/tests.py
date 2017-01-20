@@ -15,7 +15,7 @@ class AddUserManagerTest(TestCase):
     def test_normalize(self):
         with self.settings(
                 ADD_USER_DOMAIN_WHITELIST=['abc.com', 'xyz.edu']):
-    
+
             self.assertEquals(AddUserManager()._normalize(
                 'joe@abc.com'), 'joe')
             self.assertEquals(AddUserManager()._normalize(
@@ -48,4 +48,3 @@ class AddUsersImportTest(TestCase):
             imported=2, importing=7).progress(), 28)
         self.assertEquals(AddUsersImport(
             imported=9, importing=12).progress(), 75)
-
