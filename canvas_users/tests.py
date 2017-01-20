@@ -2,6 +2,7 @@ from django.test import TestCase
 from canvas_users.models import AddUserManager, AddUser, AddUsersImport
 from canvas_users.views import allow_origin
 from canvas_users.dao.canvas import *
+from restclients.models.canvas import CanvasCourse
 import mock
 
 
@@ -36,12 +37,14 @@ class CanvasDAOTest(TestCase):
 
     @mock.patch('canvas_users.dao.canvas.Sections')
     def test_sections_constructor(self, mock_object):
-        r = get_course_sections('123', '456')
+        course = CanvasCourse(course_id='123', sis_course_id='789', name='xyz')
+        r = get_course_sections(course, '456')
         mock_object.assert_called_with(as_user='456')
 
     @mock.patch.object(Sections, 'get_sections_in_course')
     def test_get_course_sections(self, mock_method):
-        r = get_course_sections('123', '456')
+        course = CanvasCourse(course_id='123', sis_course_id='789', name='xyz')
+        r = get_course_sections(course, '456')
         mock_method.assert_called_with('123')
 
     def test_valid_group_section(self):

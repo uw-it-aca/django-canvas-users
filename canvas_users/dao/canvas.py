@@ -2,6 +2,9 @@ from restclients.canvas.users import Users
 from restclients.canvas.enrollments import Enrollments
 from restclients.canvas.sections import Sections
 from restclients.util.retry import retry
+from sis_provisioner.dao.course import valid_academic_course_sis_id
+from sis_provisioner.exceptions import CoursePolicyException
+from canvas_users.exceptions import MissingSectionException
 from urllib3.exceptions import SSLError
 from logging import getLogger
 import re
@@ -34,9 +37,26 @@ def enroll_course_user(**kwargs):
 
 
 @retry(SSLError, tries=3, delay=1, logger=logger)
-def get_course_sections(course_id, user_id):
-    return Sections(as_user=user_id).get_sections_in_course(course_id)
+def get_course_sections(course, user_id):
+    sections = []
+    canvas = Sections(as_user=user_id)
+    for section in canvas.get_sections_in_course(course.course_id):
+        if not valid_group_section(section.sis_section_id):
+            sections.append({
+                'id': section.section_id,
+                'sis_id': section.sis_section_id,
+                'name': section.name
+            })
 
+    if not len(sections):
+        try:
+            valid_academic_course_sis_id(course.sis_course_id)
+            raise MissingSectionException(
+                'Adding users to this course not allowed')
+        except CoursePolicyException:
+            sections.append({'id': 0, 'sis_id': '', 'name': course.name})
+
+    return sections
 
 def valid_group_section(sis_section_id):
     return True if (
