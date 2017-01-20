@@ -1,15 +1,14 @@
 from logging import getLogger
 from django.db import connection
-from restclients.canvas.enrollments import Enrollments
 from restclients.models.canvas import CanvasUser, CanvasSection, CanvasRole
 from restclients.exceptions import DataFailureException
 from sis_provisioner.models import CourseMember, Enrollment
 from sis_provisioner.dao.canvas import get_user_by_sis_id, create_user
+from canvas_users.dao.canvas import enroll_course_user
 from canvas_users.views.api.rest_dispatch import UserRESTDispatch
 from canvas_users.models import AddUser, AddUsersImport
 from multiprocessing import Process
 import json
-import re
 import sys
 import os
 
@@ -21,15 +20,16 @@ class ValidCanvasCourseUsers(UserRESTDispatch):
     def POST(self, request, **kwargs):
         try:
             blti_data = self.get_session(request)
-            importer_id = blti_data.get('custom_canvas_user_id')
             course_id = kwargs['canvas_course_id']
             data = json.loads(request.body)
+
+            course_users = AddUser.objects.users_in_course(
+                course_id, data['section_id'], data['role_base'],
+                data['login_ids'])
+
             return self.json_response({
-                'users': map(lambda u: u.json_data(),
-                             AddUser.objects.users_in_course(
-                                 course_id, data["login_ids"],
-                                 as_user=importer_id))
-            })
+                'users': map(lambda u: u.json_data(), course_users)})
+
         except Exception as ex:
             return self.error_response(400, message="Validation Error %s" % ex)
 
@@ -67,8 +67,8 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
             importer = blti_data.get('custom_canvas_user_login_id')
             importer_id = blti_data.get('custom_canvas_user_id')
             users = AddUser.objects.users_in_course(
-                course_id, [x['login'] for x in data["logins"]],
-                as_user=importer_id)
+                course_id, data['section_id'], data['role_base'],
+                [x['login'] for x in data['logins']])
             role = CanvasRole(
                 role_id=data['role_id'],
                 label=data['role'],
@@ -109,9 +109,6 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
             imp.import_pid = os.getpid()
             imp.save()
 
-            # reflect importer enrollments privilege
-            enroll_api = Enrollments(as_user=imp.importer_id)
-
             for u in users:
                 try:
                     canvas_user = get_user_by_sis_id(u.regid)
@@ -131,16 +128,6 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                         raise Exception(
                             'Cannot create user %s: %s' % (u.login, ex))
 
-                enroll_params = {
-                    'role_id': role.role_id,
-                    'enrollment_state': 'active',
-                    'limit_privileges_to_course_section': section_only,
-                    'notify': notify_users
-                }
-
-                if section.section_id and int(section.section_id) > 0:
-                    enroll_params['course_section_id'] = section.section_id
-
                 self._log.info(
                     '%s ADDING %s (%s) TO %s: %s '
                     '(%s) AS %s (%s) - O:%s, N:%s' % (
@@ -151,8 +138,15 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                         enroll_params['limit_privileges_to_course_section'],
                         enroll_params['notify']))
 
-                enroll_api.enroll_user(section.course_id, canvas_user.user_id,
-                                       role.base_role_type, enroll_params)
+                enroll_course_user(
+                    as_user=imp.importer_id,
+                    course_id=section.course_id,
+                    section_id=section.section_id,
+                    user_id=canvas_user.user_id,
+                    role_type=role.base_role_type,
+                    role_id=role.role_id,
+                    section_only=section_only,
+                    notify_users=notify_users)
 
                 imp.imported += 1
                 imp.save()
