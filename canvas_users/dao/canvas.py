@@ -24,7 +24,7 @@ def enroll_course_user(**kwargs):
         'limit_privileges_to_course_section': kwargs.get('section_only'),
         'notify': kwargs.get('notify_users'),
         'enrollment_state': 'active'}
-   
+
     if int(kwargs.get('section_id', 0)) > 0:
         params['course_section_id'] = kwargs.get('section_id')
 
@@ -39,5 +39,6 @@ def get_course_sections(course_id, user_id):
 
 
 def valid_group_section(sis_section_id):
-    return True if (sis_section_id is not None and
+    return True if (
+        sis_section_id is not None and
         RE_GROUP_SECTION.match(str(sis_section_id)) is not None) else False
