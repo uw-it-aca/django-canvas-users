@@ -1,9 +1,9 @@
 from django.db import models
 from django.conf import settings
 from django.utils.timezone import utc, localtime
-from restclients.canvas.users import Users
 from restclients.models.sws import Person
 from restclients.exceptions import DataFailureException
+from canvas_users.dao.canvas import get_course_users
 from sis_provisioner.dao.user import (
     get_person_by_netid, user_email, user_fullname, user_sis_id,
     get_person_by_gmail_id)
@@ -20,10 +20,8 @@ class AddUserManager(models.Manager):
         self._section_id = str(section_id)
         self._role = role
 
-        course_users = Users().get_users_for_course(
-            course_id, params={'per_page': 1000, 'include': ['enrollments']})
-
-        self._course_users = dict((u.sis_user_id, u) for u in course_users)
+        self._course_users = dict(
+            (u.sis_user_id, u) for u in get_course_users(course_id))
 
         return map(self._get_user_from_login, self._normalize_list(logins))
 
