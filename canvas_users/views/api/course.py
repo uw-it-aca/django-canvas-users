@@ -134,9 +134,7 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                         imp.importer, canvas_user.login_id,
                         canvas_user.user_id, section.course_id,
                         section.sis_section_id, section.section_id, role.label,
-                        role.role_id,
-                        enroll_params['limit_privileges_to_course_section'],
-                        enroll_params['notify']))
+                        role.role_id, section_only, notify_users))
 
                 enroll_course_user(
                     as_user=imp.importer_id,
