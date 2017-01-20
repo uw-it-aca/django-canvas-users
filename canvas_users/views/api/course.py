@@ -21,15 +21,16 @@ class ValidCanvasCourseUsers(UserRESTDispatch):
     def POST(self, request, **kwargs):
         try:
             blti_data = self.get_session(request)
-            importer_id = blti_data.get('custom_canvas_user_id')
             course_id = kwargs['canvas_course_id']
             data = json.loads(request.body)
+
+            course_users = AddUser.objects.users_in_course(
+                course_id, data['section_id'], data['role_base'],
+                data['login_ids'])
+
             return self.json_response({
-                'users': map(lambda u: u.json_data(),
-                             AddUser.objects.users_in_course(
-                                 course_id, data["login_ids"],
-                                 as_user=importer_id))
-            })
+                'users': map(lambda u: u.json_data(), course_users)})
+
         except Exception as ex:
             return self.error_response(400, message="Validation Error %s" % ex)
 
@@ -67,8 +68,8 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
             importer = blti_data.get('custom_canvas_user_login_id')
             importer_id = blti_data.get('custom_canvas_user_id')
             users = AddUser.objects.users_in_course(
-                course_id, [x['login'] for x in data["logins"]],
-                as_user=importer_id)
+                course_id, data['section_id'], data['role_base'],
+                [x['login'] for x in data['logins']])
             role = CanvasRole(
                 role_id=data['role_id'],
                 label=data['role'],

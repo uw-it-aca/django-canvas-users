@@ -358,7 +358,11 @@
                 dataType: 'json',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    login_ids: users_to_add
+                    login_ids: users_to_add,
+                    role_id: add_as_role_vals[0],
+                    role_base: add_as_role_vals[1],
+                    section_id: add_to_section_vals[0],
+                    section_sis_id: add_to_section_vals[1]
                 })
             })
                 .done(function (data) {
