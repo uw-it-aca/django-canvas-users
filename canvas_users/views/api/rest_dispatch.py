@@ -18,10 +18,11 @@ class UserRESTDispatch(RESTDispatch):
         return self._http_response('', status=200)
 
     def _set_response_headers(self, request):
+        origin = request.META.get('HTTP_ORIGIN', '')
         self.extra_response_headers = {
             'Access-Control-Allow-Methods': "POST, GET",
             'Access-Control-Allow-Headers': 'Content-Type, X-SessionId, '
                                             'X-CSRFToken, X-CSRF-Token, '
                                             'X-Requested-With',
-            'Access-Control-Allow-Origin': allow_origin(request)
+            'Access-Control-Allow-Origin': allow_origin(origin)
         }

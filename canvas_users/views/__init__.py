@@ -6,9 +6,8 @@ from sis_provisioner.dao.course import adhoc_course_sis_id
 import re
 
 
-def allow_origin(request):
+def allow_origin(origin):
     canvas_host = getattr(settings, 'RESTCLIENTS_CANVAS_HOST')
-    origin = request.META.get('HTTP_ORIGIN', '')
     if origin != canvas_host:
         m = re.match(r'^https://.*\.([a-z]+\.[a-z]+)$', origin)
         if m:
@@ -62,7 +61,7 @@ class AddUsersView(BLTIView):
             canvas_host = 'https://%s' % blti_data.get(
                 'custom_canvas_api_domain')
         else:
-            canvas_host = allow_origin(request)
+            canvas_host = allow_origin(request.META.get('HTTP_ORIGIN', ''))
 
         response['Access-Control-Allow-Methods'] = 'POST, GET'
         response['Access-Control-Allow-Headers'] = ', '.join(
