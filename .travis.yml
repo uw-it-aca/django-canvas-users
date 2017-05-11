@@ -1,20 +1,33 @@
 sudo: false
 language: python
 python:
-  - "2.7"
+- '2.7'
 before_install:
-  - cp travis-ci/test_requirements.txt requirements.txt
-install: pip install -r requirements.txt
+- cp travis-ci/test_requirements.txt requirements.txt
 before_script:
-  - pip install coverage
-  - pip install python-coveralls
-  - pip install pep8
-  - npm install jshint
-  - cp travis-ci/manage.py manage.py
+
+- pip install -r requirements.txt
+- pip install pep8
+- pip install coverage
+- pip install python-coveralls
+- npm install jshint
+- cp travis-ci/manage.py manage.py
 script:
-  - pep8 canvas_users/ --exclude=migrations,management,test
-  - jshint canvas_users/static/canvas_users/js/  --verbose
-  - coverage run --source=canvas_users/ manage.py test canvas_users
-after_script:
+- pep8 canvas_users/ --exclude=migrations,management,test
+- jshint canvas_users/static/canvas_users/js/  --verbose
+- coverage run --source=canvas_users manage.py test canvas_users
+after_success:
   - coveralls
-notifications:
+before_deploy:
+- find canvas_users/ -name \*.pyc -exec rm {} \;
+- echo $TRAVIS_TAG > canvas_users/VERSION
+deploy:
+  provider: pypi
+  server: https://pypi.python.org/pypi
+  user: uw-it-aca
+  skip_cleanup: true
+  password:
+    secure:
+  on:
+    tags: true
+    python: '2.7'

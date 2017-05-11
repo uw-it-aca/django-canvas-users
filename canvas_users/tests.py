@@ -2,7 +2,7 @@ from django.test import TestCase
 from canvas_users.models import AddUserManager, AddUser, AddUsersImport
 from canvas_users.views import allow_origin
 from canvas_users.dao.canvas import *
-from restclients.models.canvas import CanvasCourse
+from uw_canvas.models import CanvasCourse
 import mock
 
 

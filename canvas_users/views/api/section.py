@@ -1,5 +1,5 @@
-from restclients.models.canvas import CanvasCourse
-from restclients.exceptions import DataFailureException
+from uw_canvas.models import CanvasCourse
+from restclients_core.exceptions import DataFailureException
 from canvas_users.dao.canvas import get_course_sections
 from canvas_users.exceptions import MissingSectionException
 from canvas_users.views.api.rest_dispatch import UserRESTDispatch

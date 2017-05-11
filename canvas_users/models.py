@@ -1,8 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils.timezone import utc, localtime
-from restclients.models.sws import Person
-from restclients.exceptions import DataFailureException
+from restclients_core.exceptions import DataFailureException
 from canvas_users.dao.canvas import get_course_users
 from sis_provisioner.dao.user import (
     get_person_by_netid, user_email, user_fullname, user_sis_id,
