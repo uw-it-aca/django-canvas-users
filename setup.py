@@ -15,7 +15,7 @@ VERSION = VERSION.replace("\n", "")
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
-    name='django-canvas-users',
+    name='UW-Canvas-Users-LTI',
     version=VERSION,
     packages=['canvas_users'],
     include_package_data=True,
@@ -27,7 +27,7 @@ setup(
         'UW-RestClients-Canvas>=0.2,<1.0',
     ],
     license='Apache License, Version 2.0',
-    description='Django application for adding users to Canvas courses aligned with UW policy',
+    description='Django LTI application for adding users to Canvas courses aligned with UW policy',
     long_description=README,
     url='https://github.com/uw-it-aca/django-canvas-users',
     author = "UW-IT AXDD",
