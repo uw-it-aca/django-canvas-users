@@ -1,7 +1,7 @@
 from logging import getLogger
 from django.db import connection
-from restclients.models.canvas import CanvasUser, CanvasSection, CanvasRole
-from restclients.exceptions import DataFailureException
+from uw_canvas.models import CanvasUser, CanvasSection, CanvasRole
+from restclients_core.exceptions import DataFailureException
 from sis_provisioner.models import CourseMember, Enrollment
 from sis_provisioner.dao.canvas import get_user_by_sis_id, create_user
 from canvas_users.dao.canvas import enroll_course_user
