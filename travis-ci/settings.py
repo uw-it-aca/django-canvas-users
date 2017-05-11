@@ -37,10 +37,8 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'compressor',
     'templatetag_handlebars',
-    'restclients',
-    'userservice',
-    'sis_provisioner',
     'blti',
+    'sis_provisioner.apps.SISProvisionerConfig',
     'canvas_users',
 )
 
