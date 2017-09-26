@@ -24,7 +24,7 @@ setup(
         'django-compressor',
         'django-templatetag-handlebars',
         'django-blti>=0.1',
-        'UW-RestClients-Canvas>=0.2,<1.0',
+        'UW-RestClients-Canvas>=0.6.5,<1.0',
     ],
     license='Apache License, Version 2.0',
     description='Django LTI application for adding users to Canvas courses aligned with UW policy',

@@ -47,13 +47,16 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
             imp = AddUsersImport.objects.get(id=import_id)
 
             if imp.import_error:
-                return self.error_response(400, message=imp.import_error)
+                try:
+                    msg = json.loads(imp.import_error)
+                except Exception:
+                    msg = imp.import_error
+                return self.json_response({'error': msg}, status=400)
 
-            json = imp.json_data()
             if imp.progress() == 100:
                 imp.delete()
 
-            return self.json_response(json)
+            return self.json_response(imp.json_data())
         except AddUsersImport.DoesNotExist:
             return self.error_response(400, message="Unknown import id")
         except KeyError:
@@ -149,9 +152,19 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                 imp.imported += 1
                 imp.save()
 
+        except DataFailureException as ex:
+            self._log.info('EXCEPTION: %s' % (ex))
+            try:
+                msg = json.loads(ex.msg)
+                imp.import_error = json.dumps({
+                    'url': ex.url, 'status': ex.status, 'msg': msg})
+            except Exception:
+                imp.import_error = "%s" % (ex)
+            imp.save()
+
         except Exception as ex:
-            self._log.error('EXCEPTION: %s' % (ex))
-            imp.import_error = "exception: %s" % (ex)
+            self._log.info('EXCEPTION: %s' % (ex))
+            imp.import_error = "%s" % (ex)
             imp.save()
 
         sys.exit(0)

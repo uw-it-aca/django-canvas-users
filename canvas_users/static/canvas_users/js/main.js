@@ -78,16 +78,19 @@
 
         function problemAddingUsers(msg, $modal) {
             var tpl = Handlebars.templates.failure_modal,
-                error_text;
+                error_json,
+                error_text = '';
 
             try {
-                error_text = JSON.parse(msg).error;
+                error_json = JSON.parse(msg).error;
+                error_text = error_json.msg.status.toUpperCase() + ' (' +
+                    error_json.msg.errors[0].message + ')';
             } catch (e) {
-                error_text = 'unspecified';
+                error_text = msg;
             }
 
             $modal.find('div.uw-add-people-problem').html(tpl({
-                error_message: 'PROBLEM IS: ' + error_text
+                error_message: error_text
             }));
 
             showPeopleProblem($modal);
