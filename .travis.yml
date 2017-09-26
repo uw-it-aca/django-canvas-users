@@ -25,7 +25,6 @@ before_deploy:
 - echo $TRAVIS_TAG > canvas_users/VERSION
 deploy:
   provider: pypi
-  server: https://pypi.python.org/pypi
   user: uw-it-aca
   skip_cleanup: true
   password:
