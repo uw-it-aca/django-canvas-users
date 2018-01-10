@@ -7,7 +7,7 @@ class CanvasAccountCourseRoles(UserRESTDispatch):
     """ Performs actions on a Canvas account course roles
         GET returns 200 with account course roles.
     """
-    def GET(self, request, **kwargs):
+    def get(self, request, *args, **kwargs):
         roles = []
         account_id = kwargs['canvas_account_id']
 

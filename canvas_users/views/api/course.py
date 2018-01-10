@@ -17,9 +17,8 @@ class ValidCanvasCourseUsers(UserRESTDispatch):
     """ Exposes API to manage Canvas users
         GET returns 200 with user details
     """
-    def POST(self, request, **kwargs):
+    def post(self, request, *args, **kwargs):
         try:
-            blti_data = self.get_session(request)
             course_id = kwargs['canvas_course_id']
             data = json.loads(request.body)
 
@@ -40,7 +39,7 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
     def __init__(self):
         self._log = getLogger(__name__)
 
-    def GET(self, request, **kwargs):
+    def get(self, request, *args, **kwargs):
         course_id = kwargs['canvas_course_id']
         try:
             import_id = request.GET['import_id']
@@ -62,13 +61,11 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
         except KeyError:
             return self.error_response(400, message="Missing import id")
 
-    def POST(self, request, **kwargs):
+    def post(self, request, *args, **kwargs):
         try:
             course_id = kwargs['canvas_course_id']
             data = json.loads(request.body)
-            blti_data = self.get_session(request)
-            importer = blti_data.get('custom_canvas_user_login_id')
-            importer_id = blti_data.get('custom_canvas_user_id')
+
             users = AddUser.objects.users_in_course(
                 course_id, data['section_id'], data['role_base'],
                 [x['login'] for x in data['logins']])
@@ -83,8 +80,8 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
             section_only = data['section_only']
             notify_users = data['notify_users']
             imp = AddUsersImport(
-                importer=importer,
-                importer_id=importer_id,
+                importer=self.blti.user_login_id,
+                importer_id=self.blti.canvas_user_id,
                 importing=len(users),
                 course_id=course_id,
                 role=role.label,
