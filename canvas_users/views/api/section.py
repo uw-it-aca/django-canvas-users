@@ -10,12 +10,11 @@ class CanvasCourseSections(UserRESTDispatch):
     """ Performs actions on Canvas Course Sections
         GET returns 200 with course sections.
     """
-    def GET(self, request, **kwargs):
+    def get(self, request, *args, **kwargs):
         course_id = kwargs['canvas_course_id']
-        blti_data = self.get_session(request)
-        user_id = blti_data.get('custom_canvas_user_id')
-        course_name = blti_data.get('context_title')
-        sis_course_id = blti_data.get('lis_course_offering_sourcedid', '')
+        user_id = self.blti.canvas_user_id
+        course_name = self.blti.course_long_name
+        sis_course_id = self.blti.course_sis_id
 
         try:
             course = CanvasCourse(course_id=course_id,

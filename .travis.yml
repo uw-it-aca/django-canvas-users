@@ -1,5 +1,4 @@
 sudo: false
-dist: precise
 language: python
 python:
 - '2.7'
@@ -10,13 +9,13 @@ before_install:
 - cp travis-ci/test_requirements.txt requirements.txt
 before_script:
 - pip install -r requirements.txt
-- pip install pep8
+- pip install pycodestyle
 - pip install coverage
 - pip install python-coveralls
-- npm install jshint
+- npm install -g jshint
 - cp travis-ci/manage.py manage.py
 script:
-- pep8 canvas_users/ --exclude=migrations,management,test
+- pycodestyle canvas_users/ --exclude=migrations,management,test
 - jshint canvas_users/static/canvas_users/js/  --verbose
 - coverage run --source=canvas_users manage.py test canvas_users
 after_success:
