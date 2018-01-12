@@ -1,13 +1,13 @@
 from restclients_core.exceptions import DataFailureException
-from canvas_users.views.api.rest_dispatch import UserRESTDispatch
 from sis_provisioner.dao.canvas import get_course_roles_in_account
+from canvas_users.views import UserRESTDispatch
 
 
 class CanvasAccountCourseRoles(UserRESTDispatch):
     """ Performs actions on a Canvas account course roles
         GET returns 200 with account course roles.
     """
-    def GET(self, request, **kwargs):
+    def get(self, request, *args, **kwargs):
         roles = []
         account_id = kwargs['canvas_account_id']
 
