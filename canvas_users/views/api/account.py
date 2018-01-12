@@ -1,6 +1,6 @@
 from restclients_core.exceptions import DataFailureException
-from canvas_users.views.api.rest_dispatch import UserRESTDispatch
 from sis_provisioner.dao.canvas import get_course_roles_in_account
+from canvas_users.views import UserRESTDispatch
 
 
 class CanvasAccountCourseRoles(UserRESTDispatch):
