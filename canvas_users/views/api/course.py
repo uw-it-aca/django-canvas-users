@@ -5,7 +5,7 @@ from restclients_core.exceptions import DataFailureException
 from sis_provisioner.models import CourseMember, Enrollment
 from sis_provisioner.dao.canvas import get_user_by_sis_id, create_user
 from canvas_users.dao.canvas import enroll_course_user
-from canvas_users.views.api.rest_dispatch import UserRESTDispatch
+from canvas_users.views import UserRESTDispatch
 from canvas_users.models import AddUser, AddUsersImport
 from multiprocessing import Process
 import json
