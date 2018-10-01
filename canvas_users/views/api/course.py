@@ -30,7 +30,8 @@ class ValidCanvasCourseUsers(UserRESTDispatch):
                 'users': map(lambda u: u.json_data(), course_users)})
 
         except Exception as ex:
-            return self.error_response(400, message="Validation Error %s" % ex)
+            return self.error_response(
+                400, message='Validation Error {}'.format(ex))
 
 
 class ImportCanvasCourseUsers(UserRESTDispatch):
@@ -97,10 +98,10 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
             return self.json_response(imp.json_data())
         except KeyError as ex:
             return self.error_response(
-                400, message="Incomplete Request: %s" % ex)
+                400, message='Incomplete Request: {}'.format(ex))
         except Exception as ex:
             return self.error_response(
-                400, message="Import Error: %s" % ex)
+                400, message='Import Error: {}'.format(ex))
 
     def _api_import_users(self, import_id, users, role,
                           section, section_only, notify_users):
@@ -115,8 +116,8 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                 except DataFailureException as ex:
                     if ex.status == 404:
                         self._log.info(
-                            'CREATE USER "%s" login: %s reg_id: %s' % (
-                                u.name, u.login, u.regid))
+                            'CREATE USER "{name}", login: {login}, '
+                            'reg_id: {regid}'.format(u.name, u.login, u.regid))
 
                         # add user as "admin" on behalf of importer
                         canvas_user = create_user(CanvasUser(
@@ -125,16 +126,20 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                             sis_user_id=u.regid,
                             email=u.email))
                     else:
-                        raise Exception(
-                            'Cannot create user %s: %s' % (u.login, ex))
+                        raise Exception('Cannot create user {}: {}'.format(
+                            u.login, ex))
 
                 self._log.info(
-                    '%s ADDING %s (%s) TO %s: %s '
-                    '(%s) AS %s (%s) - O:%s, N:%s' % (
-                        imp.importer, canvas_user.login_id,
-                        canvas_user.user_id, section.course_id,
-                        section.sis_section_id, section.section_id, role.label,
-                        role.role_id, section_only, notify_users))
+                    '{importer} ADDING {user} ({user_id}) TO {course_id}: '
+                    '{sis_section_id} ({section_id}) AS {role} ({role_id}) '
+                    '- O:{section_only}, N:{notify}'.format(
+                        importer=imp.importer, user=canvas_user.login_id,
+                        user_id=canvas_user.user_id,
+                        course_id=section.course_id,
+                        sis_section_id=section.sis_section_id,
+                        section_id=section.section_id, role=role.label,
+                        role_id=role.role_id, section_only=section_only,
+                        notify=notify_users))
 
                 enroll_course_user(
                     as_user=imp.importer_id,
@@ -150,18 +155,18 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                 imp.save()
 
         except DataFailureException as ex:
-            self._log.info('EXCEPTION: %s' % (ex))
+            self._log.info('EXCEPTION: {}'.format(ex))
             try:
                 msg = json.loads(ex.msg)
                 imp.import_error = json.dumps({
                     'url': ex.url, 'status': ex.status, 'msg': msg})
             except Exception:
-                imp.import_error = "%s" % (ex)
+                imp.import_error = '{}'.format(ex)
             imp.save()
 
         except Exception as ex:
-            self._log.info('EXCEPTION: %s' % (ex))
-            imp.import_error = "%s" % (ex)
+            self._log.info('EXCEPTION: {}'.format(ex))
+            imp.import_error = '{}'.format(ex)
             imp.save()
 
         sys.exit(0)
