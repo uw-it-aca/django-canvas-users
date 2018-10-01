@@ -1,9 +1,10 @@
-sudo: false
 language: python
 python:
 - '3.6'
 before_install:
 - cp travis-ci/test_requirements.txt requirements.txt
+install:
+- sudo apt-get install -qq python-dev libxml2-dev libxmlsec1-dev
 before_script:
 - pip install -r requirements.txt
 - pip install pycodestyle
