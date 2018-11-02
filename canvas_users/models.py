@@ -53,8 +53,8 @@ class AddUserManager(models.Manager):
                 if existing_role:
                     # User already has a different role in the course
                     user.status = 'present'
-                    user.comment = 'Already enrolled as %s' % (
-                        self._format_role(existing_role))
+                    user.comment = 'Already enrolled as {role}'.format(
+                        role=self._format_role(existing_role))
 
                 elif self._user_in_section(user):
                     # User already in selected section with selected role
@@ -87,8 +87,8 @@ class AddUserManager(models.Manager):
 
     def _normalize(self, login):
         if not hasattr(self, '_re_allowed_domains'):
-            self._re_allowed_domains = re.compile(r'^(.*)@(%s)$' % '|'.join(
-                getattr(settings, 'ADD_USER_DOMAIN_WHITELIST', [])))
+            self._re_allowed_domains = re.compile(r'^(.*)@({})$'.format(
+                '|'.join(getattr(settings, 'ADD_USER_DOMAIN_WHITELIST', []))))
 
         match = self._re_allowed_domains.match(login)
         return match.group(1) if match else login
