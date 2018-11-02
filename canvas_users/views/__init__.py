@@ -21,7 +21,7 @@ def allow_origin(origin):
 
 def add_headers_for_view(view, **kwargs):
         if hasattr(view, 'blti'):
-            canvas_host = 'https://%s' % view.blti.canvas_api_domain
+            canvas_host = 'https://{}'.format(view.blti.canvas_api_domain)
         else:
             http_origin = view.request.META.get('HTTP_ORIGIN', '')
             canvas_host = allow_origin(http_origin)

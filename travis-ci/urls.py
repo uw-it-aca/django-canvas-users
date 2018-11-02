@@ -1,7 +1,5 @@
-from django.conf.urls import patterns, include, url
-from django.contrib import admin
+from django.urls import include, re_path
 
-
-urlpatterns = patterns('',
-    url(r'^', include('canvas_users.urls')),
-)
+urlpatterns = [
+    re_path(r'^', include('canvas_users.urls')),
+]

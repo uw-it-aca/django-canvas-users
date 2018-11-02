@@ -1,21 +1,19 @@
-sudo: false
 language: python
 python:
-- '2.7'
-- '3.4'
-- '3.5'
 - '3.6'
 before_install:
 - cp travis-ci/test_requirements.txt requirements.txt
+install:
+- sudo apt-get install -qq python-dev libxml2-dev libxmlsec1-dev
 before_script:
 - pip install -r requirements.txt
 - pip install pycodestyle
 - pip install coverage
-- pip install python-coveralls
+- pip install coveralls
 - npm install -g jshint
 - cp travis-ci/manage.py manage.py
 script:
-- pycodestyle canvas_users/ --exclude=migrations,management,test
+- pycodestyle canvas_users/
 - jshint canvas_users/static/canvas_users/js/  --verbose
 - coverage run --source=canvas_users manage.py test canvas_users
 after_success:
@@ -31,4 +29,4 @@ deploy:
     secure: lms5CRywMsF7Jsr/qkerGHy9Vo6FWye0Y7Rc4M+gXWWXcr80MLosLLzKvPdBwq3nCP2oLbzqIWeZoklTIaIJzaTb13tDfpyQAj2mCj7/u65Pkw15OPYCskhEbSV+k3/mcTLVRRl3BNsVuUsVu7EEqz+7eyt14qjyYJykJuZeq87PMlOM0jcg0j6gX25fTzY1BhoyAn5O82s3Sdl23gcG0TrrQtiKAMNpmrRZ3RJ7YDA+OzTMn6+FtbvGDH5l0YIXpYbm1zcDi6E4ss3F41Ognhi8Og6AX1mMeZsXPC7IfCjN0dNxGGJO/qwQvd/v4tBq3FyBi2l8HGtK2t0p+Dj4DqizpkS4hydVT9lhuBB/xT90STtG+0t/I/Cc20GhdiOgRFGe54yDtoDTo8WVJv8R00XfR2M9SayU3joqXTUjSNo6Y6zNdhSgVB9Wt8eIdQZT9BIoXReZKCPRmwJic+A7XrObkP7DuaBEY69md2K0ZzkToUlK6HaFPr0VhRaj693RyEdKvGpQl/4YsJd0r6rJuZX06S+n6chVWb59Fnhci8kuMDVGvummahjllctx0sQEUUo0SIhiv3G+gcGwyXOkVGlv32/vleRF1cbO0Nc9T+pfmcnDX5SCPARmB/eSuuDtEQ3NFe1GGMdrt7hfaW7RtpAF/5ycg19O7mZrt90vRfQ=
   on:
     tags: true
-    python: '3.5'
+    python: '3.6'
