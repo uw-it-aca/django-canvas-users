@@ -13,7 +13,7 @@ before_script:
 - npm install -g jshint
 - cp travis-ci/manage.py manage.py
 script:
-- pycodestyle canvas_users/
+- pycodestyle canvas_users/ --exclude=migrations
 - jshint canvas_users/static/canvas_users/js/  --verbose
 - coverage run --source=canvas_users manage.py test canvas_users
 after_success:
