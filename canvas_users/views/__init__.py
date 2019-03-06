@@ -20,23 +20,23 @@ def allow_origin(origin):
 
 
 def add_headers_for_view(view, **kwargs):
-        if hasattr(view, 'blti'):
-            canvas_host = 'https://{}'.format(view.blti.canvas_api_domain)
-        else:
-            http_origin = view.request.META.get('HTTP_ORIGIN', '')
-            canvas_host = allow_origin(http_origin)
+    if hasattr(view, 'blti'):
+        canvas_host = 'https://{}'.format(view.blti.canvas_api_domain)
+    else:
+        http_origin = view.request.META.get('HTTP_ORIGIN', '')
+        canvas_host = allow_origin(http_origin)
 
-        response = kwargs.get('response')
-        response['Access-Control-Allow-Methods'] = ', '.join(
-            view._allowed_methods())
-        response['Access-Control-Allow-Headers'] = ', '.join([
-            'Content-Type', 'X-SessionId', 'X-CSRFToken', 'X-CSRF-Token',
-            'X-Requested-With'])
-        response['Access-Control-Allow-Origin'] = canvas_host
+    response = kwargs.get('response')
+    response['Access-Control-Allow-Methods'] = ', '.join(
+        view._allowed_methods())
+    response['Access-Control-Allow-Headers'] = ', '.join([
+        'Content-Type', 'X-SessionId', 'X-CSRFToken', 'X-CSRF-Token',
+        'X-Requested-With'])
+    response['Access-Control-Allow-Origin'] = canvas_host
 
-        if view.request.method == 'OPTIONS':
-            response['Allow'] = ', '.join(view._allowed_methods())
-            response['Content-Length'] = '0'
+    if view.request.method == 'OPTIONS':
+        response['Allow'] = ', '.join(view._allowed_methods())
+        response['Content-Length'] = '0'
 
 
 class LaunchView(BLTILaunchView):
