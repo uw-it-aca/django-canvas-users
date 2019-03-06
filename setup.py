@@ -23,7 +23,7 @@ setup(
         'Django>=2.1',
         'django-compressor',
         'django-blti>=2.0',
-        'UW-RestClients-Canvas>=1.0.1,<2.0',
+        'UW-RestClients-Canvas>=1.0.4,<2.0',
     ],
     license='Apache License, Version 2.0',
     description=(

@@ -22,7 +22,8 @@ class AddUserManager(models.Manager):
         self._course_users = dict(
             (u.sis_user_id, u) for u in get_course_users(course_id))
 
-        return map(self._get_user_from_login, self._normalize_list(logins))
+        return list(map(
+            self._get_user_from_login, self._normalize_list(logins)))
 
     def _normalize_list(self, raw_logins):
         logins = []

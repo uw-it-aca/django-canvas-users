@@ -27,7 +27,7 @@ class ValidCanvasCourseUsers(UserRESTDispatch):
                 data['login_ids'])
 
             return self.json_response({
-                'users': map(lambda u: u.json_data(), course_users)})
+                'users': list(map(lambda u: u.json_data(), course_users))})
 
         except Exception as ex:
             return self.error_response(

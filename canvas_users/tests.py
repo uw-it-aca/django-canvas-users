@@ -59,6 +59,14 @@ class CanvasDAOTest(TestCase):
 
 
 class AddUserManagerTest(TestCase):
+    @mock.patch.object(Users, 'get_users_for_course')
+    def test_users_in_course(self, mock_method):
+        mock_method.return_value = []
+        r = AddUser.objects.users_in_course(
+            '2013-spring-TRAIN-101-A', '2013-spring-TRAIN-101-AA', 'student',
+            logins=[])
+        self.assertEqual(len(r), 0)
+
     def test_user_in_section(self):
         pass
 
