@@ -7,11 +7,7 @@ from sis_provisioner.dao.user import (
     get_person_by_netid, user_email, user_fullname, user_sis_id,
     get_person_by_gmail_id)
 from sis_provisioner.exceptions import UserPolicyException
-from logging import getLogger
 import re
-
-
-logger = getLogger(__name__)
 
 
 class AddUserManager(models.Manager):
@@ -22,8 +18,8 @@ class AddUserManager(models.Manager):
         self._course_users = dict(
             (u.sis_user_id, u) for u in get_course_users(course_id))
 
-        return list(map(
-            self._get_user_from_login, self._normalize_list(logins)))
+        return [self._get_user_from_login(login) for login in (
+            self._normalize_list(logins))]
 
     def _normalize_list(self, raw_logins):
         logins = []

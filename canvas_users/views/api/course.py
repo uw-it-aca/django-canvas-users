@@ -12,6 +12,8 @@ import json
 import sys
 import os
 
+logger = getLogger('canvas_users')
+
 
 class ValidCanvasCourseUsers(UserRESTDispatch):
     """ Exposes API to manage Canvas users
@@ -27,7 +29,8 @@ class ValidCanvasCourseUsers(UserRESTDispatch):
                 data['login_ids'])
 
             return self.json_response({
-                'users': list(map(lambda u: u.json_data(), course_users))})
+                'users': [user.json_data() for user in course_users]
+            })
 
         except Exception as ex:
             return self.error_response(
@@ -37,9 +40,6 @@ class ValidCanvasCourseUsers(UserRESTDispatch):
 class ImportCanvasCourseUsers(UserRESTDispatch):
     """ Exposes API to manage Canvas users
     """
-    def __init__(self):
-        self._log = getLogger(__name__)
-
     def get(self, request, *args, **kwargs):
         course_id = kwargs['canvas_course_id']
         try:
@@ -115,9 +115,9 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                     canvas_user = get_user_by_sis_id(u.regid)
                 except DataFailureException as ex:
                     if ex.status == 404:
-                        self._log.info(
-                            'CREATE USER "{name}", login: {login}, '
-                            'reg_id: {regid}'.format(u.name, u.login, u.regid))
+                        logger.info(
+                            'CREATE USER "{}", login: {}, reg_id: {}'.format(
+                                u.name, u.login, u.regid))
 
                         # add user as "admin" on behalf of importer
                         canvas_user = create_user(CanvasUser(
@@ -129,7 +129,7 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                         raise Exception('Cannot create user {}: {}'.format(
                             u.login, ex))
 
-                self._log.info(
+                logger.info(
                     '{importer} ADDING {user} ({user_id}) TO {course_id}: '
                     '{sis_section_id} ({section_id}) AS {role} ({role_id}) '
                     '- O:{section_only}, N:{notify}'.format(
@@ -155,7 +155,7 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                 imp.save()
 
         except DataFailureException as ex:
-            self._log.info('EXCEPTION: {}'.format(ex))
+            logger.info('Request failed: {}'.format(ex))
             try:
                 msg = json.loads(ex.msg)
                 imp.import_error = json.dumps({
@@ -165,7 +165,7 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
             imp.save()
 
         except Exception as ex:
-            self._log.info('EXCEPTION: {}'.format(ex))
+            logger.info('EXCEPTION: {}'.format(ex))
             imp.import_error = '{}'.format(ex)
             imp.save()
 
