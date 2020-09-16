@@ -1,12 +1,8 @@
 from django.db import models
-from django.conf import settings
 from django.utils.timezone import utc, localtime
 from restclients_core.exceptions import DataFailureException
 from canvas_users.dao.canvas import get_course_users
-from sis_provisioner.dao.user import (
-    get_person_by_netid, user_email, user_fullname, user_sis_id,
-    get_person_by_gmail_id)
-from sis_provisioner.exceptions import UserPolicyException
+from canvas_users.dao.sis_provisioner import get_users_for_logins
 import re
 
 
@@ -18,56 +14,37 @@ class AddUserManager(models.Manager):
         self._course_users = dict(
             (u.sis_user_id, u) for u in get_course_users(course_id))
 
-        return [self._get_user_from_login(login) for login in (
-            self._normalize_list(logins))]
+        return self._get_users_from_logins(logins)
 
-    def _normalize_list(self, raw_logins):
-        logins = []
-        for raw in raw_logins:
-            login = self._normalize(raw)
-            if login not in logins:
-                logins.append(login)
+    def _get_users_from_logins(self, logins):
+        users = []
+        for user_data in get_users_for_logins(logins):
+            user = AddUser(login=user_data.login)
+            if user_data.error is not None:
+                user.status = 'invalid'
+                user.comment = self._format_invalid_user(user_data.error)
 
-        return logins
-
-    def _get_user_from_login(self, login):
-        user = AddUser(login=login)
-        try:
-            try:
-                person = get_person_by_gmail_id(login)
-                user.login = person.login_id
-            except UserPolicyException:
-                person = get_person_by_netid(login)
-                user.login = person.uwnetid
-
-            user.email = user_email(person)
-            user.regid = user_sis_id(person)
-
-            if user.regid in self._course_users:
-                user.name = self._course_users[user.regid].name
-
-                existing_role = self._get_existing_role(user)
-                if existing_role:
-                    # User already has a different role in the course
-                    user.status = 'present'
-                    user.comment = 'Already enrolled as {role}'.format(
-                        role=self._format_role(existing_role))
-
-                elif self._user_in_section(user):
-                    # User already in selected section with selected role
-                    user.status = 'present'
-                    user.comment = 'Already in this section'
             else:
-                user.name = user_fullname(person)
+                user.email = user_data.email
+                user.regid = user_data.sis_id
 
-        except DataFailureException as ex:
-            if ex.status != 401:
-                raise
-        except UserPolicyException as ex:
-            user.status = 'invalid'
-            user.comment = self._format_invalid_user(str(ex))
+                if user.regid in self._course_users:
+                    existing_role = self._get_existing_role(user)
+                    if existing_role:
+                        # User already has a different role in the course
+                        user.status = 'present'
+                        user.comment = 'Already enrolled as {role}'.format(
+                            role=self._format_role(existing_role))
 
-        return user
+                    elif self._user_in_section(user):
+                        # User already in selected section with selected role
+                        user.status = 'present'
+                        user.comment = 'Already in this section'
+
+                else:
+                    user.name = user_data.full_name
+            users.append(user)
+        return users
 
     def _user_in_section(self, user):
         if user.regid in self._course_users:
@@ -81,14 +58,6 @@ class AddUserManager(models.Manager):
             for enrollment in self._course_users[user.regid].enrollments:
                 if enrollment.role != self._role:
                     return enrollment.role
-
-    def _normalize(self, login):
-        if not hasattr(self, '_re_allowed_domains'):
-            self._re_allowed_domains = re.compile(r'^(.*)@({})$'.format(
-                '|'.join(getattr(settings, 'ADD_USER_DOMAIN_WHITELIST', []))))
-
-        match = self._re_allowed_domains.match(login)
-        return match.group(1) if match else login
 
     def _format_invalid_user(self, err_str):
         match = re.match(r'^Invalid Gmail (username|domain): ', err_str)

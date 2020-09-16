@@ -19,7 +19,6 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'compressor',
     'blti',
-    'sis_provisioner.apps.SISProvisionerConfig',
     'canvas_users',
 )
 

@@ -1,5 +1,5 @@
 from restclients_core.exceptions import DataFailureException
-from sis_provisioner.dao.canvas import get_course_roles_in_account
+from canvas_users.dao.canvas import get_course_roles_in_account
 from canvas_users.views import UserRESTDispatch
 
 
