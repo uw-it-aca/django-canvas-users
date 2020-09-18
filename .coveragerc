@@ -1,0 +1,8 @@
+[run]
+source = django-canvas-users
+parallel = True
+
+[paths]
+source =
+  canvas_users/
+  /app/canvas_users/

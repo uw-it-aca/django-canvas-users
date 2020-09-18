@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.timezone import utc, localtime
 from restclients_core.exceptions import DataFailureException
 from canvas_users.dao.canvas import get_course_users
-from canvas_users.dao.sis_provisioner import get_users_for_logins
+from canvas_users.dao.sis_provisioner import validate_logins
 import re
 
 
@@ -18,15 +18,15 @@ class AddUserManager(models.Manager):
 
     def _get_users_from_logins(self, logins):
         users = []
-        for user_data in get_users_for_logins(logins):
-            user = AddUser(login=user_data.login)
-            if user_data.error is not None:
+        for user_data in validate_logins(logins):
+            user = AddUser(login=user_data.get('login'))
+            if user_data.get('error') is not None:
                 user.status = 'invalid'
-                user.comment = self._format_invalid_user(user_data.error)
+                user.comment = self._format_invalid_user(user_data['error'])
 
             else:
-                user.email = user_data.email
-                user.regid = user_data.sis_id
+                user.email = user_data.get('email')
+                user.regid = user_data.get('sis_id')
 
                 if user.regid in self._course_users:
                     existing_role = self._get_existing_role(user)
@@ -42,8 +42,10 @@ class AddUserManager(models.Manager):
                         user.comment = 'Already in this section'
 
                 else:
-                    user.name = user_data.full_name
+                    user.name = user_data.get('full_name')
+
             users.append(user)
+
         return users
 
     def _user_in_section(self, user):

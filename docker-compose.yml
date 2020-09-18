@@ -1,0 +1,18 @@
+version: '3.4'
+
+services:
+  app:
+    environment:
+      ENV: localdev
+      PORT: 8000
+      AUTH: BLTI_DEV
+      LTI_DEVELOP_APP: canvas_users
+    restart: always
+    container_name: app-canvas-users
+    build:
+      context: .
+      target: app-container
+    volumes:
+      - ./canvas_users:/app/canvas_users
+    ports:
+      - "8000:8000"

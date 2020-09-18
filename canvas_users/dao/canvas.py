@@ -1,3 +1,4 @@
+from django.conf import settings
 from uw_canvas.users import Users
 from uw_canvas.enrollments import Enrollments
 from uw_canvas.sections import Sections
@@ -62,7 +63,12 @@ def get_course_sections(course, user_id):
     return sections
 
 
-def get_course_roles_in_account(account_id):
+def get_course_roles_in_account(account_sis_id):
+    if account_sis_id.startswith('uwcourse:uweo'):
+        account_id = getattr(settings, 'CONTINUUM_CANVAS_ACCOUNT_ID')
+    else:
+        account_id = getattr(settings, 'RESTCLIENTS_CANVAS_ACCOUNT_ID')
+
     return Roles().get_effective_course_roles_in_account(account_id)
 
 
