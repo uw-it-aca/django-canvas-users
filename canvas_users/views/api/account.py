@@ -1,5 +1,5 @@
 from restclients_core.exceptions import DataFailureException
-from sis_provisioner.dao.canvas import get_course_roles_in_account
+from canvas_users.dao.canvas import get_course_roles_in_account
 from canvas_users.views import UserRESTDispatch
 
 
@@ -12,7 +12,7 @@ class CanvasAccountCourseRoles(UserRESTDispatch):
         account_id = kwargs['canvas_account_id']
 
         try:
-            for r in get_course_roles_in_account(account_id):
+            for r in get_course_roles_in_account(self.blti.account_sis_id):
                 roles.append({
                     'role': r.label,
                     'id': r.role_id,
