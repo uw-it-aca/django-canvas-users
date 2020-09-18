@@ -1,6 +1,7 @@
 from uw_canvas.users import Users
 from uw_canvas.enrollments import Enrollments
 from uw_canvas.sections import Sections
+from uw_canvas.roles import Roles
 from sis_provisioner.dao.course import valid_academic_course_sis_id
 from sis_provisioner.exceptions import CoursePolicyException
 from canvas_users.exceptions import MissingSectionException
@@ -53,6 +54,15 @@ def get_course_sections(course, user_id):
             sections.append({'id': 0, 'sis_id': '', 'name': course.name})
 
     return sections
+
+
+def get_course_roles_in_account(account_sis_id):
+    if account_sis_id.startswith('uwcourse:uweo'):
+        account_id = '103216'
+    else:
+        account_id = getattr(settings, 'RESTCLIENTS_CANVAS_ACCOUNT_ID')
+
+    return Roles().get_effective_course_roles_in_account(account_id)
 
 
 def valid_group_section(sis_section_id):
