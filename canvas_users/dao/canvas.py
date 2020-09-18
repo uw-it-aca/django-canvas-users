@@ -1,3 +1,4 @@
+from django.conf import settings
 from uw_canvas.users import Users
 from uw_canvas.enrollments import Enrollments
 from uw_canvas.sections import Sections
