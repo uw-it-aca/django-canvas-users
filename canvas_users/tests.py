@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from canvas_users.models import AddUserManager, AddUser, AddUsersImport
 from canvas_users.views import allow_origin
 from canvas_users.dao.canvas import *
@@ -57,6 +57,19 @@ class CanvasDAOTest(TestCase):
             '2013-spring-TRAIN-101-A-groups'), True)
         self.assertEquals(valid_group_section(
             'course_12345-groups'), True)
+
+    @mock.patch.object(Roles, 'get_effective_course_roles_in_account')
+    @override_settings(RESTCLIENTS_CANVAS_ACCOUNT_ID='12345',
+                       CONTINUUM_CANVAS_ACCOUNT_ID='50000')
+    def test_get_course_roles_in_account(self, mock_method):
+        r = get_course_roles_in_account('')
+        mock_method.assert_called_with('12345')
+
+        r = get_course_roles_in_account('uwcourse:abc')
+        mock_method.assert_called_with('12345')
+
+        r = get_course_roles_in_account('uwcourse:uweo:abc')
+        mock_method.assert_called_with('50000')
 
 
 class AddUserManagerTest(TestCase):
