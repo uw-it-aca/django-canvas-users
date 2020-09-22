@@ -6,7 +6,6 @@ services:
 - docker
 os:
 - linux
-
 env:
   global:
   - RELEASE_NAME="canvas-users"
@@ -14,23 +13,39 @@ env:
   - COMMIT_HASH="$(git rev-parse --short=7 HEAD)"
   - IMAGE_TAG="${RELEASE_NAME}:${COMMIT_HASH}"
   - DEPLOY_SCRIPT_BASE=https://raw.githubusercontent.com/uw-it-aca/gcp-app-deploy/master
-
+  - secure: Rws5HPr5Y4jJvS3Ia0oER2TqfXBXsXy89Zctu94YBk2vBhAgntbRkN7++3ZZiGQLzPcBtU5aaPCMxXHOB+ZBGwdsr/gfMxhksK0jzieTUEcreAA2KIzRvu5ibJJbhjijEkhqMFn+cmQcQBDQMstI77a5EfnOYyfEoIXa2Dj6iaXL8rhSctoAXz+SPImtLww5/NGhtOwYyJzevSs2HEeJz1vO+VAwBZG1YcdYbj90vFdVWLh8nP/7JCl61ox73vGzKiXKuqCSXrP2Qm3Ui8tA27eofB+0oxyupdbJlcEcjEagYfxi7U69N1QOoVGcAOUQ+YXoBnpDkINZ200KI8sbIvBghRJ+67S96DN8vX6IyRLNr8ph3pSR0DMVOFIxofvofi9cktE1go7N438VvsdGGJmdsXJyPHjeehCBUg5XIrbipdT2NF2Ou7ODwFgn+bYue/vrvROVSu07EbkbVx85KCJwzKl6AGaxnsKbYpjDWg6I4KqmY+FL6PWgN/ByAJIgrfQi/jU3nSkNpQ90dGr7oNzn+GDPX+h+bmeLhpzbnGau5s5eZC2ocyJL7IM2YriCEOj1QrkRaGet+XeBb1ubhWtjz63vYX6UxcHB413uJ3ozsYv70i1zuTgZD7TE/a++rpO+LcD+HE8FBelvmYXdHNlBKF9pKVwAIEEeh2j78xE=
+  - secure: I9Emmtujt/LFYK+4k1fSNiZlhe3e8iKx2ZnLR7oDaUR+OBepNRl0ZUi4MHAqUAKdccfikKCyDdXw7uJGP9OlPtJ+5H0piPYLmScVPB0KvcMLpnjJPQ1W6+xHb7KHKINdrE15JlwSJef5aZUmZoIQnpWcma+b6ofmeTpKSqOVYzSuwXaaNPtoaXiH+97Xh//DPzU8F5+FBIJnHaNgKKeNLESvmQU17zRNBfA+bPniCvHvZaTDjpiWYtcIcrxgznLCexpl1jtKsF7UtRtrIxmBtVPapQGxEnI2Zfba2vOMMkPk2pjSjWvyspuJ1lIkxnxI4woZu2adQrVc5TTzM5K30VQqiAJE6JeWS3icKb49FemESBJUAy2QtkOK6noAc2APWKlssUwuKcDMbhX8KJ8mQCD+RG4ponHlPQ/lbnLEQEk2gcKomU/SK/Oc3/uJV8BqUWCsJhLO23XQB8JZUZzCTGPZuxpHkGGlxb9hQCUuWiIWRIjP4eej59VFs9Q6Um+oomjsB2rsrIW2BaYmrmLgH966NjNzVu4S8lIy9CrqNc2hd8MxSeChaHyEqVVP3yYMEsrNCZy3GpzsdTVUkTDiJwHDaGzf/B117Tufqzg0bCb8CoA+r/8juk/hmPfIAu1PyBBI8PjD2PdNIbg3VpmIY/JLesFAyAUPEJkn6jx1OCs=
+  - secure: JA0+DC3FEcSj9WYXfTEJ7SX54ufptMY+lfdIvI4N+Ce3uqDm/ymRPqLHSuh6bAoYufww+kNL65zMgZvBaNFGsHqjRerqdfhYcWKYKAHncSpEXWChc5sk25StWkRl9JUIdJW7H2t2vrBo4lG2UGWmqqD+ubAslU9HiDe7DCWiFPShUHRA9rmu/xBc3Pxw5U2bdkSZ+KrlKdFG9xFc8fANgNT4nriAK0poXzeYR4oDGh34YKgbYvcniDbZ+lGBSPvQAIEtjo5wicXQog83E2/S/Gi4pAmW0hVpIZ+p+3eoHCcDJfJPAK4Zr9Qk8Ce+EiFTE1YA3qoYoN1FWvpIbDIBWHb6C2YncL7JkVIN2OgkHV7sX99lf+2v1mhnAWmLk9US/6ZLlQU4Bsc867mGP8CUYs7zV37ZgGUY6890q875foTY+BGc2SOCVRmWH17DruZBrbXF4BEAhOqoA+qIdvuO8zOy+62OeMr6Wgb3KmwDSMOua5Bsh0w6QMLkd7j1E7d3IwKDI1sqHTxVVUg3lwC1Ym2ZDyWtuYcWGJBdtG0fZAELeI1vNbm25hkymFeFmDPXFFQH1eBJjWsGxr5PpUKJUAGSVJIwUi00br5nJv0kiWoEi3XEHUXe1gWU48cZdN+kx8VctUSpfdUXGg4KlWPjiKX0E6sGQISoQTfEO6WBwHI=
 install:
 - docker build --target app-container -t "$IMAGE_TAG" .
 - docker build -t "${IMAGE_TAG}-test" .
-
 before_script:
 - pip install coverage
 - pip install coveralls
-
 script:
 - docker run -u root -it -v /tmp:/coverage -e DJANGO_APP="$DJANGO_APP" -e "ENV=localdev"
   -e "AUTH=BLTI_DEV" "${IMAGE_TAG}-test" bash -c ". ./travis-ci/test.sh"
-
 after_success:
 - cp /tmp/.coverage.* .
 - coverage combine
 - coveralls
+- |
+    if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+      case "$TRAVIS_BRANCH" in
+        "master")
+          export APP_INSTANCE="prod";
+          ;;
+        "qa")
+          export APP_INSTANCE="test";
+          ;;
+        *)
+          unset APP_INSTANCE
+          ;;
+      esac
+      if [[ "$APP_INSTANCE" ]]; then
+        curl -Ls ${DEPLOY_SCRIPT_BASE}/travis-ci/deploy.sh | bash;
+      fi
+    fi
 
 cache:
   directories:
