@@ -3,7 +3,6 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from blti.views import BLTIView, BLTILaunchView, RESTDispatch
 from blti import BLTIException
-from sis_provisioner.dao.course import adhoc_course_sis_id
 import re
 
 
@@ -61,7 +60,7 @@ class AddUsersView(BLTIView):
         if self.blti.course_sis_id:
             course_sis_id = self.blti.course_sis_id
         else:
-            course_sis_id = adhoc_course_sis_id(canvas_course_id)
+            course_sis_id = 'course_{}'.format(canvas_course_id)
 
         return {
             'sis_course_id': course_sis_id,

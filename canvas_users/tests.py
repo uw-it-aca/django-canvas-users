@@ -1,7 +1,8 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from canvas_users.models import AddUserManager, AddUser, AddUsersImport
 from canvas_users.views import allow_origin
 from canvas_users.dao.canvas import *
+from canvas_users.dao.sis_provisioner import validate_logins
 from uw_canvas.models import CanvasCourse
 import mock
 
@@ -57,11 +58,26 @@ class CanvasDAOTest(TestCase):
         self.assertEquals(valid_group_section(
             'course_12345-groups'), True)
 
+    @mock.patch.object(Roles, 'get_effective_course_roles_in_account')
+    @override_settings(RESTCLIENTS_CANVAS_ACCOUNT_ID='12345',
+                       CONTINUUM_CANVAS_ACCOUNT_ID='50000')
+    def test_get_course_roles_in_account(self, mock_method):
+        r = get_course_roles_in_account('')
+        mock_method.assert_called_with('12345')
+
+        r = get_course_roles_in_account('uwcourse:abc')
+        mock_method.assert_called_with('12345')
+
+        r = get_course_roles_in_account('uwcourse:uweo:abc')
+        mock_method.assert_called_with('50000')
+
 
 class AddUserManagerTest(TestCase):
+    @mock.patch('canvas_users.models.validate_logins')
     @mock.patch.object(Users, 'get_users_for_course')
-    def test_users_in_course(self, mock_method):
+    def test_users_in_course(self, mock_method, mock_validate):
         mock_method.return_value = []
+        mock_validate.return_value = []
         r = AddUser.objects.users_in_course(
             '2013-spring-TRAIN-101-A', '2013-spring-TRAIN-101-AA', 'student',
             logins=[])
@@ -72,27 +88,6 @@ class AddUserManagerTest(TestCase):
 
     def test_get_existing_role(self):
         pass
-
-    def test_normalize_list(self):
-        with self.settings(
-                ADD_USER_DOMAIN_WHITELIST=['abc.com', 'xyz.edu']):
-            self.assertEquals(len(AddUserManager()._normalize_list(
-                ['joe@abc.com', 'joe@abc.com', 'joe@abc.com'])), 1)
-            self.assertEquals(len(AddUserManager()._normalize_list(
-                ['joe@abc.com', 'joe@xyz.edu', 'joe@abc.edu'])), 2)
-            self.assertEquals(len(AddUserManager()._normalize_list(
-                ['joe@abc.com', 'joe@xyz.com', 'joe@abc.edu'])), 3)
-
-    def test_normalize(self):
-        with self.settings(
-                ADD_USER_DOMAIN_WHITELIST=['abc.com', 'xyz.edu']):
-
-            self.assertEquals(AddUserManager()._normalize(
-                'joe@abc.com'), 'joe')
-            self.assertEquals(AddUserManager()._normalize(
-                'joe@xyz.edu'), 'joe')
-            self.assertEquals(AddUserManager()._normalize(
-                'joe@mail.com'), 'joe@mail.com')
 
     def test_format_invalid_user(self):
         self.assertEquals(AddUserManager()._format_invalid_user(
