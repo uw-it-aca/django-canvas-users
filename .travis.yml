@@ -9,7 +9,7 @@ os:
 - linux
 env:
   global:
-  - RELEASE_NAME="canvas-users"
+  - RELEASE_NAME="course-users"
   - DJANGO_APP="canvas_users"
   - COMMIT_HASH="$(git rev-parse --short=7 HEAD)"
   - IMAGE_TAG="${RELEASE_NAME}:${COMMIT_HASH}"
