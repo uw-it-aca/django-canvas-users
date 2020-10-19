@@ -3,7 +3,6 @@ import os
 
 if os.getenv('ENV', 'localdev') == 'localdev':
     DEBUG = True
-    RESTCLIENTS_DAO_CACHE_CLASS = None
 else:
     RESTCLIENTS_DAO_CACHE_CLASS = 'canvas_users.cache.RestclientsCache'
 
@@ -24,3 +23,82 @@ if os.getenv('SIS_PROVISIONER_ENV') in RESTCLIENTS_DEFAULT_ENVS:
 CONTINUUM_CANVAS_ACCOUNT_ID = os.getenv('CONTINUUM_CANVAS_ACCOUNT_ID', '')
 
 COURSE_ROLES_EXPIRES = 60 * 60 * 24 * 30
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'stdout_stream': {
+            '()': 'django.utils.log.CallbackFilter',
+            'callback': lambda record: record.levelno < logging.WARNING
+        },
+        'stderr_stream': {
+            '()': 'django.utils.log.CallbackFilter',
+            'callback': lambda record: record.levelno > logging.ERROR
+        }
+    },
+    'formatters': {
+        'default': {
+            'format': '%(levelname)-4s %(asctime)s %(module)s %(message)s [%(name)s]',
+            'datefmt': '[%Y-%m-%d %H:%M:%S]',
+        },
+        'restclients_timing': {
+            'format': '%(levelname)-4s restclients_timing %(module)s %(asctime)s %(message)s [%(name)s]',
+            'datefmt': '[%Y-%m-%d %H:%M:%S]',
+        },
+    },
+    'handlers': {
+        'stdout': {
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+            'filters': ['stdout_stream'],
+            'formatter': 'default',
+        },
+        'stderr': {
+            'class': 'logging.StreamHandler',
+            'stream': sys.stderr,
+            'filters': ['stderr_stream'],
+            'formatter': 'default',
+        },
+        'restclients_timing': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+            'filters': ['stdout_stream'],
+            'formatter': 'restclients_timing',
+        },
+        'null': {
+            'class': 'logging.NullHandler',
+        },
+    },
+    'loggers': {
+        'django.security.DisallowedHost': {
+            'handlers': ['null'],
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['stderr'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'canvas_users': {
+            'handlers': ['stdout'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'restclients_core': {
+            'handlers': ['restclients_timing'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'blti': {
+            'handlers': ['stdout'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        '': {
+            'handlers': ['stdout', 'stderr'],
+            'level': 'INFO' if os.getenv('ENV', 'localdev') == 'prod' else 'DEBUG'
+        }
+    }
+}
