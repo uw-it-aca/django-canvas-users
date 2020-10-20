@@ -19,7 +19,11 @@ class SIS_PROVISIONER_DAO(DAO):
 
 def validate_logins(logins=[]):
     url = '/api/v1/logins'
-    headers = {'Accept': 'application/json', 'Connection': 'keep-alive'}
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Connection': 'keep-alive'
+    }
 
     response = SIS_PROVISIONER_DAO().postURL(url, headers, json.dumps(logins))
 
