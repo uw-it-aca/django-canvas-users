@@ -24,8 +24,9 @@ def validate_logins(logins=[]):
         'Accept': 'application/json',
         'Connection': 'keep-alive'
     }
+    body = {'logins': logins}
 
-    response = SIS_PROVISIONER_DAO().postURL(url, headers, json.dumps(logins))
+    response = SIS_PROVISIONER_DAO().postURL(url, headers, json.dumps(body))
 
     if response.status != 200:
         raise DataFailureException(url, response.status, response.data)
