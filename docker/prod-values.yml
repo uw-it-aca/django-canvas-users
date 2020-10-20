@@ -67,7 +67,7 @@ environmentVariables:
   - name: CANVAS_ENV
     value: EVAL
   - name: CANVAS_TIMEOUT
-    value: "15"
+    value: "60"
   - name: SIS_PROVISIONER_ENV
     value: EVAL
 externalSecrets:
