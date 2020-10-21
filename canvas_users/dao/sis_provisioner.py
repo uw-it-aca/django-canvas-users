@@ -14,7 +14,7 @@ class SIS_PROVISIONER_DAO(DAO):
 
     def _custom_headers(self, method, url, headers, body):
         bearer_key = self.get_service_setting('OAUTH_BEARER', '')
-        return {'Authorization': 'Bearer {}'.format(bearer_key)}
+        return {'Authorization': 'Token {}'.format(bearer_key)}
 
 
 def validate_logins(logins=[]):
@@ -31,4 +31,5 @@ def validate_logins(logins=[]):
     if response.status != 200:
         raise DataFailureException(url, response.status, response.data)
 
-    return json.loads(response.data)
+    data = json.loads(response.data)
+    return data.get('users')

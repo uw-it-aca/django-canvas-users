@@ -11,7 +11,7 @@ import json
 import sys
 import os
 
-logger = getLogger('canvas_users')
+logger = getLogger(__name__)
 
 
 class ValidCanvasCourseUsers(UserRESTDispatch):
