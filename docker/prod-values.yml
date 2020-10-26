@@ -44,7 +44,7 @@ database:
   hostname: course-users-db-service
   secretName: course-users.canvas.uw.edu-sql-secrets
 repo: course-users
-instance: test
+instance: prod
 image:
   repository: registry.hub.docker.com/acait/course-users
   tag: IMAGE_TAG
@@ -65,11 +65,11 @@ environmentVariables:
   - name: SESSION_BACKEND
     value: MEMCACHED
   - name: CANVAS_ENV
-    value: EVAL
+    value: PROD
   - name: CANVAS_TIMEOUT
     value: "60"
   - name: SIS_PROVISIONER_ENV
-    value: EVAL
+    value: PROD
 externalSecrets:
   enabled: true
   secrets:

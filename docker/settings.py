@@ -16,7 +16,7 @@ if os.getenv('SIS_PROVISIONER_ENV') in RESTCLIENTS_DEFAULT_ENVS:
     RESTCLIENTS_SIS_PROVISIONER_POOL_SIZE = RESTCLIENTS_DEFAULT_POOL_SIZE
     RESTCLIENTS_SIS_PROVISIONER_OAUTH_BEARER = os.getenv('SIS_PROVISIONER_OAUTH_BEARER', '')
     if os.getenv('SIS_PROVISIONER_ENV') == 'PROD':
-        RESTCLIENTS_SIS_PROVISIONER_HOST = 'https://apps.canvas.uw.edu'
+        RESTCLIENTS_SIS_PROVISIONER_HOST = 'https://prod-apps.canvas.uw.edu'
     else:
         RESTCLIENTS_SIS_PROVISIONER_HOST = 'https://test-apps.canvas.uw.edu'
 
