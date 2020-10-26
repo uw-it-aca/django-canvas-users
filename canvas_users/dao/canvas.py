@@ -3,21 +3,27 @@ from uw_canvas.users import Users
 from uw_canvas.enrollments import Enrollments
 from uw_canvas.sections import Sections
 from uw_canvas.roles import Roles
-from sis_provisioner.dao.course import valid_academic_course_sis_id
-from sis_provisioner.exceptions import CoursePolicyException
+from uw_canvas.models import CanvasCourse, CanvasUser
 from canvas_users.exceptions import MissingSectionException
 from logging import getLogger
 import re
-
 
 logger = getLogger(__name__)
 
 RE_GROUP_SECTION = re.compile(r'.*-groups$')
 
 
+def get_user_by_sis_id(sis_user_id):
+    return Users().get_user_by_sis_id(sis_user_id)
+
+
 def get_course_users(course_id):
     return Users().get_users_for_course(
         course_id, params={'per_page': 1000, 'include': ['enrollments']})
+
+
+def create_user(**kwargs):
+    return Users().create_user(CanvasUser(**kwargs))
 
 
 def enroll_course_user(**kwargs):
@@ -47,11 +53,11 @@ def get_course_sections(course, user_id):
             })
 
     if not len(sections):
-        try:
-            valid_academic_course_sis_id(course.sis_course_id)
+        canvas_course = CanvasCourse(sis_course_id=course.sis_course_id)
+        if canvas_course.is_academic_sis_id():
             raise MissingSectionException(
                 'Adding users to this course not allowed')
-        except CoursePolicyException:
+        else:
             sections.append({'id': 0, 'sis_id': '', 'name': course.name})
 
     return sections
@@ -59,7 +65,7 @@ def get_course_sections(course, user_id):
 
 def get_course_roles_in_account(account_sis_id):
     if account_sis_id.startswith('uwcourse:uweo'):
-        account_id = '103216'
+        account_id = getattr(settings, 'CONTINUUM_CANVAS_ACCOUNT_ID')
     else:
         account_id = getattr(settings, 'RESTCLIENTS_CANVAS_ACCOUNT_ID')
 

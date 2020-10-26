@@ -1,10 +1,9 @@
 from logging import getLogger
 from django.db import connection
-from uw_canvas.models import CanvasUser, CanvasSection, CanvasRole
+from uw_canvas.models import CanvasSection, CanvasRole
 from restclients_core.exceptions import DataFailureException
-from sis_provisioner.models import CourseMember, Enrollment
-from sis_provisioner.dao.canvas import get_user_by_sis_id, create_user
-from canvas_users.dao.canvas import enroll_course_user
+from canvas_users.dao.canvas import (
+    get_user_by_sis_id, create_user, enroll_course_user)
 from canvas_users.views import UserRESTDispatch
 from canvas_users.models import AddUser, AddUsersImport
 from multiprocessing import Process
@@ -12,7 +11,7 @@ import json
 import sys
 import os
 
-logger = getLogger('canvas_users')
+logger = getLogger(__name__)
 
 
 class ValidCanvasCourseUsers(UserRESTDispatch):
@@ -120,11 +119,11 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                                 u.name, u.login, u.regid))
 
                         # add user as "admin" on behalf of importer
-                        canvas_user = create_user(CanvasUser(
+                        canvas_user = create_user(
                             name=u.name,
                             login_id=u.login,
                             sis_user_id=u.regid,
-                            email=u.email))
+                            email=u.email)
                     else:
                         raise Exception('Cannot create user {}: {}'.format(
                             u.login, ex))
