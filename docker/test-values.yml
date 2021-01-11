@@ -34,7 +34,7 @@ database:
 repo: course-users
 instance: test
 image:
-  repository: registry.hub.docker.com/acait/course-users
+  repository: gcr.io/uwit-mci-axdd/course-users
   tag: IMAGE_TAG
 memcached:
   enabled: true
@@ -46,6 +46,8 @@ certs:
 environmentVariables:
   - name: CLUSTER_CNAME
     value: test-course-users.canvas.uw.edu
+  - name: WEBSERVER
+    value: nginx
   - name: AUTH
     value: BLTI
   - name: ENV
