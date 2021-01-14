@@ -40,14 +40,18 @@ class AddUsersImport(models.Model):
 
     objects = AddUsersImportManager()
 
+    def start(self):
+        self.import_pid = getpid()
+        self.save(update_fields=['import_pid'])
+
     def import_users(self):
         for user in self.adduser_set.filter(status=AddUser.USER_VALID):
             self._import_user(user)
             self.imported += 1
-            self.save()
+            self.save(update_fields=['imported'])
 
         self.finish_date = datetime.now()
-        self.save()
+        self.save(update_fields=['finish_date'])
 
     def _import_user(self, user):
         try:

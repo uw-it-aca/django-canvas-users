@@ -84,6 +84,8 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                 user.importjob = imp
                 user.save()
 
+            imp.start()
+
             return self.json_response(imp.json_data())
         except KeyError as ex:
             return self.error_response(

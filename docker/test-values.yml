@@ -28,7 +28,7 @@ externalService:
   servicePort: 3306
 database:
   engine: mysql
-  name: course_users_test_daemon
+  name: course_users_test_import
   hostname: course-users-db-service
   secretName: test-course-users.canvas.uw.edu-sql-secrets
 repo: course-users
@@ -43,13 +43,6 @@ memcached:
     type: RollingUpdate
 certs:
   mounted: false
-daemon:
-  enabled: true
-  daemons:
-    - name: import-users
-      replicaCount: 1
-      command: ["/scripts/management_daemon.sh"]
-      args: ["--delay", "10", "import_users"]
 environmentVariables:
   - name: CLUSTER_CNAME
     value: test-course-users.canvas.uw.edu
