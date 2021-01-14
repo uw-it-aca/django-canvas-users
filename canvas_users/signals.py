@@ -4,6 +4,6 @@ from canvas_users.models import AddUsersImport
 
 
 @receiver(post_save, sender=AddUsersImport)
-def user_import(sender, instance, created, raw, using, update_fields):
-    if update_fields is not None and 'import_pid' in update_fields:
+def user_import(sender, instance, **kwargs):
+    if kwargs['update_fields'] and 'import_pid' in kwargs['update_fields']:
         instance.import_users()
