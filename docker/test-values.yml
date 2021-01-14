@@ -43,6 +43,13 @@ memcached:
     type: RollingUpdate
 certs:
   mounted: false
+daemon:
+  enabled: true
+  daemons:
+    - name: import-users
+      replicaCount: 1
+      command: ["/scripts/management_daemon.sh"]
+      args: ["--delay", "10", "import_users"]
 environmentVariables:
   - name: CLUSTER_CNAME
     value: test-course-users.canvas.uw.edu
@@ -58,6 +65,8 @@ environmentVariables:
     value: "60"
   - name: SIS_PROVISIONER_ENV
     value: EVAL
+  - name: WEBSERVER
+    value: nginx
 externalSecrets:
   enabled: true
   secrets:

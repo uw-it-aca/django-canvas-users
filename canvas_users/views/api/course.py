@@ -1,17 +1,6 @@
-from logging import getLogger
-from django.db import connection
-from uw_canvas.models import CanvasSection, CanvasRole
-from restclients_core.exceptions import DataFailureException
-from canvas_users.dao.canvas import (
-    get_user_by_sis_id, create_user, enroll_course_user)
 from canvas_users.views import UserRESTDispatch
 from canvas_users.models import AddUser, AddUsersImport
-from multiprocessing import Process
 import json
-import sys
-import os
-
-logger = getLogger(__name__)
 
 
 class ValidCanvasCourseUsers(UserRESTDispatch):
@@ -57,42 +46,43 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
 
             return self.json_response(imp.json_data())
         except AddUsersImport.DoesNotExist:
-            return self.error_response(400, message="Unknown import id")
+            return self.error_response(404, message="Unknown import id")
         except KeyError:
             return self.error_response(400, message="Missing import id")
 
     def post(self, request, *args, **kwargs):
         try:
             course_id = kwargs['canvas_course_id']
-            data = json.loads(request.body)
 
-            users = AddUser.objects.users_in_course(
-                course_id, data['section_id'], data['role_base'],
-                [x['login'] for x in data['logins']])
-            role = CanvasRole(
-                role_id=data['role_id'],
-                label=data['role'],
-                base_role_type=data['role_base'])
-            section = CanvasSection(
-                section_id=data['section_id'],
-                sis_section_id=data['section_sis_id'],
-                course_id=course_id)
+            data = json.loads(request.body)
+            section_id = data['section_id']
+            sis_section_id = data['section_sis_id']
+            role_base = data['role_base']
+            role_id = data['role_id']
+            role_label = data['role']
             section_only = data['section_only']
             notify_users = data['notify_users']
+
+            users = AddUser.objects.users_in_course(
+                course_id, section_id, role_base,
+                [x['login'] for x in data.get('logins', [])])
+
             imp = AddUsersImport(
                 importer=self.blti.user_login_id,
                 importer_id=self.blti.canvas_user_id,
                 importing=len(users),
                 course_id=course_id,
-                role=role.label,
-                section_id=section.sis_section_id)
+                role=role_label,
+                role_id=role_id,
+                role_base=role_base,
+                section_id=sis_section_id,
+                section_only=section_only,
+                notify_users=notify_users)
             imp.save()
 
-            connection.close()
-            p = Process(target=self._api_import_users,
-                        args=(imp.pk, users, role, section,
-                              section_only, notify_users))
-            p.start()
+            for user in users:
+                user.importjob = imp
+                user.save()
 
             return self.json_response(imp.json_data())
         except KeyError as ex:
@@ -101,71 +91,3 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
         except Exception as ex:
             return self.error_response(
                 400, message='Import Error: {}'.format(ex))
-
-    def _api_import_users(self, import_id, users, role,
-                          section, section_only, notify_users):
-        try:
-            imp = AddUsersImport.objects.get(id=import_id)
-            imp.import_pid = os.getpid()
-            imp.save()
-
-            for u in users:
-                try:
-                    canvas_user = get_user_by_sis_id(u.regid)
-                except DataFailureException as ex:
-                    if ex.status == 404:
-                        logger.info(
-                            'CREATE USER "{}", login: {}, reg_id: {}'.format(
-                                u.name, u.login, u.regid))
-
-                        # add user as "admin" on behalf of importer
-                        canvas_user = create_user(
-                            name=u.name,
-                            login_id=u.login,
-                            sis_user_id=u.regid,
-                            email=u.email)
-                    else:
-                        raise Exception('Cannot create user {}: {}'.format(
-                            u.login, ex))
-
-                logger.info(
-                    '{importer} ADDING {user} ({user_id}) TO {course_id}: '
-                    '{sis_section_id} ({section_id}) AS {role} ({role_id}) '
-                    '- O:{section_only}, N:{notify}'.format(
-                        importer=imp.importer, user=canvas_user.login_id,
-                        user_id=canvas_user.user_id,
-                        course_id=section.course_id,
-                        sis_section_id=section.sis_section_id,
-                        section_id=section.section_id, role=role.label,
-                        role_id=role.role_id, section_only=section_only,
-                        notify=notify_users))
-
-                enroll_course_user(
-                    as_user=imp.importer_id,
-                    course_id=section.course_id,
-                    section_id=section.section_id,
-                    user_id=canvas_user.user_id,
-                    role_type=role.base_role_type,
-                    role_id=role.role_id,
-                    section_only=section_only,
-                    notify_users=notify_users)
-
-                imp.imported += 1
-                imp.save()
-
-        except DataFailureException as ex:
-            logger.info('Request failed: {}'.format(ex))
-            try:
-                msg = json.loads(ex.msg)
-                imp.import_error = json.dumps({
-                    'url': ex.url, 'status': ex.status, 'msg': msg})
-            except Exception:
-                imp.import_error = '{}'.format(ex)
-            imp.save()
-
-        except Exception as ex:
-            logger.info('EXCEPTION: {}'.format(ex))
-            imp.import_error = '{}'.format(ex)
-            imp.save()
-
-        sys.exit(0)
