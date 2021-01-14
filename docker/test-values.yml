@@ -28,7 +28,7 @@ externalService:
   servicePort: 3306
 database:
   engine: mysql
-  name: course_users_test
+  name: course_users_test_daemon
   hostname: course-users-db-service
   secretName: test-course-users.canvas.uw.edu-sql-secrets
 repo: course-users
