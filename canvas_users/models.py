@@ -104,7 +104,7 @@ class AddUser(models.Model):
 
 
 class AddUsersImport(models.Model):
-    import_pid = models.SmallIntegerField(null=True)
+    import_pid = models.PositiveIntegerField(null=True)
     importer = models.CharField(max_length=80)
     importer_id = models.CharField(max_length=16)
     importing = models.SmallIntegerField()
