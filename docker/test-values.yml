@@ -20,6 +20,8 @@ affinity:
    podsSpanNodes: true
 readiness:
   enabled: true
+securityPolicy:
+  enabled: true
 externalService:
   enabled: true
   name: course-users-db-service
@@ -58,6 +60,8 @@ environmentVariables:
     value: "60"
   - name: SIS_PROVISIONER_ENV
     value: EVAL
+  - name: WEBSERVER
+    value: nginx
 externalSecrets:
   enabled: true
   secrets:
