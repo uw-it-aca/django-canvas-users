@@ -1,2 +1,0 @@
-include canvas_users/VERSION
-recursive-include canvas_users *

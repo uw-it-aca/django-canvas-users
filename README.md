@@ -1,17 +1,9 @@
-UW Canvas Users LTI App
-================
+# UW Canvas Users LTI App
+
+[![Build Status](https://github.com/uw-it-aca/django-canvas-users/workflows/Build%2C%20Test%20and%20Deploy/badge.svg?branch=main)](https://github.com/uw-it-aca/django-canvas-users/actions)
+[![Coverage Status](https://coveralls.io/repos/github/uw-it-aca/django-canvas-users/badge.svg?branch=main)](https://coveralls.io/github/uw-it-aca/django-canvas-users?branch=main)
 
 A Django LTI application for adding users to Canvas courses aligned with UW policy
-
-Installation
-------------
-
-**Project directory**
-
-Install the app in your project.
-
-    $ cd [project]
-    $ pip install UW-Canvas-Users-LTI
 
 Project settings.py
 ------------------

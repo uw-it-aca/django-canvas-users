@@ -70,6 +70,8 @@ environmentVariables:
     value: "60"
   - name: SIS_PROVISIONER_ENV
     value: PROD
+  - name: WEBSERVER
+    value: nginx
 externalSecrets:
   enabled: true
   secrets:
