@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 from django.db import models
 from django.utils.timezone import utc, localtime
 from restclients_core.exceptions import DataFailureException
