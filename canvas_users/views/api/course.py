@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 from logging import getLogger
 from django.db import connection
 from uw_canvas.models import CanvasSection, CanvasRole
