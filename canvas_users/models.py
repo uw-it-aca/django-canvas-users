@@ -25,8 +25,7 @@ class AddUserManager(models.Manager):
             user = AddUser(login=user_data.get('login'))
             if user_data.get('error') is not None:
                 user.status = 'invalid'
-                user.comment = self._format_invalid_user(user_data['error'])
-
+                user.comment = user_data.get('error')
             else:
                 user.email = user_data.get('email')
                 user.regid = user_data.get('sis_id')
@@ -63,10 +62,6 @@ class AddUserManager(models.Manager):
             for enrollment in self._course_users[user.regid].enrollments:
                 if enrollment.role != self._role:
                     return enrollment.role
-
-    def _format_invalid_user(self, err_str):
-        match = re.match(r'^Invalid Gmail (username|domain): ', err_str)
-        return 'Not a UW Netid or Gmail address' if match else err_str
 
     def _format_role(self, role):
         return re.sub(r'Enrollment$', '', role)

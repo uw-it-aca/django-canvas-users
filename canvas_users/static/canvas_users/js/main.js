@@ -387,6 +387,8 @@
                             login: this.login,
                             regid: this.regid,
                             name: this.name,
+                            login_denied: this.comment.match(/^login not permitted/i) ? true : false,
+                            invalid_gmail: this.comment.match(/^invalid gmail/i) ? true : false,
                             comment: this.comment
                         });
                     });
