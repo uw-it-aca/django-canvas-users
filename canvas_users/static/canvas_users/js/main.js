@@ -387,7 +387,6 @@
                             login: this.login,
                             regid: this.regid,
                             name: this.name,
-                            login_denied: (this.comment === 'Login not permitted'),
                             comment: this.comment
                         });
                     });

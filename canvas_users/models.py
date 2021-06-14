@@ -22,29 +22,32 @@ class AddUserManager(models.Manager):
     def _get_users_from_logins(self, logins):
         users = []
         for user_data in validate_logins(logins):
-            user = AddUser(login=user_data.get('login'))
+            user = AddUser(login=user_data.get('login'),
+                           name=user_data.get('full_name'),
+                           regid=user_data.get('sis_id'),
+                           email=user_data.get('email'))
+
             if user_data.get('error') is not None:
                 user.status = 'invalid'
-                user.comment = user_data.get('error')
-            else:
-                user.email = user_data.get('email')
-                user.regid = user_data.get('sis_id')
-
-                if user.regid in self._course_users:
-                    existing_role = self._get_existing_role(user)
-                    if existing_role:
-                        # User already has a different role in the course
-                        user.status = 'present'
-                        user.comment = 'Already enrolled as {role}'.format(
-                            role=self._format_role(existing_role))
-
-                    elif self._user_in_section(user):
-                        # User already in selected section with selected role
-                        user.status = 'present'
-                        user.comment = 'Already in this section'
-
+                error = user_data.get('error')
+                if error == 'Login not permitted':
+                    user.comment = 'Not authorized to login to Canvas.'
+                elif re.match(r'^Invalid (username|domain):', error):
+                    user.comment = 'Not a UW Netid or Gmail address.'
                 else:
-                    user.name = user_data.get('full_name')
+                    user.comment = error
+
+            elif user.regid in self._course_users:
+                user.status = 'present'
+                existing_role = self._get_existing_role(user)
+                if existing_role:
+                    # User already has a different role in the course
+                    user.comment = 'Already enrolled as {role}.'.format(
+                        role=self._format_role(existing_role))
+
+                elif self._user_in_section(user):
+                    # User already in selected section with selected role
+                    user.comment = 'Already enrolled in this section.'
 
             users.append(user)
 
