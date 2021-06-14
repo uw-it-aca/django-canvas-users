@@ -25,7 +25,7 @@
         {{#each users}}
         <tr>
           <td>{{this.login}}{{#if this.name}} ({{this.name}}){{/if}}</td>
-          <td {{#if this.invalid}}style="color: red;"{{else}}{{#if this.add}}style="color: green;"{{/if}}{{/if}}>{{this.comment}}</td>
+          <td {{#if this.invalid}}style="color: red;"{{else}}{{#if this.add}}style="color: green;"{{/if}}{{/if}}>{{{this.comment}}}</td>
         </tr>
         {{/each}}
     </tbody>

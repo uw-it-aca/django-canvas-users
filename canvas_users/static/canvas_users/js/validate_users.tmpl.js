@@ -75,7 +75,7 @@ function program8(depth0,data) {
   stack1 = helpers['if'].call(depth0, (depth0 && depth0.invalid), {hash:{},inverse:self.program(13, program13, data),fn:self.program(11, program11, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += ">"
-    + escapeExpression(((stack1 = (depth0 && depth0.comment)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + ((stack1 = (depth0 && depth0.comment)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1)
     + "</td>\n        </tr>\n        ";
   return buffer;
   }
