@@ -30,10 +30,8 @@ class AddUserManager(models.Manager):
             if user_data.get('error') is not None:
                 user.status = 'invalid'
                 error = user_data.get('error')
-                if error == 'Login not permitted':
-                    user.comment = 'Not authorized to login to Canvas.'
-                elif re.match(r'^Invalid (username|domain):', error):
-                    user.comment = 'Not a UW Netid or Gmail address.'
+                if error.lower() == 'uwnetid not permitted':
+                    user.comment = 'Not authorized to login to Canvas'
                 else:
                     user.comment = error
 
@@ -42,12 +40,12 @@ class AddUserManager(models.Manager):
                 existing_role = self._get_existing_role(user)
                 if existing_role:
                     # User already has a different role in the course
-                    user.comment = 'Already enrolled as {role}.'.format(
+                    user.comment = 'Already enrolled as {role}'.format(
                         role=self._format_role(existing_role))
 
                 elif self._user_in_section(user):
                     # User already in selected section with selected role
-                    user.comment = 'Already enrolled in this section.'
+                    user.comment = 'Already enrolled in this section'
 
             users.append(user)
 
@@ -73,7 +71,6 @@ class AddUserManager(models.Manager):
 class AddUser(models.Model):
     """ Represents a set user to get added to Canvas
     """
-
     USER_VALID = 'valid'
     USER_INVALID = 'invalid'
     USER_PRESENT = 'present'
@@ -93,6 +90,9 @@ class AddUser(models.Model):
     comment = models.CharField(max_length=80, default='Prepared to add')
 
     objects = AddUserManager()
+
+    def is_valid(self):
+        return self.status == self.USER_VALID
 
     def json_data(self):
         return {
