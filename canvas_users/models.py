@@ -29,12 +29,7 @@ class AddUserManager(models.Manager):
 
             if user_data.get('error') is not None:
                 user.status = 'invalid'
-                error = user_data.get('error')
-                if error.lower() == 'uwnetid not permitted':
-                    user.comment = 'Not authorized to login to Canvas'
-                else:
-                    user.comment = error
-
+                user.comment = user_data.get('error')
             elif user.regid in self._course_users:
                 user.status = 'present'
                 existing_role = self._get_existing_role(user)

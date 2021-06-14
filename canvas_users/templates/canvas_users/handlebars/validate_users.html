@@ -25,9 +25,7 @@
         {{#each users}}
         <tr>
           <td>{{this.login}}{{#if this.name}} ({{this.name}}){{/if}}</td>
-          <td{{#if this.invalid}} style="color: red;"{{else}}{{#if this.add}} style="color: green;"{{/if}}{{/if}}>
-              {{this.comment}}{{#if this.invalid}} <a target="_blank" href="https://itconnect.uw.edu/learn/tools/canvas/canvas-policies/access/">Learn more</a>{{/if}}
-          </td>
+          <td {{#if this.invalid}}style="color: red;"{{else}}{{#if this.add}}style="color: green;"{{/if}}{{/if}}>{{this.comment}}</td>
         </tr>
         {{/each}}
     </tbody>
