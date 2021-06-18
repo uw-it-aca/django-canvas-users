@@ -68,10 +68,14 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
         try:
             course_id = kwargs['canvas_course_id']
             data = json.loads(request.body)
+            logins = [x['login'] for x in data['logins']]
 
-            users = AddUser.objects.users_in_course(
-                course_id, data['section_id'], data['role_base'],
-                [x['login'] for x in data['logins']])
+            users = []
+            for user in AddUser.objects.users_in_course(
+                    course_id, data['section_id'], data['role_base'], logins):
+                if user.is_valid():
+                    users.append(user)
+
             role = CanvasRole(
                 role_id=data['role_id'],
                 label=data['role'],

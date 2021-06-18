@@ -22,30 +22,25 @@ class AddUserManager(models.Manager):
     def _get_users_from_logins(self, logins):
         users = []
         for user_data in validate_logins(logins):
-            user = AddUser(login=user_data.get('login'))
+            user = AddUser(login=user_data.get('login'),
+                           name=user_data.get('full_name'),
+                           regid=user_data.get('sis_id'),
+                           email=user_data.get('email'))
+
             if user_data.get('error') is not None:
                 user.status = 'invalid'
-                user.comment = self._format_invalid_user(user_data['error'])
+                user.comment = user_data.get('error')
+            elif user.regid in self._course_users:
+                user.status = 'present'
+                existing_role = self._get_existing_role(user)
+                if existing_role:
+                    # User already has a different role in the course
+                    user.comment = 'Already enrolled as {role}'.format(
+                        role=self._format_role(existing_role))
 
-            else:
-                user.email = user_data.get('email')
-                user.regid = user_data.get('sis_id')
-
-                if user.regid in self._course_users:
-                    existing_role = self._get_existing_role(user)
-                    if existing_role:
-                        # User already has a different role in the course
-                        user.status = 'present'
-                        user.comment = 'Already enrolled as {role}'.format(
-                            role=self._format_role(existing_role))
-
-                    elif self._user_in_section(user):
-                        # User already in selected section with selected role
-                        user.status = 'present'
-                        user.comment = 'Already in this section'
-
-                else:
-                    user.name = user_data.get('full_name')
+                elif self._user_in_section(user):
+                    # User already in selected section with selected role
+                    user.comment = 'Already enrolled in this section'
 
             users.append(user)
 
@@ -64,10 +59,6 @@ class AddUserManager(models.Manager):
                 if enrollment.role != self._role:
                     return enrollment.role
 
-    def _format_invalid_user(self, err_str):
-        match = re.match(r'^Invalid Gmail (username|domain): ', err_str)
-        return 'Not a UW Netid or Gmail address' if match else err_str
-
     def _format_role(self, role):
         return re.sub(r'Enrollment$', '', role)
 
@@ -75,7 +66,6 @@ class AddUserManager(models.Manager):
 class AddUser(models.Model):
     """ Represents a set user to get added to Canvas
     """
-
     USER_VALID = 'valid'
     USER_INVALID = 'invalid'
     USER_PRESENT = 'present'
@@ -95,6 +85,9 @@ class AddUser(models.Model):
     comment = models.CharField(max_length=80, default='Prepared to add')
 
     objects = AddUserManager()
+
+    def is_valid(self):
+        return self.status == self.USER_VALID
 
     def json_data(self):
         return {

@@ -376,8 +376,11 @@
                         validated_user_count = 0;
 
                     $.each(data.users, function () {
+                        var comment = this.comment;
                         if (this.status === 'valid') {
                             validated_user_count++;
+                        } else if (comment === 'UWNetID not permitted') {
+                            comment = 'Not authorized to login to Canvas. <a target="_blank" title="Canvas access policies" href="https://itconnect.uw.edu/learn/tools/canvas/canvas-policies/access/">Learn more</a>';
                         }
 
                         validated_users.push({
@@ -387,7 +390,7 @@
                             login: this.login,
                             regid: this.regid,
                             name: this.name,
-                            comment: this.comment
+                            comment: comment
                         });
                     });
 

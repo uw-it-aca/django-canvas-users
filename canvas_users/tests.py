@@ -92,14 +92,6 @@ class AddUserManagerTest(TestCase):
     def test_get_existing_role(self):
         pass
 
-    def test_format_invalid_user(self):
-        self.assertEquals(AddUserManager()._format_invalid_user(
-            'Invalid Gmail username: abc'), 'Not a UW Netid or Gmail address')
-        self.assertEquals(AddUserManager()._format_invalid_user(
-            'Invalid Gmail domain: abc'), 'Not a UW Netid or Gmail address')
-        self.assertEquals(AddUserManager()._format_invalid_user(
-            'Invalid user'), 'Invalid user')
-
     def test_format_role(self):
         self.assertEquals(AddUserManager()._format_role(
             'TeacherEnrollment'), 'Teacher')
