@@ -31,15 +31,16 @@ class AddUserManager(models.Manager):
                 user.status = 'invalid'
                 user.comment = user_data.get('error')
             elif user.regid in self._course_users:
-                user.status = 'present'
                 existing_role = self._get_existing_role(user)
                 if existing_role:
                     # User already has a different role in the course
+                    user.status = 'present'
                     user.comment = 'Already enrolled as {role}'.format(
                         role=self._format_role(existing_role))
 
                 elif self._user_in_section(user):
                     # User already in selected section with selected role
+                    user.status = 'present'
                     user.comment = 'Already enrolled in this section'
 
             users.append(user)
