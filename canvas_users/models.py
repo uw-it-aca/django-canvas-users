@@ -27,6 +27,11 @@ class AddUserManager(models.Manager):
                            regid=user_data.get('sis_id'),
                            email=user_data.get('email'))
 
+            if (self._role == 'StudentEnrollment' and
+                    user_data.get('error', '') == 'UWNetID not permitted'):
+                # Exception for student role with unauthorized login
+                user_data['error'] = None
+
             if user_data.get('error') is not None:
                 user.status = 'invalid'
                 user.comment = user_data.get('error')
