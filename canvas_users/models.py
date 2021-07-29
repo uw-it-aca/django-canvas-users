@@ -28,6 +28,7 @@ class AddUserManager(models.Manager):
                            email=user_data.get('email'))
 
             if (self._role == 'StudentEnrollment' and
+                    user_data.get('is_person') is True and
                     user_data.get('error', '') == 'UWNetID not permitted'):
                 # Exception for student role with unauthorized login
                 user_data['error'] = None
