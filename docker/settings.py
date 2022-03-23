@@ -5,7 +5,6 @@ if os.getenv('ENV', 'localdev') == 'localdev':
     DEBUG = True
 else:
     RESTCLIENTS_DAO_CACHE_CLASS = 'canvas_users.cache.RestclientsCache'
-    RESTCLIENTS_CA_BUNDLE = '/etc/ssl/certs/ca-certificates.crt'
 
 INSTALLED_APPS += [
     'canvas_users.apps.CanvasUsersConfig',
