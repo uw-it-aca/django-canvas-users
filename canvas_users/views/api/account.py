@@ -1,5 +1,6 @@
-# Copyright 2021 UW-IT, University of Washington
+# Copyright 2022 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
+
 
 from restclients_core.exceptions import DataFailureException
 from canvas_users.dao.canvas import get_course_roles_in_account
