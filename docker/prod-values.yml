@@ -42,9 +42,6 @@ database:
 
 repo: course-users
 instance: prod
-image:
-  repository: gcr.io/uwit-mci-axdd/course-users
-  tag: IMAGE_TAG
 
 memcached:
   enabled: true
@@ -75,14 +72,14 @@ externalSecrets:
   enabled: true
   secrets:
     - name: course-users.canvas.uw.edu-secrets
-      externalKey: axdd/kv/data/course-users/prod/secrets
+      externalKey: course-users/prod/secrets
       data:
         - name: django-secret
           property: django-secret
         - name: sis-provisioner-api-token
           property: sis-provisioner-api-token
     - name: course-users.canvas.uw.edu-shared-secrets
-      externalKey: axdd/kv/data/course-users/shared/secrets
+      externalKey: course-users/shared/secrets
       data:
         - name: lti-consumers
           property: lti-consumers
@@ -91,7 +88,7 @@ externalSecrets:
         - name: blti-aes-iv
           property: blti-aes-iv
     - name: course-users.canvas.uw.edu-canvas-secrets
-      externalKey: axdd/kv/data/canvas/shared/secrets
+      externalKey: canvas/shared/secrets
       data:
         - name: canvas-account-id
           property: canvas-account-id
@@ -100,7 +97,7 @@ externalSecrets:
         - name: canvas-api-token
           property: canvas-api-token
     - name: course-users.canvas.uw.edu-sql-secrets
-      externalKey: axdd/kv/data/canvas/shared/sql-secrets
+      externalKey: canvas/shared/sql-secrets
       data:
         - name: username
           property: username
