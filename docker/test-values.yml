@@ -12,6 +12,7 @@ ingress:
         - "/"
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
+
 lifecycle:
   enabled: true
   preStop:
@@ -22,29 +23,32 @@ readiness:
   enabled: true
 securityPolicy:
   enabled: true
+
 externalService:
   enabled: true
   name: course-users-db-service
   type: ClusterIP
   serviceAddress: 172.18.0.28
   servicePort: 3306
+
 database:
   engine: mysql
   name: course_users_test
   hostname: course-users-db-service
   secretName: test-course-users.canvas.uw.edu-sql-secrets
+
 repo: course-users
 instance: test
-image:
-  repository: gcr.io/uwit-mci-axdd/course-users
-  tag: IMAGE_TAG
+
 memcached:
   enabled: true
   replicaCount: 1
   updateStrategy:
     type: RollingUpdate
+
 certs:
   mounted: false
+
 environmentVariables:
   - name: CLUSTER_CNAME
     value: test-course-users.canvas.uw.edu
@@ -60,18 +64,19 @@ environmentVariables:
     value: "60"
   - name: SIS_PROVISIONER_ENV
     value: EVAL
+
 externalSecrets:
   enabled: true
   secrets:
     - name: test-course-users.canvas.uw.edu-secrets
-      externalKey: axdd/kv/data/course-users/test/secrets
+      externalKey: course-users/test/secrets
       data:
         - name: django-secret
           property: django-secret
         - name: sis-provisioner-api-token
           property: sis-provisioner-api-token
     - name: test-course-users.canvas.uw.edu-shared-secrets
-      externalKey: axdd/kv/data/course-users/shared/secrets
+      externalKey: course-users/shared/secrets
       data:
         - name: lti-consumers
           property: lti-consumers
@@ -80,7 +85,7 @@ externalSecrets:
         - name: blti-aes-iv
           property: blti-aes-iv
     - name: test-course-users.canvas.uw.edu-canvas-secrets
-      externalKey: axdd/kv/data/canvas/shared/secrets
+      externalKey: canvas/shared/secrets
       data:
         - name: canvas-account-id
           property: canvas-account-id
@@ -89,12 +94,13 @@ externalSecrets:
         - name: canvas-api-token
           property: canvas-api-token
     - name: test-course-users.canvas.uw.edu-sql-secrets
-      externalKey: axdd/kv/data/canvas/shared/sql-secrets
+      externalKey: canvas/shared/sql-secrets
       data:
         - name: username
           property: username
         - name: password
           property: password
+
 environmentVariablesSecrets:
   djangoSecret:
     name: DJANGO_SECRET
