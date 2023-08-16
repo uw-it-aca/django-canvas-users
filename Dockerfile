@@ -4,7 +4,8 @@ FROM gcr.io/uwit-mci-axdd/django-container:${DJANGO_CONTAINER_VERSION} as app-co
 
 USER root
 
-RUN apt-get update && apt-get install mysql-client libmysqlclient-dev -y
+RUN apt-get update && apt-get install -y \
+  postgresql-client libpq-dev mysql-client libmysqlclient-dev
 
 USER acait
 

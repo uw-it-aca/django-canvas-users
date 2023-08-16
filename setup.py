@@ -23,6 +23,7 @@ setup(
         'django-blti~=2.2',
         'uw-memcached-clients~=1.0',
         'UW-RestClients-Canvas~=1.2',
+        'django-extensions',
     ],
     license='Apache License, Version 2.0',
     description=(
