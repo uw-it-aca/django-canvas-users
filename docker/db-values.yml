@@ -13,7 +13,7 @@ securityPolicy:
 
 externalService:
   enabled: true
-  name: course-users-db-service
+  name: course-users-mysql-service
   type: ClusterIP
   serviceAddress: 172.18.0.28
   servicePort: 3306
@@ -21,7 +21,7 @@ externalService:
 database:
   engine: mysql
   name: course_users_test
-  hostname: course-users-db-service
+  hostname: course-users-mysql-service
   secretName: test-course-users.canvas.uw.edu-sql-secrets
 
 repo: course-users
