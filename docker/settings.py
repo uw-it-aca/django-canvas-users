@@ -11,6 +11,15 @@ INSTALLED_APPS += [
     'django_extensions',
 ]
 
+DATABASES['postgres'] = {
+    'ENGINE': 'django.db.backends.postgresql',
+    'HOST': os.getenv('POSTGRES_HOSTNAME', 'localhost'),
+    'PORT': '5432',
+    'NAME': os.getenv('DATABASE_DB_NAME', 'db'),
+    'USER': os.getenv('DATABASE_USERNAME', None),
+    'PASSWORD': os.getenv('DATABASE_PASSWORD', None),
+}
+
 if os.getenv('SIS_PROVISIONER_ENV') in RESTCLIENTS_DEFAULT_ENVS:
     RESTCLIENTS_SIS_PROVISIONER_DAO_CLASS = 'Live'
     RESTCLIENTS_SIS_PROVISIONER_TIMEOUT = RESTCLIENTS_DEFAULT_TIMEOUT
