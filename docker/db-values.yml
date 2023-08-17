@@ -51,8 +51,6 @@ environmentVariables:
     value: "60"
   - name: SIS_PROVISIONER_ENV
     value: EVAL
-  - name: POSTGRES_HOSTNAME
-    value: "172.18.1.43"
 
 externalSecrets:
   enabled: true
