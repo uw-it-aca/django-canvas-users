@@ -22,7 +22,7 @@ database:
   engine: mysql
   name: course_users_test
   hostname: course-users-mysql-service
-  secretName: test-course-users.canvas.uw.edu-sql-secrets
+  secretName: db-course-users.canvas.uw.edu-sql-secrets
 
 repo: course-users
 instance: db
@@ -55,14 +55,14 @@ environmentVariables:
 externalSecrets:
   enabled: true
   secrets:
-    - name: test-course-users.canvas.uw.edu-secrets
+    - name: db-course-users.canvas.uw.edu-secrets
       externalKey: course-users/test/secrets
       data:
         - name: django-secret
           property: django-secret
         - name: sis-provisioner-api-token
           property: sis-provisioner-api-token
-    - name: test-course-users.canvas.uw.edu-shared-secrets
+    - name: db-course-users.canvas.uw.edu-shared-secrets
       externalKey: course-users/shared/secrets
       data:
         - name: lti-consumers
@@ -71,7 +71,7 @@ externalSecrets:
           property: blti-aes-key
         - name: blti-aes-iv
           property: blti-aes-iv
-    - name: test-course-users.canvas.uw.edu-canvas-secrets
+    - name: db-course-users.canvas.uw.edu-canvas-secrets
       externalKey: canvas/shared/secrets
       data:
         - name: canvas-account-id
@@ -80,7 +80,7 @@ externalSecrets:
           property: continuum-account-id
         - name: canvas-api-token
           property: canvas-api-token
-    - name: test-course-users.canvas.uw.edu-sql-secrets
+    - name: db-course-users.canvas.uw.edu-sql-secrets
       externalKey: canvas/shared/sql-secrets
       data:
         - name: username
@@ -91,33 +91,33 @@ externalSecrets:
 environmentVariablesSecrets:
   djangoSecret:
     name: DJANGO_SECRET
-    secretName: test-course-users.canvas.uw.edu-secrets
+    secretName: db-course-users.canvas.uw.edu-secrets
     secretKey: django-secret
   LTIConsumers:
     name: LTI_CONSUMERS
-    secretName: test-course-users.canvas.uw.edu-shared-secrets
+    secretName: db-course-users.canvas.uw.edu-shared-secrets
     secretKey: lti-consumers
   BLTIAESKey:
     name: BLTI_AES_KEY
-    secretName: test-course-users.canvas.uw.edu-shared-secrets
+    secretName: db-course-users.canvas.uw.edu-shared-secrets
     secretKey: blti-aes-key
   BLTIAESIV:
     name: BLTI_AES_IV
-    secretName: test-course-users.canvas.uw.edu-shared-secrets
+    secretName: db-course-users.canvas.uw.edu-shared-secrets
     secretKey: blti-aes-iv
   canvasAPIToken:
     name: CANVAS_OAUTH_BEARER
-    secretName: test-course-users.canvas.uw.edu-canvas-secrets
+    secretName: db-course-users.canvas.uw.edu-canvas-secrets
     secretKey: canvas-api-token
   canvasAccountID:
     name: CANVAS_ACCOUNT_ID
-    secretName: test-course-users.canvas.uw.edu-canvas-secrets
+    secretName: db-course-users.canvas.uw.edu-canvas-secrets
     secretKey: canvas-account-id
   continuumAccountID:
     name: CONTINUUM_CANVAS_ACCOUNT_ID
-    secretName: test-course-users.canvas.uw.edu-canvas-secrets
+    secretName: db-course-users.canvas.uw.edu-canvas-secrets
     secretKey: continuum-account-id
   sisProvisionerAPIToken:
     name: SIS_PROVISIONER_OAUTH_BEARER
-    secretName: test-course-users.canvas.uw.edu-secrets
+    secretName: db-course-users.canvas.uw.edu-secrets
     secretKey: sis-provisioner-api-token
