@@ -40,9 +40,9 @@ env:
 # defined in the "deploy" job
 on:
   push:
-    branches: [main, develop, task/db-migration]
+    branches: [main, master, qa, develop, task/db-migration]
   pull_request:
-    branches: [main, develop, task/db-migration]
+    branches: [main, master, qa, develop, task/db-migration]
     types: [opened, reopened, synchronize]
 
 jobs:
@@ -126,7 +126,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          python -m pip install --upgrade pip coverage coveralls==3.3.1
+          python -m pip install --upgrade pip coverage coveralls==2.2.0
           coverage combine
           coveralls
 
@@ -153,7 +153,7 @@ jobs:
 
       - name: Deployment Pipeline
         if: >-
-          contains(fromJSON('["main", "develop"]'),
+          contains(fromJSON('["main", "master", "develop", "qa"]'),
             needs.context.outputs.git_repo_branch)
         uses: uw-it-aca/actions/cicd-deploy@main
         with:
