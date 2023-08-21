@@ -32,10 +32,11 @@ externalService:
   enabled: true
   name: course-users-db-service
   type: ClusterIP
-  serviceAddress: 172.18.0.28
-  servicePort: 3306
+  serviceAddress: 172.18.1.43
+  servicePort: 5432
+
 database:
-  engine: mysql
+  engine: postgres
   name: course_users_prod
   hostname: course-users-db-service
   secretName: course-users.canvas.uw.edu-sql-secrets
