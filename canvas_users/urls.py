@@ -1,7 +1,7 @@
 # Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-from django.conf.urls import re_path
+from django.urls import re_path
 from canvas_users.views import LaunchView, AddUsersView
 from canvas_users.views.api.account import CanvasAccountCourseRoles
 from canvas_users.views.api.course import (

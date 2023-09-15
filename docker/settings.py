@@ -5,6 +5,7 @@ if os.getenv('ENV', 'localdev') == 'localdev':
     DEBUG = True
 else:
     RESTCLIENTS_DAO_CACHE_CLASS = 'canvas_users.cache.RestclientsCache'
+    CSRF_TRUSTED_ORIGINS = ['https://' + os.getenv('CLUSTER_CNAME')]
 
 INSTALLED_APPS += [
     'canvas_users.apps.CanvasUsersConfig',
