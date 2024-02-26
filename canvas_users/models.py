@@ -1,9 +1,9 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 
 from django.db import models
-from django.utils.timezone import utc, localtime
+from django.utils.timezone import localtime
 from restclients_core.exceptions import DataFailureException
 from canvas_users.dao.canvas import get_course_users
 from canvas_users.dao.sis_provisioner import validate_logins
