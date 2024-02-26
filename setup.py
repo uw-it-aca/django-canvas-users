@@ -30,7 +30,7 @@ setup(
         'aligned with UW policy'),
     long_description=README,
     url='https://github.com/uw-it-aca/django-canvas-users',
-    author = "UW-IT AXDD",
+    author = "UW-IT T&LS",
     author_email = "aca-it@uw.edu",
     classifiers=[
         'Environment :: Web Environment',

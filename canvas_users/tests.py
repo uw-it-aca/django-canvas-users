@@ -1,4 +1,4 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 
@@ -53,13 +53,13 @@ class CanvasDAOTest(TestCase):
         mock_method.assert_called_with('123')
 
     def test_valid_group_section(self):
-        self.assertEquals(valid_group_section(
+        self.assertEqual(valid_group_section(
             '2013-spring-TRAIN-101-A'), False)
-        self.assertEquals(valid_group_section(
+        self.assertEqual(valid_group_section(
             None), False)
-        self.assertEquals(valid_group_section(
+        self.assertEqual(valid_group_section(
             '2013-spring-TRAIN-101-A-groups'), True)
-        self.assertEquals(valid_group_section(
+        self.assertEqual(valid_group_section(
             'course_12345-groups'), True)
 
     @mock.patch.object(Roles, 'get_effective_course_roles_in_account')
@@ -94,21 +94,21 @@ class AddUserManagerTest(TestCase):
         pass
 
     def test_format_role(self):
-        self.assertEquals(AddUserManager()._format_role(
+        self.assertEqual(AddUserManager()._format_role(
             'TeacherEnrollment'), 'Teacher')
 
 
 class AddUsersImportTest(TestCase):
     def test_progress(self):
-        self.assertEquals(AddUsersImport(
+        self.assertEqual(AddUsersImport(
             imported=100, importing=100).progress(), 100)
-        self.assertEquals(AddUsersImport(
+        self.assertEqual(AddUsersImport(
             imported=35, importing=35).progress(), 100)
-        self.assertEquals(AddUsersImport(
+        self.assertEqual(AddUsersImport(
             imported=0, importing=50).progress(), 0)
-        self.assertEquals(AddUsersImport(
+        self.assertEqual(AddUsersImport(
             imported=2, importing=7).progress(), 28)
-        self.assertEquals(AddUsersImport(
+        self.assertEqual(AddUsersImport(
             imported=9, importing=12).progress(), 75)
 
 
@@ -118,13 +118,13 @@ class AllowOriginTest(TestCase):
         with self.settings(
                 RESTCLIENTS_CANVAS_HOST=origin):
 
-            self.assertEquals(allow_origin(
+            self.assertEqual(allow_origin(
                 'https://canvas.edu'), origin)
-            self.assertEquals(allow_origin(
+            self.assertEqual(allow_origin(
                 'https://canvas.edu/courses/12345/files'), origin)
-            self.assertEquals(allow_origin(
+            self.assertEqual(allow_origin(
                 'http://canvas.edu'), origin)
-            self.assertEquals(allow_origin(
+            self.assertEqual(allow_origin(
                 'https://canvas.com'), origin)
-            self.assertEquals(allow_origin(
+            self.assertEqual(allow_origin(
                 'https://www.abc.edu'), origin)
