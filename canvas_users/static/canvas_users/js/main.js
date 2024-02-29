@@ -35,7 +35,7 @@
         function hideModalPanels($modal) {
             $modal.find('.uw-add-people-gather, .uw-add-people-confirm,' +
                         '.uw-add-people-ferpa, .uw-add-people-problem,' +
-                        '.uw-add-people-timedout,').hide();
+                        '.uw-add-people-timedout').hide();
         }
 
         function showPeopleGather($modal) {
@@ -47,7 +47,7 @@
 
         function showPeopleConfirmation($modal) {
             hideModalPanels($modal);
-            $modal.find('.uw-add-people-confirm,').show();
+            $modal.find('.uw-add-people-confirm').show();
             $modal.find('#uw-add-people-import').focus();
         }
 
