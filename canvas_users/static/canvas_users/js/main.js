@@ -218,8 +218,8 @@
             e.stopPropagation();
             e.preventDefault();
             if (ferpa_base_roles.indexOf(context.role_base) >= 0) {
-                $modal.find('div.uw-add-people-ferpa #confirmed').prop('checked', false);
-                $modal.find('button#uw-add-people-ferpa-confirm').prop('disabled', true);
+                $modal.find('div.uw-add-people-ferpa #confirmed').attr('checked', false);
+                $modal.find('button#uw-add-people-ferpa-confirm').attr('disabled', true);
                 showPeopleFERPA($modal);
             } else {
                 importUsers(e);
@@ -308,9 +308,9 @@
             if ($modal.find('#uw-users-to-add').val().trim().length &&
                     $modal.find('#uw-added-users-role option:selected').val().length &&
                     $modal.find('#uw-added-users-section option:selected').val().length) {
-                $button.removeProp('disabled');
+                $button.removeAttr('disabled');
             } else {
-                $button.prop('disabled', true);
+                $button.attr('disabled', true);
             }
         }
 
@@ -348,8 +348,8 @@
                 return;
             }
 
-            $modal.find('button#uw-add-people-validate').addClass('uw-add-people-loading').prop('disabled', true);
-            $('.uw-add-people-gather', $modal).find('input, button, select, textarea').prop('disabled', true);
+            $modal.find('button#uw-add-people-validate').addClass('uw-add-people-loading').attr('disabled', true);
+            $('.uw-add-people-gather', $modal).find('input, button, select, textarea').attr('disabled', true);
 
             $.ajax({
                 type: 'POST',
@@ -433,7 +433,7 @@
                 })
                 .always(function () {
                     $modal.find('.uw-add-people-loading').removeClass('uw-add-people-loading');
-                    $('.uw-add-people-gather', $modal).find('input, button, select, textarea').removeProp('disabled');
+                    $('.uw-add-people-gather', $modal).find('input, button, select, textarea').removeAttr('disabled');
                 });
         }
 
@@ -459,7 +459,7 @@
                     problemAddingUsers(msg.responseText, $modal);
                 })
                 .always(function () {
-                    $select.removeProp('disabled').removeClass('uw-add-people-loading');
+                    $select.removeAttr('disabled').removeClass('uw-add-people-loading');
                 });
         }
 
@@ -485,7 +485,7 @@
                     problemAddingUsers(msg.responseText, $modal);
                 })
                 .always(function () {
-                    $select.removeProp('disabled').removeClass('uw-add-people-loading');
+                    $select.removeAttr('disabled').removeClass('uw-add-people-loading');
                 });
         }
 
@@ -539,9 +539,9 @@
             $confirm.on('click', importUsers);
             $modal.find('div.uw-add-people-ferpa #confirmed').on('change', function () {
                 if ($(this).is(':checked')) {
-                    $confirm.removeProp('disabled');
+                    $confirm.removeAttr('disabled');
                 } else {
-                    $confirm.prop('disabled', true);
+                    $confirm.attr('disabled', true);
                 }
             });
 
