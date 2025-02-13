@@ -13,6 +13,7 @@ INSTALLED_APPS += [
 
 MIDDLEWARE += [
     'blti.middleware.LTISessionAuthenticationMiddleware',
+    'blti.middleware.PartitionedCookieMiddleware',
 ]
 
 if os.getenv('SIS_PROVISIONER_ENV') in RESTCLIENTS_DEFAULT_ENVS:
