@@ -11,11 +11,6 @@ INSTALLED_APPS += [
     'canvas_users.apps.CanvasUsersConfig',
 ]
 
-MIDDLEWARE += [
-    'blti.middleware.LTISessionAuthenticationMiddleware',
-    'blti.middleware.PartitionedCookieMiddleware',
-]
-
 if os.getenv('SIS_PROVISIONER_ENV') in RESTCLIENTS_DEFAULT_ENVS:
     RESTCLIENTS_SIS_PROVISIONER_DAO_CLASS = 'Live'
     RESTCLIENTS_SIS_PROVISIONER_TIMEOUT = RESTCLIENTS_DEFAULT_TIMEOUT
