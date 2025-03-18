@@ -67,13 +67,34 @@ def get_course_sections(course, user_id):
     return sections
 
 
-def get_course_roles_in_account(account_sis_id):
+def get_course_roles_in_account(account_sis_id, user_roles):
+    admin_role = getattr(settings, 'CANVAS_ADMINISTRATOR_ROLE')
     if account_sis_id.startswith('uwcourse:uweo'):
         account_id = getattr(settings, 'CONTINUUM_CANVAS_ACCOUNT_ID')
     else:
         account_id = getattr(settings, 'RESTCLIENTS_CANVAS_ACCOUNT_ID')
 
-    return Roles().get_effective_course_roles_in_account(account_id)
+    # For subaccounts that do not permit adding Student roles, the user
+    # must be a subaccount admin
+    student_allowed = True
+    if admin_role not in user_roles:
+        for acct in getattr(
+                settings, 'STUDENT_ROLE_DISALLOWED_SUBACCOUNTS', []):
+            if account_sis_id.startswith(acct):
+                student_allowed = False
+                break
+
+    roles = []
+    for r in Roles().get_effective_course_roles_in_account(account_id):
+        if (r.base_role_type == 'StudentEnrollment' and not student_allowed):
+            continue
+
+        roles.append({
+            'role': r.label,
+            'id': r.role_id,
+            'base': r.base_role_type,
+        })
+    return roles
 
 
 def valid_group_section(sis_section_id):

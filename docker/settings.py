@@ -22,7 +22,10 @@ if os.getenv('SIS_PROVISIONER_ENV') in RESTCLIENTS_DEFAULT_ENVS:
         RESTCLIENTS_SIS_PROVISIONER_HOST = 'https://test-apps.canvas.uw.edu'
 
 CONTINUUM_CANVAS_ACCOUNT_ID = os.getenv('CONTINUUM_CANVAS_ACCOUNT_ID', '')
-
+CANVAS_ADMINISTRATOR_ROLE = 'urn:lti:instrole:ims/lis/Administrator'
+STUDENT_ROLE_DISALLOWED_SUBACCOUNTS = [
+    'uwcourse:seattle:education',
+]
 COURSE_ROLES_EXPIRES = 60 * 60 * 24 * 30
 
 LOGGING = {
