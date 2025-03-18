@@ -1,4 +1,4 @@
-# Copyright 2024 UW-IT, University of Washington
+# Copyright 2025 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 
@@ -7,11 +7,27 @@ from canvas_users.models import AddUserManager, AddUser, AddUsersImport
 from canvas_users.views import allow_origin
 from canvas_users.dao.canvas import *
 from canvas_users.dao.sis_provisioner import validate_logins
-from uw_canvas.models import CanvasCourse
+from uw_canvas.models import CanvasCourse, CanvasRole
 import mock
 
 
 class CanvasDAOTest(TestCase):
+    def setUp(self):
+        self.admin_roles = ('urn:lti:role:ims/lis/Instructor,'
+                            'urn:lti:instrole:ims/lis/Administrator')
+        self.user_roles = 'urn:lti:instrole:ims/lis/Instructor'
+        self.canvas_roles = [
+            CanvasRole(role_id=1,
+                       label='Student',
+                       base_role_type='StudentEnrollment'),
+            CanvasRole(role_id=2,
+                       label='TA',
+                       base_role_type='TAEnrollment'),
+            CanvasRole(role_id=3,
+                       label='Teacher',
+                       base_role_type='TeacherEnrollment'),
+        ]
+
     @mock.patch.object(Users, 'get_users_for_course')
     def test_get_course_users(self, mock_method):
         r = get_course_users('123')
@@ -64,16 +80,36 @@ class CanvasDAOTest(TestCase):
 
     @mock.patch.object(Roles, 'get_effective_course_roles_in_account')
     @override_settings(RESTCLIENTS_CANVAS_ACCOUNT_ID='12345',
-                       CONTINUUM_CANVAS_ACCOUNT_ID='50000')
+                       CONTINUUM_CANVAS_ACCOUNT_ID='50000',
+                       STUDENT_ROLE_DISALLOWED_SUBACCOUNTS=['uwcourse'])
     def test_get_course_roles_in_account(self, mock_method):
-        r = get_course_roles_in_account('')
-        mock_method.assert_called_with('12345')
+        mock_method.return_value = self.canvas_roles
 
-        r = get_course_roles_in_account('uwcourse:abc')
+        # subaccount permits adding student role
+        r1 = get_course_roles_in_account('', self.user_roles)
         mock_method.assert_called_with('12345')
+        self.assertEqual(r1, [
+            {'base': 'StudentEnrollment', 'id': 1, 'role': 'Student'},
+            {'base': 'TAEnrollment', 'id': 2, 'role': 'TA'},
+            {'base': 'TeacherEnrollment', 'id': 3, 'role': 'Teacher'},
+        ])
 
-        r = get_course_roles_in_account('uwcourse:uweo:abc')
+        # subaccount does not permit adding student role
+        r2 = get_course_roles_in_account('uwcourse:abc', self.user_roles)
+        mock_method.assert_called_with('12345')
+        self.assertEqual(r2, [
+            {'base': 'TAEnrollment', 'id': 2, 'role': 'TA'},
+            {'base': 'TeacherEnrollment', 'id': 3, 'role': 'Teacher'},
+        ])
+
+        # subaccount does not permit adding student role, user is admin
+        r3 = get_course_roles_in_account('uwcourse:uweo:abc', self.admin_roles)
         mock_method.assert_called_with('50000')
+        self.assertEqual(r3, [
+            {'base': 'StudentEnrollment', 'id': 1, 'role': 'Student'},
+            {'base': 'TAEnrollment', 'id': 2, 'role': 'TA'},
+            {'base': 'TeacherEnrollment', 'id': 3, 'role': 'Teacher'},
+        ])
 
 
 class AddUserManagerTest(TestCase):
