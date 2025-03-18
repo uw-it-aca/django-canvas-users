@@ -14,7 +14,7 @@ class CanvasAccountCourseRoles(UserRESTDispatch):
     def get(self, request, *args, **kwargs):
         try:
             role_data = get_course_roles_in_account(
-                self.blti.account_sis_id, self.blti.roles)
+                self.blti.account_sis_id, self.blti.data['roles'])
             return self.json_response({'roles': role_data})
 
         except DataFailureException as err:
