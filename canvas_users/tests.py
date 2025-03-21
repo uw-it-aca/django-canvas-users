@@ -23,7 +23,7 @@ class CanvasDAOTest(TestCase):
                        base_role_type='StudentEnrollment'),
             CanvasRole(role_id=2,
                        label='TA',
-                       base_role_type='TAEnrollment'),
+                       base_role_type='TaEnrollment'),
             CanvasRole(role_id=3,
                        label='Teacher',
                        base_role_type='TeacherEnrollment'),
@@ -98,7 +98,7 @@ class CanvasDAOTest(TestCase):
         mock_method.assert_called_with('12345')
         self.assertEqual(r1, [
             {'base': 'StudentEnrollment', 'id': 1, 'role': 'Student'},
-            {'base': 'TAEnrollment', 'id': 2, 'role': 'TA'},
+            {'base': 'TaEnrollment', 'id': 2, 'role': 'TA'},
             {'base': 'TeacherEnrollment', 'id': 3, 'role': 'Teacher'},
             {'base': 'ObserverEnrollment', 'id': 4, 'role': 'Observer'},
             {'base': 'DesignerEnrollment', 'id': 5, 'role': 'Designer'},
@@ -131,7 +131,7 @@ class CanvasDAOTest(TestCase):
             'uwcourse:abc', getattr(settings, 'CANVAS_TEACHER_ROLE'))
         mock_method.assert_called_with('12345')
         self.assertEqual(r5, [
-            {'base': 'TAEnrollment', 'id': 2, 'role': 'TA'},
+            {'base': 'TaEnrollment', 'id': 2, 'role': 'TA'},
             {'base': 'TeacherEnrollment', 'id': 3, 'role': 'Teacher'},
             {'base': 'ObserverEnrollment', 'id': 4, 'role': 'Observer'},
             {'base': 'DesignerEnrollment', 'id': 5, 'role': 'Designer'},
@@ -142,7 +142,7 @@ class CanvasDAOTest(TestCase):
         mock_method.assert_called_with('50000')
         self.assertEqual(r6, [
             {'base': 'StudentEnrollment', 'id': 1, 'role': 'Student'},
-            {'base': 'TAEnrollment', 'id': 2, 'role': 'TA'},
+            {'base': 'TaEnrollment', 'id': 2, 'role': 'TA'},
             {'base': 'TeacherEnrollment', 'id': 3, 'role': 'Teacher'},
             {'base': 'ObserverEnrollment', 'id': 4, 'role': 'Observer'},
             {'base': 'DesignerEnrollment', 'id': 5, 'role': 'Designer'},
