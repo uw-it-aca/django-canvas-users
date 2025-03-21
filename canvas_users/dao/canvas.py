@@ -76,7 +76,7 @@ def get_course_roles_in_account(account_sis_id, user_roles):
     roles_permitted = {
         'StudentEnrollment': True,
         'TeacherEnrollment': True,
-        'TAEnrollment': True,
+        'TaEnrollment': True,
         'ObserverEnrollment': True,
         'DesignerEnrollment': True,
     }
@@ -93,25 +93,23 @@ def get_course_roles_in_account(account_sis_id, user_roles):
 
     # Global role options for TAs and Designers without an admin role
     if user_roles == getattr(settings, 'CANVAS_TA_ROLE'):
-        roles_permitted['TAEnrollment'] = False
+        roles_permitted['TaEnrollment'] = False
         roles_permitted['TeacherEnrollment'] = False
         roles_permitted['DesignerEnrollment'] = False
     elif user_roles == getattr(settings, 'CANVAS_DESIGNER_ROLE'):
         roles_permitted['StudentEnrollment'] = False
-        roles_permitted['TAEnrollment'] = False
+        roles_permitted['TaEnrollment'] = False
         roles_permitted['TeacherEnrollment'] = False
         roles_permitted['ObserverEnrollment'] = False
 
     roles = []
     for r in Roles().get_effective_course_roles_in_account(account_id):
-        if not roles_permitted[r.base_role_type]:
-            continue
-
-        roles.append({
-            'role': r.label,
-            'id': r.role_id,
-            'base': r.base_role_type,
-        })
+        if roles_permitted.get(r.base_role_type, True):
+            roles.append({
+                'role': r.label,
+                'id': r.role_id,
+                'base': r.base_role_type,
+            })
     return roles
 
 
