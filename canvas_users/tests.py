@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+from django.conf import settings
 from django.test import TestCase, override_settings
 from canvas_users.models import AddUserManager, AddUser, AddUsersImport
 from canvas_users.views import allow_origin
@@ -13,9 +14,9 @@ import mock
 
 class CanvasDAOTest(TestCase):
     def setUp(self):
-        self.admin_roles = ('urn:lti:role:ims/lis/Instructor,'
-                            'urn:lti:instrole:ims/lis/Administrator')
-        self.user_roles = 'urn:lti:instrole:ims/lis/Instructor'
+        self.admin_roles = (
+            getattr(settings, 'CANVAS_ADMINISTRATOR_ROLE'),
+            getattr(settings, 'CANVAS_TEACHER_ROLE'))
         self.canvas_roles = [
             CanvasRole(role_id=1,
                        label='Student',
@@ -26,6 +27,12 @@ class CanvasDAOTest(TestCase):
             CanvasRole(role_id=3,
                        label='Teacher',
                        base_role_type='TeacherEnrollment'),
+            CanvasRole(role_id=4,
+                       label='Observer',
+                       base_role_type='ObserverEnrollment'),
+            CanvasRole(role_id=5,
+                       label='Designer',
+                       base_role_type='DesignerEnrollment'),
         ]
 
     @mock.patch.object(Users, 'get_users_for_course')
@@ -86,29 +93,59 @@ class CanvasDAOTest(TestCase):
         mock_method.return_value = self.canvas_roles
 
         # subaccount permits adding student role
-        r1 = get_course_roles_in_account('', self.user_roles)
+        r1 = get_course_roles_in_account(
+            '', getattr(settings, 'CANVAS_TEACHER_ROLE'))
         mock_method.assert_called_with('12345')
         self.assertEqual(r1, [
             {'base': 'StudentEnrollment', 'id': 1, 'role': 'Student'},
             {'base': 'TAEnrollment', 'id': 2, 'role': 'TA'},
             {'base': 'TeacherEnrollment', 'id': 3, 'role': 'Teacher'},
+            {'base': 'ObserverEnrollment', 'id': 4, 'role': 'Observer'},
+            {'base': 'DesignerEnrollment', 'id': 5, 'role': 'Designer'},
+        ])
+
+        r2 = get_course_roles_in_account(
+            '', getattr(settings, 'CANVAS_TA_ROLE'))
+        mock_method.assert_called_with('12345')
+        self.assertEqual(r2, [
+            {'base': 'StudentEnrollment', 'id': 1, 'role': 'Student'},
+            {'base': 'ObserverEnrollment', 'id': 4, 'role': 'Observer'},
         ])
 
         # subaccount does not permit adding student role
-        r2 = get_course_roles_in_account('uwcourse:abc', self.user_roles)
+        r3 = get_course_roles_in_account(
+            'uwcourse:abc', getattr(settings, 'CANVAS_TA_ROLE'))
         mock_method.assert_called_with('12345')
-        self.assertEqual(r2, [
+        self.assertEqual(r3, [
+            {'base': 'ObserverEnrollment', 'id': 4, 'role': 'Observer'},
+        ])
+
+        r4 = get_course_roles_in_account(
+            'uwcourse:abc', getattr(settings, 'CANVAS_DESIGNER_ROLE'))
+        mock_method.assert_called_with('12345')
+        self.assertEqual(r4, [
+            {'base': 'DesignerEnrollment', 'id': 5, 'role': 'Designer'},
+        ])
+
+        r5 = get_course_roles_in_account(
+            'uwcourse:abc', getattr(settings, 'CANVAS_TEACHER_ROLE'))
+        mock_method.assert_called_with('12345')
+        self.assertEqual(r5, [
             {'base': 'TAEnrollment', 'id': 2, 'role': 'TA'},
             {'base': 'TeacherEnrollment', 'id': 3, 'role': 'Teacher'},
+            {'base': 'ObserverEnrollment', 'id': 4, 'role': 'Observer'},
+            {'base': 'DesignerEnrollment', 'id': 5, 'role': 'Designer'},
         ])
 
         # subaccount does not permit adding student role, user is admin
-        r3 = get_course_roles_in_account('uwcourse:uweo:abc', self.admin_roles)
+        r6 = get_course_roles_in_account('uwcourse:uweo:abc', self.admin_roles)
         mock_method.assert_called_with('50000')
-        self.assertEqual(r3, [
+        self.assertEqual(r6, [
             {'base': 'StudentEnrollment', 'id': 1, 'role': 'Student'},
             {'base': 'TAEnrollment', 'id': 2, 'role': 'TA'},
             {'base': 'TeacherEnrollment', 'id': 3, 'role': 'Teacher'},
+            {'base': 'ObserverEnrollment', 'id': 4, 'role': 'Observer'},
+            {'base': 'DesignerEnrollment', 'id': 5, 'role': 'Designer'},
         ])
 
 
