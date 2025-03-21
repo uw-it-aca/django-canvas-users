@@ -23,6 +23,9 @@ if os.getenv('SIS_PROVISIONER_ENV') in RESTCLIENTS_DEFAULT_ENVS:
 
 CONTINUUM_CANVAS_ACCOUNT_ID = os.getenv('CONTINUUM_CANVAS_ACCOUNT_ID', '')
 CANVAS_ADMINISTRATOR_ROLE = 'urn:lti:instrole:ims/lis/Administrator'
+CANVAS_TEACHER_ROLE = 'urn:lti:role:ims/lis/Instructor'
+CANVAS_TA_ROLE = 'urn:lti:role:ims/lis/TeachingAssistant'
+CANVAS_DESIGNER_ROLE = 'urn:lti:role:ims/lis/ContentDeveloper'
 STUDENT_ROLE_DISALLOWED_SUBACCOUNTS = [
     'uwcourse:seattle:education',
 ]
