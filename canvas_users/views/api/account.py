@@ -1,4 +1,4 @@
-# Copyright 2024 UW-IT, University of Washington
+# Copyright 2025 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 
@@ -12,18 +12,10 @@ class CanvasAccountCourseRoles(UserRESTDispatch):
         GET returns 200 with account course roles.
     """
     def get(self, request, *args, **kwargs):
-        roles = []
-        account_id = kwargs['canvas_account_id']
-
         try:
-            for r in get_course_roles_in_account(self.blti.account_sis_id):
-                roles.append({
-                    'role': r.label,
-                    'id': r.role_id,
-                    'base': r.base_role_type
-                })
-
-            return self.json_response({'roles': roles})
+            role_data = get_course_roles_in_account(
+                self.blti.account_sis_id, self.blti.data['roles'])
+            return self.json_response({'roles': role_data})
 
         except DataFailureException as err:
             return self.error_response(500, err.msg)
