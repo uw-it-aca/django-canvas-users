@@ -67,7 +67,9 @@ def get_course_sections(course, user_id):
     return sections
 
 
-def get_course_roles_in_account(account_sis_id, user_roles):
+def get_course_roles_in_account(canvas_data):
+    account_sis_id = canvas_data.account_sis_id
+
     if account_sis_id.startswith('uwcourse:uweo'):
         account_id = getattr(settings, 'CONTINUUM_CANVAS_ACCOUNT_ID')
     else:
@@ -83,8 +85,7 @@ def get_course_roles_in_account(account_sis_id, user_roles):
 
     # For subaccounts that do not permit adding Student roles, the user
     # must be a subaccount admin
-    admin_role = getattr(settings, 'CANVAS_ADMINISTRATOR_ROLE')
-    if admin_role not in user_roles:
+    if not canvas_data.is_canvas_administrator:
         for acct in getattr(
                 settings, 'STUDENT_ROLE_DISALLOWED_SUBACCOUNTS', []):
             if account_sis_id.startswith(acct):
@@ -92,11 +93,11 @@ def get_course_roles_in_account(account_sis_id, user_roles):
                 break
 
     # Global role options for TAs and Designers without an admin role
-    if user_roles == getattr(settings, 'CANVAS_TA_ROLE'):
+    if canvas_data.is_teaching_assistant:
         roles_permitted['TaEnrollment'] = False
         roles_permitted['TeacherEnrollment'] = False
         roles_permitted['DesignerEnrollment'] = False
-    elif user_roles == getattr(settings, 'CANVAS_DESIGNER_ROLE'):
+    elif canvas_data.is_designer:
         roles_permitted['StudentEnrollment'] = False
         roles_permitted['TaEnrollment'] = False
         roles_permitted['TeacherEnrollment'] = False
