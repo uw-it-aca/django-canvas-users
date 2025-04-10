@@ -58,8 +58,6 @@ environmentVariables:
     value: test
   - name: SESSION_BACKEND
     value: MEMCACHED
-  - name: LTI_CONFIG_DIRECTORY
-    value: /lti/config
   - name: CANVAS_ENV
     value: EVAL
   - name: CANVAS_TIMEOUT
