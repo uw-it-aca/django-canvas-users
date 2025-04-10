@@ -66,6 +66,8 @@ environmentVariables:
     value: "60"
   - name: SIS_PROVISIONER_ENV
     value: EVAL
+  - name: LTI_CONFIG_DIRECTORY
+    value: /lti/config
 
 externalSecrets:
   enabled: true
