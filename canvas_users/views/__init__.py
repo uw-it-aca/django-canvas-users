@@ -11,13 +11,17 @@ import re
 
 
 def allow_origin(origin):
-    canvas_host = getattr(settings, 'RESTCLIENTS_CANVAS_HOST')
-    if origin != canvas_host:
-        m = re.match(r'^https://.*\.([a-z]+\.[a-z]+)$', origin)
-        if m:
-            domain = m.group(1)
-            if canvas_host[-len(domain):] == domain:
-                canvas_host = origin
+    csrf_trusted_origins = getattr(settings, 'CSRF_TRUSTED_ORIGINS', [])
+    if len(csrf_trusted_origins) > 0:
+        canvas_host = csrf_trusted_origins[0]
+    else:
+        canvas_host = settings.RESTCLIENTS_CANVAS_HOST
+        if origin != canvas_host:
+            m = re.match(r'^https://.*\.([a-z]+\.[a-z]+)$', origin)
+            if m:
+                domain = m.group(1)
+                if canvas_host[-len(domain):] == domain:
+                    canvas_host = origin
 
     return canvas_host
 
