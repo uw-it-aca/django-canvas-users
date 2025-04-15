@@ -34,6 +34,7 @@ class CanvasCourseSections(UserRESTDispatch):
                                   name=course_name)
             logger.debug(f"Course: {course}")
             sections = get_course_sections(course, user_id)
+            logger.debug(f"Sections: {sections}")
 
         except MissingSectionException as err:
             msg = 'Adding users to this course not allowed'
@@ -46,9 +47,10 @@ class CanvasCourseSections(UserRESTDispatch):
                 msg = 'You do not have permission to access this course'
                 return self.error_response(403, message=msg)
 
-            logger.error(f"DataFailureException: {err}")
+            logger.error(f"sections: DataFailureException: {err}")
             return self.error_response(500, message=err.msg)
         except Exception as err:
+            logger.exception(f"sections: Exception: {err}")
             return self.error_response(500, message=traceback.format_exc(err))
 
         return self.json_response({

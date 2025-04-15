@@ -18,6 +18,7 @@ class CanvasAccountCourseRoles(UserRESTDispatch):
     def get(self, request, *args, **kwargs):
         try:
             role_data = get_course_roles_in_account(self.blti)
+            logger.debug
             return self.json_response({'roles': role_data})
 
         except DataFailureException as err:
@@ -28,7 +29,8 @@ class CanvasAccountCourseRoles(UserRESTDispatch):
                 msg = 'You do not have permission to access this course'
                 return self.error_response(403, message=msg)
 
-            logger.error(f"DataFailureException: {err}")
+            logger.error(f"roles: DataFailureException: {err}")
             return self.error_response(500, message=err.msg)
         except Exception as err:
+            logger.exception(f"roles: Exception: {err}")
             return self.error_response(500, err)
