@@ -5,6 +5,10 @@
 from restclients_core.exceptions import DataFailureException
 from canvas_users.dao.canvas import get_course_roles_in_account
 from canvas_users.views import UserRESTDispatch
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class CanvasAccountCourseRoles(UserRESTDispatch):
@@ -17,6 +21,14 @@ class CanvasAccountCourseRoles(UserRESTDispatch):
             return self.json_response({'roles': role_data})
 
         except DataFailureException as err:
-            return self.error_response(500, err.msg)
+            if err.status == 404:
+                msg = 'Course not found'
+                return self.error_response(404, message=msg)
+            elif err.status == 403:
+                msg = 'You do not have permission to access this course'
+                return self.error_response(403, message=msg)
+
+            logger.error(f"DataFailureException: {err}")
+            return self.error_response(500, message=err.msg)
         except Exception as err:
             return self.error_response(500, err)
