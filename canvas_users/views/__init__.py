@@ -12,8 +12,9 @@ import re
 
 def allow_origin(origin):
     csrf_trusted_origins = getattr(settings, 'CSRF_TRUSTED_ORIGINS', [])
-    if len(csrf_trusted_origins) > 0:
-        canvas_host = csrf_trusted_origins[0]
+    if (len(csrf_trusted_origins) > 0
+            and origin.startswith(csrf_trusted_origins[0])):
+        return origin
     else:
         canvas_host = settings.RESTCLIENTS_CANVAS_HOST
         if origin != canvas_host:
