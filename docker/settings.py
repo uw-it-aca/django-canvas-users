@@ -14,9 +14,12 @@ INSTALLED_APPS += [
 
 MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
 
-CORS_ALLOWED_ORIGINS = [
-    f"https://{RESTCLIENTS_CANVAS_HOST}",
-]
+try:
+    CORS_ALLOWED_ORIGINS = [
+        f"https://{RESTCLIENTS_CANVAS_HOST}",
+    ]
+except NameError:
+    pass
 
 CORS_ALLOW_METHODS = [
     'OPTIONS',
