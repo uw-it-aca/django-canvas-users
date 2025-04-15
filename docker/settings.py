@@ -15,8 +15,10 @@ INSTALLED_APPS += [
 MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
 
 try:
+    # runtime setting
     CORS_ALLOWED_ORIGINS = [
-        f"https://{RESTCLIENTS_CANVAS_HOST}",
+        RESTCLIENTS_CANVAS_HOST,
+        f"https://{os.getenv('CLUSTER_CNAME')}",
     ]
 except NameError:
     pass
