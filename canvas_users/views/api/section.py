@@ -24,7 +24,8 @@ class CanvasCourseSections(UserRESTDispatch):
         course_name = self.blti.course_long_name
         sis_course_id = self.blti.course_sis_id
         logging.debug(f"Course ID: {course_id}, User ID: {user_id}, "
-                      f"Course Name: {course_name}, SIS Course ID: {sis_course_id} "
+                      f"Course Name: {course_name}, "
+                      f"SIS Course ID: {sis_course_id}, "
                       f"Request: {request}")
 
         try:
