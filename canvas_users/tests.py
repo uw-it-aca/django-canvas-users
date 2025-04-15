@@ -5,7 +5,6 @@
 from django.conf import settings
 from django.test import TestCase, override_settings
 from canvas_users.models import AddUserManager, AddUser, AddUsersImport
-from canvas_users.views import allow_origin
 from canvas_users.dao.canvas import *
 from canvas_users.dao.sis_provisioner import validate_logins
 from uw_canvas.models import CanvasCourse, CanvasRole
@@ -192,21 +191,3 @@ class AddUsersImportTest(TestCase):
             imported=2, importing=7).progress(), 28)
         self.assertEqual(AddUsersImport(
             imported=9, importing=12).progress(), 75)
-
-
-class AllowOriginTest(TestCase):
-    def test_allow_origin(self):
-        origin = 'https://canvas.edu'
-        with self.settings(
-                RESTCLIENTS_CANVAS_HOST=origin):
-
-            self.assertEqual(allow_origin(
-                'https://canvas.edu'), origin)
-            self.assertEqual(allow_origin(
-                'https://canvas.edu/courses/12345/files'), origin)
-            self.assertEqual(allow_origin(
-                'http://canvas.edu'), origin)
-            self.assertEqual(allow_origin(
-                'https://canvas.com'), origin)
-            self.assertEqual(allow_origin(
-                'https://www.abc.edu'), origin)
