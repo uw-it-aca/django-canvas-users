@@ -11,23 +11,19 @@ import re
 
 
 def allow_origin(origin):
-    csrf_trusted_origins = getattr(settings, 'CSRF_TRUSTED_ORIGINS', [])
-    if (len(csrf_trusted_origins) > 0
-            and origin.startswith(csrf_trusted_origins[0])):
-        return origin
-    else:
-        canvas_host = settings.RESTCLIENTS_CANVAS_HOST
-        if origin != canvas_host:
-            m = re.match(r'^https://.*\.([a-z]+\.[a-z]+)$', origin)
-            if m:
-                domain = m.group(1)
-                if canvas_host[-len(domain):] == domain:
-                    canvas_host = origin
+    canvas_host = settings.RESTCLIENTS_CANVAS_HOST
+    if origin != canvas_host:
+        m = re.match(r'^https://.*\.([a-z]+\.[a-z]+)$', origin)
+        if m:
+            domain = m.group(1)
+            if canvas_host[-len(domain):] == domain:
+                canvas_host = origin
 
     return canvas_host
 
 
 def add_headers_for_view(view, **kwargs):
+    return
     if hasattr(view, 'blti'):
         canvas_host = 'https://{}'.format(view.blti.canvas_api_domain)
     else:

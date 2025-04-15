@@ -8,7 +8,34 @@ else:
     CSRF_TRUSTED_ORIGINS = ['https://' + os.getenv('CLUSTER_CNAME')]
 
 INSTALLED_APPS += [
+    'corsheaders',
     'canvas_users.apps.CanvasUsersConfig',
+]
+
+MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
+
+CORS_ALLOWED_ORIGINS = [
+    f"https://{RESTCLIENTS_CANVAS_HOST}",
+]
+
+CORS_ALLOW_METHODS = [
+    'OPTIONS',
+    'GET',
+    'POST',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-csrf-token',
+    'x-requested-with',
+    'x-sessionid',
 ]
 
 if os.getenv('SIS_PROVISIONER_ENV') in RESTCLIENTS_DEFAULT_ENVS:

@@ -23,6 +23,7 @@ setup(
         'django-blti~=3.0',
         'uw-memcached-clients~=1.0',
         'UW-RestClients-Canvas~=1.2',
+        'django-cors-headers~=4.5',
     ],
     license='Apache License, Version 2.0',
     description=(
