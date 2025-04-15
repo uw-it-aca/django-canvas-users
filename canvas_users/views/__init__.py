@@ -53,6 +53,3 @@ class UserRESTDispatch(RESTDispatch):
     @csrf_exempt
     def dispatch(self, request, *args, **kwargs):
         return super(UserRESTDispatch, self).dispatch(request, *args, **kwargs)
-
-    def add_headers(self, **kwargs):
-        add_headers_for_view(self, **kwargs)

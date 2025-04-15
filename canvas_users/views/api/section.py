@@ -7,11 +7,11 @@ from restclients_core.exceptions import DataFailureException
 from canvas_users.dao.canvas import get_course_sections
 from canvas_users.exceptions import MissingSectionException
 from canvas_users.views import UserRESTDispatch
+from logging import getLogger
 import traceback
-import logging
 
 
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__)
 
 
 class CanvasCourseSections(UserRESTDispatch):
@@ -23,18 +23,11 @@ class CanvasCourseSections(UserRESTDispatch):
         user_id = self.blti.canvas_user_id
         course_name = self.blti.course_long_name
         sis_course_id = self.blti.course_sis_id
-        logging.debug(f"Course ID: {course_id}, User ID: {user_id}, "
-                      f"Course Name: {course_name}, "
-                      f"SIS Course ID: {sis_course_id}, "
-                      f"Request: {request}")
-
         try:
             course = CanvasCourse(course_id=course_id,
                                   sis_course_id=sis_course_id,
                                   name=course_name)
-            logger.debug(f"Course: {course}")
             sections = get_course_sections(course, user_id)
-            logger.debug(f"Sections: {sections}")
 
         except MissingSectionException as err:
             msg = 'Adding users to this course not allowed'
