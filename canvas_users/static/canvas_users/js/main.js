@@ -1,4 +1,4 @@
-/*jslint browser: true, plusplus: true, unparam: true */
+/*jslint browser: true, plusplus: true, unparam: true, esversion: 6 */
 /*global jQuery, Handlebars, top */
 
 
