@@ -69,8 +69,8 @@
         function showPeopleAcceptanceModal($modal, selector) {
             hideModalPanels($modal);
             $modal.find(selector).show();
-            $modal.find('button.' + acceptanceSelector).attr('disabled', true);
-            $modal.find('input.' + acceptanceSelector).attr('checked', false).focus();
+            $modal.find('button' + acceptanceSelector).attr('disabled', true);
+            $modal.find('input' + acceptanceSelector).attr('checked', false).focus();
         }
 
         function showPeopleTimedOut($modal) {
