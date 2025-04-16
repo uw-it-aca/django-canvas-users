@@ -13,9 +13,9 @@
               problemSelector = '.uw-add-people-problem',
               ferpaSelector = '.uw-add-people-ferpa',
               registrationRequirementsSelector = '.uw-add-people-registration-requirements',
+              acceptanceSelector = '.uw-add-people-accept',
               progressOverlaySelector = 'div.uw-add-people-progress-overlay',
               noticeCheckboxSelector = 'input#uw-add-people-notice-is-confirmed',
-              noticeButtonSelector = 'button#uw-add-people-notice-confirmation',
               importButtonSelector = 'button#uw-add-people-import',
               validateButtonSelector = 'button#uw-add-people-validate',
               closeButtonSelector = 'button.uw-add-people-close',
@@ -66,12 +66,11 @@
             $modal.find(importButtonSelector).focus();
         }
 
-        function showPeopleConfirmationModal($modal, selector) {
-            var $body = $modal.find(selector);
-
+        function showPeopleAcceptanceModal($modal, selector) {
             hideModalPanels($modal);
-            $body.show();
-            $body.find(noticeCheckboxSelector).focus();
+            $modal.find(selector).show();
+            $modal.find('button.' + acceptanceSelector).attr('disabled', true);
+            $modal.find('input.' + acceptanceSelector).attr('checked', false).focus();
         }
 
         function showPeopleTimedOut($modal) {
@@ -233,13 +232,10 @@
             e.stopPropagation();
             e.preventDefault();
 
-            $modal.find(noticeCheckboxSelector).attr('checked', false);
-            $modal.find(noticeButtonSelector).attr('disabled', true);
-
             if (ferpa_base_roles.indexOf(context.role_base) >= 0) {
-                showPeopleConfirmationModal($modal, ferpaSelector);
+                showPeopleAcceptanceModal($modal, ferpaSelector);
             } else if (context.role_base === 'StudentEnrollment' && is_academic_course()) {
-                showPeopleConfirmationModal($modal, registrationRequirementsSelector);
+                showPeopleAcceptanceModal($modal, registrationRequirementsSelector);
             } else {
                 importUsers(e);
             }
@@ -560,11 +556,8 @@
             $modal.find(startOverButtonSelector).on('click', startOver);
             $modal.find(importButtonSelector).on('click', confirmImport);
 
-            $confirmButton = $modal.find(noticeButtonSelector);
-            $confirmButton.on('click', importUsers);
-            $confirmButton.attr('disabled', true);
-
-            $modal.find(noticeCheckboxSelector).attr('checked', false).on('change', function () {
+            $modal.find('button.' + acceptanceSelector).on('click', importUsers);
+            $modal.find('input.' + acceptanceSelector).on('change', function () {
                 if ($(this).is(':checked')) {
                     $confirmButton.removeAttr('disabled');
                 } else {
