@@ -7,12 +7,12 @@
     $(document).ready(function () {
 
         const ferpa_base_roles = ['TeacherEnrollment', 'TaEnrollment', 'DesignerEnrollment'],
-              confirmModalSelector = 'div.uw-add-people-confirm',
-              gatherModalSelector = 'div.uw-add-people-gather',
-              timedoutModalSelector = 'div.uw-add-people-timedout',
-              problemModalSelector = 'div.uw-add-people-problem',
-              ferpaModalSelector = 'div.uw-add-people-ferpa',
-              regReqModalSelector = 'div.uw-add-people-registration-requirements',
+              confirmSelector = '.uw-add-people-confirm',
+              gatherSelector = '.uw-add-people-gather',
+              timedoutSelector = '.uw-add-people-timedout',
+              problemSelector = '.uw-add-people-problem',
+              ferpaSelector = '.uw-add-people-ferpa',
+              registrationRequirementsSelector = '.uw-add-people-registration-requirements',
               progressOverlaySelector = 'div.uw-add-people-progress-overlay',
               noticeCheckboxSelector = 'input#uw-add-people-notice-is-confirmed',
               noticeButtonSelector = 'button#uw-add-people-notice-confirmation',
@@ -46,23 +46,23 @@
         }
 
         function hideModalPanels($modal) {
-            var modals = [gatherModalSelector, confirmModalSelector,
-                          problemModalSelector, timedoutModalSelector,
-                          ferpaModalSelector, regReqModalSelector];
+            var modals = [gatherSelector, confirmSelector,
+                          problemSelector, timedoutSelector,
+                          ferpaSelector, registrationRequirementsSelector];
 
             $modal.find(modals.join(',')).hide();
         }
 
         function showPeopleGather($modal) {
             hideModalPanels($modal);
-            $modal.find(gatherModalSelector).show();
+            $modal.find(gatherSelector).show();
             validateGatherForm($modal);
             $modal.find('#uw-users-to-add').focus();
         }
 
         function showPeopleConfirmation($modal) {
             hideModalPanels($modal);
-            $modal.find(confirmModalSelector).show();
+            $modal.find(confirmSelector).show();
             $modal.find(importButtonSelector).focus();
         }
 
@@ -76,12 +76,12 @@
 
         function showPeopleTimedOut($modal) {
             hideModalPanels($modal);
-            $modal.find(timedoutModalSelector).show();
+            $modal.find(timedoutSelector).show();
         }
 
         function showPeopleProblem($modal) {
             hideModalPanels($modal);
-            $modal.find(problemModalSelector).show();
+            $modal.find(problemSelector).show();
         }
 
         function startOver(e) {
@@ -104,7 +104,7 @@
                 error_text = msg;
             }
 
-            $modal.find(problemModalSelector).html(tpl({
+            $modal.find('div' + problemSelector).html(tpl({
                 error_message: error_text
             }));
 
@@ -237,9 +237,9 @@
             $modal.find(noticeButtonSelector).attr('disabled', true);
 
             if (ferpa_base_roles.indexOf(context.role_base) >= 0) {
-                showPeopleConfirmationModal($modal, ferpaModalSelector);
+                showPeopleConfirmationModal($modal, ferpaSelector);
             } else if (context.role_base === 'StudentEnrollment' && is_academic_course()) {
-                showPeopleConfirmationModal($modal, regReqModalSelector);
+                showPeopleConfirmationModal($modal, registrationRequirementsSelector);
             } else {
                 importUsers(e);
             }
@@ -374,7 +374,7 @@
             }
 
             $modal.find(validateButtonSelector).addClass('uw-add-people-loading').attr('disabled', true);
-            $(gatherModalSelector, $modal).find('input, button, select, textarea').attr('disabled', true);
+            $(gatherSelector, $modal).find('input, button, select, textarea').attr('disabled', true);
 
             $.ajax({
                 type: 'POST',
@@ -458,7 +458,7 @@
                 })
                 .always(function () {
                     $modal.find('.uw-add-people-loading').removeClass('uw-add-people-loading');
-                    $(gatherModalSelector, $modal).find('input, button, select, textarea').removeAttr('disabled');
+                    $(gatherSelector, $modal).find('input, button, select, textarea').removeAttr('disabled');
                 });
         }
 
@@ -515,7 +515,7 @@
         }
 
         function finishAddPeopleModal($modal) {
-            var $gather = $modal.find(gatherModalSelector),
+            var $gather = $modal.find('div' + gatherSelector),
                 $role_select = $gather.find('#uw-added-users-role'),
                 $section_select = $gather.find('#uw-added-users-section');
 
