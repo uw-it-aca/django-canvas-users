@@ -155,7 +155,7 @@
         function importUsers(e) {
             var $modal = getModal(e),
                 $modalbox = $modal.find('.ReactModal__Layout'),
-                $progressbaroverlay = $modal.find([confirmModalSelector,  progressOverlaySelector].join(' ')),
+                $progressbaroverlay = $modal.find(['div' + confirmSelector,  progressOverlaySelector].join(' ')),
                 $progressbar = $progressbaroverlay.find('#progressbar'),
                 $progressbarlabel = $progressbaroverlay.find('#progressbar .progress-label'),
                 context = window.canvas_users.validated_context,
@@ -439,7 +439,7 @@
 
                     window.canvas_users.validated_context = valid_context;
 
-                    $modal.find(confirmModalSelector).html(tpl(valid_context));
+                    $modal.find('div' + confirmSelector).html(tpl(valid_context));
                     $modal.find(importButtonSelector).html(tpl_button({
                         count: validated_user_count,
                         plural: (validated_user_count === 1) ? '' : 's',
