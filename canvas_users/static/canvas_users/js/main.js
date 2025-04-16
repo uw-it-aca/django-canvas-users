@@ -556,7 +556,8 @@
             $modal.find(startOverButtonSelector).on('click', startOver);
             $modal.find(importButtonSelector).on('click', confirmImport);
 
-            $modal.find('button' + acceptanceSelector).on('click', importUsers);
+            $confirmButton = $modal.find('button' + acceptanceSelector);
+            $confirmButton.on('click', importUsers);
             $modal.find('input' + acceptanceSelector).on('change', function () {
                 if ($(this).is(':checked')) {
                     $confirmButton.removeAttr('disabled');
