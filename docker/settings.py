@@ -8,7 +8,39 @@ else:
     CSRF_TRUSTED_ORIGINS = ['https://' + os.getenv('CLUSTER_CNAME')]
 
 INSTALLED_APPS += [
+    'corsheaders',
     'canvas_users.apps.CanvasUsersConfig',
+]
+
+MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
+
+try:
+    # runtime setting
+    CORS_ALLOWED_ORIGINS = [
+        RESTCLIENTS_CANVAS_HOST,
+        f"https://{os.getenv('CLUSTER_CNAME')}",
+    ]
+except NameError:
+    pass
+
+CORS_ALLOW_METHODS = [
+    'OPTIONS',
+    'GET',
+    'POST',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-csrf-token',
+    'x-requested-with',
+    'x-sessionid',
 ]
 
 if os.getenv('SIS_PROVISIONER_ENV') in RESTCLIENTS_DEFAULT_ENVS:
@@ -22,10 +54,6 @@ if os.getenv('SIS_PROVISIONER_ENV') in RESTCLIENTS_DEFAULT_ENVS:
         RESTCLIENTS_SIS_PROVISIONER_HOST = 'https://test-apps.canvas.uw.edu'
 
 CONTINUUM_CANVAS_ACCOUNT_ID = os.getenv('CONTINUUM_CANVAS_ACCOUNT_ID', '')
-CANVAS_ADMINISTRATOR_ROLE = 'urn:lti:instrole:ims/lis/Administrator'
-CANVAS_TEACHER_ROLE = 'urn:lti:role:ims/lis/Instructor'
-CANVAS_TA_ROLE = 'urn:lti:role:ims/lis/TeachingAssistant'
-CANVAS_DESIGNER_ROLE = 'urn:lti:role:ims/lis/ContentDeveloper'
 STUDENT_ROLE_DISALLOWED_SUBACCOUNTS = [
     'uwcourse:seattle:education',
 ]
