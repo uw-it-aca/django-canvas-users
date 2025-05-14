@@ -234,17 +234,20 @@
 
             if (ferpa_base_roles.indexOf(context.role_base) >= 0) {
                 showPeopleAcceptanceModal($modal, ferpaSelector);
-            } else if (context.role_base === 'StudentEnrollment' && is_academic_course()) {
-                showPeopleAcceptanceModal($modal, registrationRequirementsSelector);
+            // NOTE: disabled until exposure policy is ironed out
+            // } else if (context.role_base === 'StudentEnrollment' && is_academic_course()) {
+            //    showPeopleAcceptanceModal($modal, registrationRequirementsSelector);
             } else {
                 importUsers(e);
             }
         }
 
         function is_academic_course() {
-            var sis_re = /^\d{4}-(winter|spring|summer|autumn)-[\w& ]+-\d{3}-[A-Z][A-Z0-9]?(-[A-F0-9]{32})?$/;
+            var sis_re = /^\d{4}-(winter|spring|summer|autumn)-[\w& ]+-\d{3}-[A-Z][A-Z0-9]?(-[A-F0-9]{32})?$/,
+                course_sis_id = window.canvas_users.sis_course_id,
+                account_sis_id = window.canvas_users.sis_account_id;
 
-            return sis_re.test(window.canvas_users.sis_course_id);
+            return (account_sis_id.startsWith('uwcourse:seattle') && sis_re.test(course_sis_id));
         }
 
         function monitorImport(import_id, user_count, role, $modal) {

@@ -37,6 +37,7 @@ class AddUsersView(BLTIView):
         return {
             'sis_course_id': course_sis_id,
             'canvas_course_id': canvas_course_id,
+            'sis_account_id': self.blti.account_sis_id,
             'canvas_account_id': self.blti.canvas_account_id,
             'canvas_hostname': self.blti.canvas_api_domain,
             'session_id': self.request.session.session_key,
