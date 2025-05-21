@@ -68,8 +68,7 @@ def get_course_sections(course, user_id):
 
 
 def get_course_roles_in_account(canvas_data):
-    account_sis_id = canvas_data.account_sis_id if (
-        canvas_data.account_sis_id) else ""
+    account_sis_id = getattr(canvas_data, "account_sis_id", "")
 
     if account_sis_id.startswith('uwcourse:uweo'):
         account_id = getattr(settings, 'CONTINUUM_CANVAS_ACCOUNT_ID')
