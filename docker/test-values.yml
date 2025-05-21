@@ -39,6 +39,8 @@ database:
 
 repo: course-users
 instance: test
+namespace:
+  enabled: true
 
 memcached:
   enabled: true
