@@ -234,9 +234,8 @@
 
             if (ferpa_base_roles.indexOf(context.role_base) >= 0) {
                 showPeopleAcceptanceModal($modal, ferpaSelector);
-            // NOTE: disabled until exposure policy is ironed out
-            // } else if (context.role_base === 'StudentEnrollment' && is_academic_course()) {
-            //    showPeopleAcceptanceModal($modal, registrationRequirementsSelector);
+            } else if (context.role_base === 'StudentEnrollment' && is_academic_course()) {
+                showPeopleAcceptanceModal($modal, registrationRequirementsSelector);
             } else {
                 importUsers(e);
             }
