@@ -246,7 +246,7 @@
                 course_sis_id = window.canvas_users.sis_course_id,
                 account_sis_id = window.canvas_users.sis_account_id;
 
-            return (account_sis_id.startsWith('uwcourse:seattle') && sis_re.test(course_sis_id));
+            return (account_sis_id.startsWith('uwcourse:') && sis_re.test(course_sis_id));
         }
 
         function monitorImport(import_id, user_count, role, $modal) {
