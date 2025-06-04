@@ -11,5 +11,5 @@ class CanvasUsersConfig(AppConfig):
     name = 'canvas_users'
 
     def ready(self):
-        canvas_users_mocks = os.path.join(os.path.dirname(__file__), "resources")
-        MockDAO.register_mock_path(canvas_users_mocks)
+        mock_path = os.path.join(os.path.dirname(__file__), "resources")
+        MockDAO.register_mock_path(mock_path)
