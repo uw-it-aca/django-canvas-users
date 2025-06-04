@@ -15,7 +15,7 @@ class CanvasDAOTest(TestCase):
     def setUp(self):
         class MockCanvasData:
             def __init__(self, *args, **kwargs):
-                self.account_sis_id = ''
+                self.canvas_account_id = '12345'
                 self.is_canvas_administrator = False
                 self.is_instructor = False
                 self.is_teaching_assistant = False
@@ -119,24 +119,24 @@ class CanvasDAOTest(TestCase):
             {'base': 'ObserverEnrollment', 'id': 4, 'role': 'Observer'},
         ])
 
-        # subaccount does not permit adding student role
         r3 = get_course_roles_in_account(self.canvas_data(
-            account_sis_id='uwcourse:abc', is_teaching_assistant=True))
+            is_designer=True))
         mock_method.assert_called_with('12345')
         self.assertEqual(r3, [
-            {'base': 'ObserverEnrollment', 'id': 4, 'role': 'Observer'},
-        ])
-
-        r4 = get_course_roles_in_account(self.canvas_data(
-            account_sis_id='uwcourse:abc', is_designer=True))
-        mock_method.assert_called_with('12345')
-        self.assertEqual(r4, [
             {'base': 'DesignerEnrollment', 'id': 5, 'role': 'Designer'},
         ])
 
+        # subaccount does not permit adding student role
+        r4 = get_course_roles_in_account(self.canvas_data(
+            canvas_account_id='54321', is_teaching_assistant=True))
+        mock_method.assert_called_with('54321')
+        self.assertEqual(r4, [
+            {'base': 'ObserverEnrollment', 'id': 4, 'role': 'Observer'},
+        ])
+
         r5 = get_course_roles_in_account(self.canvas_data(
-            account_sis_id='uwcourse:abc', is_instructor=True))
-        mock_method.assert_called_with('12345')
+            canvas_account_id='54321', is_instructor=True))
+        mock_method.assert_called_with('54321')
         self.assertEqual(r5, [
             {'base': 'TaEnrollment', 'id': 2, 'role': 'TA'},
             {'base': 'TeacherEnrollment', 'id': 3, 'role': 'Teacher'},
@@ -146,8 +146,8 @@ class CanvasDAOTest(TestCase):
 
         # subaccount does not permit adding student role, user is admin
         r6 = get_course_roles_in_account(self.canvas_data(
-            account_sis_id='uwcourse:uweo:abc', is_canvas_administrator=True))
-        mock_method.assert_called_with('50000')
+            canvas_account_id='54321', is_canvas_administrator=True))
+        mock_method.assert_called_with('54321')
         self.assertEqual(r6, [
             {'base': 'StudentEnrollment', 'id': 1, 'role': 'Student'},
             {'base': 'TaEnrollment', 'id': 2, 'role': 'TA'},

@@ -40,9 +40,9 @@ env:
 # defined in the "deploy" job
 on:
   push:
-    branches: [main, master, qa, develop, feature/eval-me]
+    branches: [main, master, qa, develop, feature/eval-me, feature/role-select-by-permissions]
   pull_request:
-    branches: [main, master, qa, develop, feature/eval-me]
+    branches: [main, master, qa, develop, feature/eval-me, feature/role-select-by-permissions]
     types: [opened, reopened, synchronize]
 
 jobs:
@@ -153,7 +153,7 @@ jobs:
 
       - name: Deployment Pipeline
         if: >-
-          contains(fromJSON('["main", "master", "develop", "qa"]'),
+          contains(fromJSON('["main", "master", "develop", "qa", "feature/role-select-by-permissions"]'),
             needs.context.outputs.git_repo_branch)
         uses: uw-it-aca/actions/cicd-deploy@main
         with:

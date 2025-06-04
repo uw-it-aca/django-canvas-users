@@ -68,41 +68,35 @@ def get_course_sections(course, user_id):
 
 
 def get_course_roles_in_account(canvas_data):
-    account_sis_id = getattr(canvas_data, "account_sis_id") or ""
+    role_labels = ['Student', 'Teacher', 'TA', 'Observer', 'Designer']
+    adder_roles = [('Teacher', canvas_data.is_instructor),
+                   ('TA', canvas_data.is_teaching_assistant),
+                   ('Designer', canvas_data.is_designer)]
+    account_id = canvas_data.canvas_account_id
+    course_roles = {r.label: r for r in Roles().get_roles_in_account(
+        account_id)}
 
-    if account_sis_id.startswith('uwcourse:uweo'):
-        account_id = getattr(settings, 'CONTINUUM_CANVAS_ACCOUNT_ID')
-    else:
-        account_id = getattr(settings, 'RESTCLIENTS_CANVAS_ACCOUNT_ID')
+    def _is_permitted(added_role):
+        return canvas_data.is_canvas_administrator or any(
+            [context_role and _can_assign_role(
+                adder_role, added_role) for (
+                    adder_role, context_role) in adder_roles])
 
-    roles_permitted = {
-        'StudentEnrollment': True,
-        'TeacherEnrollment': True,
-        'TaEnrollment': True,
-        'ObserverEnrollment': True,
-        'DesignerEnrollment': True,
-    }
+    def _can_assign_role(adder_role_label, added_role_label):
+        try:
+            adder_role_id = course_roles[adder_role_label].role_id
+            adder_role = Roles().get_role(account_id, adder_role_id)
+            return adder_role.permissions.get(
+                f"add_{added_role_label.lower()}_to_course", {}).get(
+                    'enabled', True)
+        except IndexError:
+            logger.error(f"{adder_role} not found in course roles")
+            return True
 
-    # For subaccounts that do not permit adding Student roles, the user
-    # must be a subaccount admin
-    if not canvas_data.is_canvas_administrator:
-        for acct in getattr(
-                settings, 'STUDENT_ROLE_DISALLOWED_SUBACCOUNTS', []):
-            if account_sis_id.startswith(acct):
-                roles_permitted['StudentEnrollment'] = False
-                break
+    def _base_role(role_label):
+        return f"{role_label.capitalize()}Enrollment"
 
-    # Global role options for TAs and Designers without an admin role
-    if canvas_data.is_teaching_assistant:
-        roles_permitted['TaEnrollment'] = False
-        roles_permitted['TeacherEnrollment'] = False
-        roles_permitted['DesignerEnrollment'] = False
-    elif canvas_data.is_designer:
-        roles_permitted['StudentEnrollment'] = False
-        roles_permitted['TaEnrollment'] = False
-        roles_permitted['TeacherEnrollment'] = False
-        roles_permitted['ObserverEnrollment'] = False
-
+    roles_permitted = {_base_role(r): _is_permitted(r) for r in role_labels}
     roles = []
     for r in Roles().get_effective_course_roles_in_account(account_id):
         if roles_permitted.get(r.base_role_type, True):
@@ -111,6 +105,7 @@ def get_course_roles_in_account(canvas_data):
                 'id': r.role_id,
                 'base': r.base_role_type,
             })
+
     return roles
 
 
