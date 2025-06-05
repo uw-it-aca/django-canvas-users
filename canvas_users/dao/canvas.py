@@ -90,7 +90,7 @@ def get_course_roles_in_account(canvas_data):
                 f"add_{added_role_label.lower()}_to_course", {}).get(
                     'enabled', True)
         except IndexError:
-            logger.error(f"{adder_role} not found in course roles")
+            logger.error(f"{adder_role_label} not found in course roles")
             return True
 
     def _base_role(role_label):
