@@ -12,6 +12,7 @@ from canvas_users.exceptions import MissingSectionException
 from logging import getLogger
 import re
 
+
 logger = getLogger(__name__)
 
 RE_GROUP_SECTION = re.compile(r'.*-groups$')
@@ -68,45 +69,47 @@ def get_course_sections(course, user_id):
 
 
 def get_course_roles_in_account(canvas_data):
-    role_labels = ['Student', 'Teacher', 'TA', 'Observer', 'Designer']
-    adder_roles = [('Teacher', canvas_data.is_instructor),
-                   ('TA', canvas_data.is_teaching_assistant),
-                   ('Designer', canvas_data.is_designer)]
+    def _is_permitted(role_type):
+        return any(
+            [_can_assign_role_type(
+                role_type, adder_role) for adder_role in adder_roles])
+
+    def _can_assign_role_type(role_type, adder_role):
+        return adder_role.permissions.get(
+            f"add_{_label(role_type)}_to_course", {}).get('enabled', True)
+
+    def _label(role_type):
+        return role_type.removesuffix('Enrollment').lower()
+
+    base_role_types = [
+        'StudentEnrollment', 'TeacherEnrollment', 'TaEnrollment',
+        'ObserverEnrollment', 'DesignerEnrollment']
+
     account_id = canvas_data.canvas_account_id
-    course_roles = {r.label: r for r in Roles().get_roles_in_account(
-        account_id)}
+    all_course_roles = Roles().get_roles_in_account(
+        account_id, {'show_inherited': '1', 'per_page': 100})
 
-    def _is_permitted(added_role):
-        return canvas_data.is_canvas_administrator or any(
-            [context_role and _can_assign_role(
-                adder_role, added_role) for (
-                    adder_role, context_role) in adder_roles])
+    try:
+        adder_role_labels = list(
+            map(_label, canvas_data.user_roles.split(',')))
+    except AttributeError:
+        adder_role_labels = [r for (r, permitted) in [
+            ('account admin', canvas_data.is_canvas_administrator),
+            ('teacher', canvas_data.is_instructor),
+            ('ta', canvas_data.is_teaching_assistant),
+            ('designer', canvas_data.is_designer)] if permitted]
 
-    def _can_assign_role(adder_role_label, added_role_label):
-        try:
-            adder_role_id = course_roles[adder_role_label].role_id
-            adder_role = Roles().get_role(account_id, adder_role_id)
-            return adder_role.permissions.get(
-                f"add_{added_role_label.lower()}_to_course", {}).get(
-                    'enabled', True)
-        except IndexError:
-            logger.error(f"{adder_role_label} not found in course roles")
-            return True
+    adder_roles = [r for r in all_course_roles if (
+        r.label.lower() in adder_role_labels)]
 
-    def _base_role(role_label):
-        return f"{role_label.capitalize()}Enrollment"
+    permitted_role_types = [t for t in base_role_types if _is_permitted(t)]
 
-    roles_permitted = {_base_role(r): _is_permitted(r) for r in role_labels}
-    roles = []
-    for r in Roles().get_effective_course_roles_in_account(account_id):
-        if roles_permitted.get(r.base_role_type, True):
-            roles.append({
-                'role': r.label,
-                'id': r.role_id,
-                'base': r.base_role_type,
-            })
-
-    return roles
+    return [{
+        'role': added_role.label,
+        'id': added_role.role_id,
+        'base': added_role.base_role_type
+    } for added_role in all_course_roles if (
+        added_role.base_role_type in permitted_role_types)]
 
 
 def valid_group_section(sis_section_id):
