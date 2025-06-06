@@ -15,7 +15,7 @@ class CanvasDAOTest(TestCase):
     def setUp(self):
         class MockCanvasData:
             def __init__(self, *args, **kwargs):
-                self.account_sis_id = ''
+                self.canvas_account_id = '12345'
                 self.is_canvas_administrator = False
                 self.is_instructor = False
                 self.is_teaching_assistant = False
@@ -28,19 +28,64 @@ class CanvasDAOTest(TestCase):
         self.canvas_roles = [
             CanvasRole(role_id=1,
                        label='Student',
-                       base_role_type='StudentEnrollment'),
+                       base_role_type='StudentEnrollment',
+                       permissions={
+                           "add_teacher_to_course": {"enabled": False},
+                           "add_ta_to_course": {"enabled": False},
+                           "add_observer_to_course": {"enabled": False},
+                           "add_designer_to_course": {"enabled": False},
+                           "add_student_to_course": {"enabled": False},
+                       }),
             CanvasRole(role_id=2,
                        label='TA',
-                       base_role_type='TaEnrollment'),
+                       base_role_type='TaEnrollment',
+                       permissions={
+                           "add_teacher_to_course": {"enabled": False},
+                           "add_ta_to_course": {"enabled": False},
+                           "add_observer_to_course": {"enabled": True},
+                           "add_designer_to_course": {"enabled": False},
+                           "add_student_to_course": {"enabled": True}
+                       }),
             CanvasRole(role_id=3,
                        label='Teacher',
-                       base_role_type='TeacherEnrollment'),
+                       base_role_type='TeacherEnrollment',
+                       permissions={
+                           "add_teacher_to_course": {"enabled": True},
+                           "add_ta_to_course": {"enabled": True},
+                           "add_observer_to_course": {"enabled": True},
+                           "add_designer_to_course": {"enabled": True},
+                           "add_student_to_course": {"enabled": True}
+                       }),
             CanvasRole(role_id=4,
                        label='Observer',
-                       base_role_type='ObserverEnrollment'),
+                       base_role_type='ObserverEnrollment',
+                       permissions={
+                           "add_teacher_to_course": {"enabled": False},
+                           "add_ta_to_course": {"enabled": False},
+                           "add_observer_to_course": {"enabled": False},
+                           "add_designer_to_course": {"enabled": False},
+                           "add_student_to_course": {"enabled": False}
+                       }),
             CanvasRole(role_id=5,
                        label='Designer',
-                       base_role_type='DesignerEnrollment'),
+                       base_role_type='DesignerEnrollment',
+                       permissions={
+                           "add_teacher_to_course": {"enabled": False},
+                           "add_ta_to_course": {"enabled": False},
+                           "add_observer_to_course": {"enabled": False},
+                           "add_designer_to_course": {"enabled": True},
+                           "add_student_to_course": {"enabled": False}
+                       }),
+            CanvasRole(role_id=6,
+                       label='Account Admin',
+                       base_role_type='AccountMembership',
+                       permissions={
+                           "add_teacher_to_course": {"enabled": True},
+                           "add_ta_to_course": {"enabled": True},
+                           "add_observer_to_course": {"enabled": True},
+                           "add_designer_to_course": {"enabled": True},
+                           "add_student_to_course": {"enabled": True},
+                       })
         ]
 
     @mock.patch.object(Users, 'get_users_for_course')
@@ -93,7 +138,7 @@ class CanvasDAOTest(TestCase):
         self.assertEqual(valid_group_section(
             'course_12345-groups'), True)
 
-    @mock.patch.object(Roles, 'get_effective_course_roles_in_account')
+    @mock.patch.object(Roles, 'get_roles_in_account')
     @override_settings(RESTCLIENTS_CANVAS_ACCOUNT_ID='12345',
                        CONTINUUM_CANVAS_ACCOUNT_ID='50000',
                        STUDENT_ROLE_DISALLOWED_SUBACCOUNTS=['uwcourse'])
@@ -101,9 +146,11 @@ class CanvasDAOTest(TestCase):
         mock_method.return_value = self.canvas_roles
 
         # subaccount permits adding student role
-        r1 = get_course_roles_in_account(self.canvas_data(is_instructor=True))
-        mock_method.assert_called_with('12345')
-        self.assertEqual(r1, [
+        r1a = get_course_roles_in_account(self.canvas_data(
+            user_roles="Account Admin"))
+        mock_method.assert_called_with(
+            '12345', {'show_inherited': '1', 'per_page': 100})
+        self.assertEqual(r1a, [
             {'base': 'StudentEnrollment', 'id': 1, 'role': 'Student'},
             {'base': 'TaEnrollment', 'id': 2, 'role': 'TA'},
             {'base': 'TeacherEnrollment', 'id': 3, 'role': 'Teacher'},
@@ -111,32 +158,77 @@ class CanvasDAOTest(TestCase):
             {'base': 'DesignerEnrollment', 'id': 5, 'role': 'Designer'},
         ])
 
-        r2 = get_course_roles_in_account(self.canvas_data(
-            is_teaching_assistant=True))
-        mock_method.assert_called_with('12345')
-        self.assertEqual(r2, [
+        r1b = get_course_roles_in_account(self.canvas_data(
+            is_canvas_administrator=True))
+        mock_method.assert_called_with(
+            '12345', {'show_inherited': '1', 'per_page': 100})
+        self.assertEqual(r1b, [
+            {'base': 'StudentEnrollment', 'id': 1, 'role': 'Student'},
+            {'base': 'TaEnrollment', 'id': 2, 'role': 'TA'},
+            {'base': 'TeacherEnrollment', 'id': 3, 'role': 'Teacher'},
+            {'base': 'ObserverEnrollment', 'id': 4, 'role': 'Observer'},
+            {'base': 'DesignerEnrollment', 'id': 5, 'role': 'Designer'},
+        ])
+
+        r2a = get_course_roles_in_account(self.canvas_data(
+            user_roles='TaEnrollment'))
+        mock_method.assert_called_with(
+            '12345', {'show_inherited': '1', 'per_page': 100})
+        self.assertEqual(r2a, [
             {'base': 'StudentEnrollment', 'id': 1, 'role': 'Student'},
             {'base': 'ObserverEnrollment', 'id': 4, 'role': 'Observer'},
         ])
 
-        # subaccount does not permit adding student role
-        r3 = get_course_roles_in_account(self.canvas_data(
-            account_sis_id='uwcourse:abc', is_teaching_assistant=True))
-        mock_method.assert_called_with('12345')
-        self.assertEqual(r3, [
+        r2b = get_course_roles_in_account(self.canvas_data(
+            user_roles=None, is_teaching_assistant=True))
+        mock_method.assert_called_with(
+            '12345', {'show_inherited': '1', 'per_page': 100})
+        self.assertEqual(r2b, [
+            {'base': 'StudentEnrollment', 'id': 1, 'role': 'Student'},
             {'base': 'ObserverEnrollment', 'id': 4, 'role': 'Observer'},
         ])
 
-        r4 = get_course_roles_in_account(self.canvas_data(
-            account_sis_id='uwcourse:abc', is_designer=True))
-        mock_method.assert_called_with('12345')
-        self.assertEqual(r4, [
+        r3a = get_course_roles_in_account(self.canvas_data(
+            user_roles='DesignerEnrollment'))
+        mock_method.assert_called_with(
+            '12345', {'show_inherited': '1', 'per_page': 100})
+        self.assertEqual(r3a, [
             {'base': 'DesignerEnrollment', 'id': 5, 'role': 'Designer'},
         ])
 
+        r3b = get_course_roles_in_account(self.canvas_data(
+            user_roles=None, is_designer=True))
+        mock_method.assert_called_with(
+            '12345', {'show_inherited': '1', 'per_page': 100})
+        self.assertEqual(r3b, [
+            {'base': 'DesignerEnrollment', 'id': 5, 'role': 'Designer'},
+        ])
+
+        # subaccount does not permit adding student role
+        self.canvas_roles[1].permissions['add_student_to_course'] = {
+            'enabled': False}
+        self.canvas_roles[2].permissions['add_student_to_course'] = {
+            'enabled': False}
+        r4a = get_course_roles_in_account(self.canvas_data(
+            canvas_account_id='54321', user_roles="TaEnrollment"))
+        mock_method.assert_called_with(
+            '54321', {'show_inherited': '1', 'per_page': 100})
+        self.assertEqual(r4a, [
+            {'base': 'ObserverEnrollment', 'id': 4, 'role': 'Observer'},
+        ])
+
+        r4b = get_course_roles_in_account(self.canvas_data(
+            canvas_account_id='54321', is_teaching_assistant=True))
+        mock_method.assert_called_with(
+            '54321', {'show_inherited': '1', 'per_page': 100})
+        self.assertEqual(r4b, [
+            {'base': 'ObserverEnrollment', 'id': 4, 'role': 'Observer'},
+        ])
+
         r5 = get_course_roles_in_account(self.canvas_data(
-            account_sis_id='uwcourse:abc', is_instructor=True))
-        mock_method.assert_called_with('12345')
+            canvas_account_id='54321', is_instructor=True))
+        mock_method.assert_called_with(
+            '54321', {'show_inherited': '1', 'per_page': 100})
         self.assertEqual(r5, [
             {'base': 'TaEnrollment', 'id': 2, 'role': 'TA'},
             {'base': 'TeacherEnrollment', 'id': 3, 'role': 'Teacher'},
@@ -145,10 +237,23 @@ class CanvasDAOTest(TestCase):
         ])
 
         # subaccount does not permit adding student role, user is admin
-        r6 = get_course_roles_in_account(self.canvas_data(
-            account_sis_id='uwcourse:uweo:abc', is_canvas_administrator=True))
-        mock_method.assert_called_with('50000')
-        self.assertEqual(r6, [
+        r6a = get_course_roles_in_account(self.canvas_data(
+            canvas_account_id='54321', user_roles='Account Admin'))
+        mock_method.assert_called_with(
+            '54321', {'show_inherited': '1', 'per_page': 100})
+        self.assertEqual(r6a, [
+            {'base': 'StudentEnrollment', 'id': 1, 'role': 'Student'},
+            {'base': 'TaEnrollment', 'id': 2, 'role': 'TA'},
+            {'base': 'TeacherEnrollment', 'id': 3, 'role': 'Teacher'},
+            {'base': 'ObserverEnrollment', 'id': 4, 'role': 'Observer'},
+            {'base': 'DesignerEnrollment', 'id': 5, 'role': 'Designer'},
+        ])
+
+        r6b = get_course_roles_in_account(self.canvas_data(
+            canvas_account_id='54321', is_canvas_administrator=True))
+        mock_method.assert_called_with(
+            '54321', {'show_inherited': '1', 'per_page': 100})
+        self.assertEqual(r6b, [
             {'base': 'StudentEnrollment', 'id': 1, 'role': 'Student'},
             {'base': 'TaEnrollment', 'id': 2, 'role': 'TA'},
             {'base': 'TeacherEnrollment', 'id': 3, 'role': 'Teacher'},
