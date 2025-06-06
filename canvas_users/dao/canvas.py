@@ -12,6 +12,7 @@ from canvas_users.exceptions import MissingSectionException
 from logging import getLogger
 import re
 
+
 logger = getLogger(__name__)
 
 RE_GROUP_SECTION = re.compile(r'.*-groups$')
@@ -68,50 +69,47 @@ def get_course_sections(course, user_id):
 
 
 def get_course_roles_in_account(canvas_data):
-    account_sis_id = getattr(canvas_data, "account_sis_id") or ""
+    def _is_permitted(role_type):
+        return any(
+            [_can_assign_role_type(
+                role_type, adder_role) for adder_role in adder_roles])
 
-    if account_sis_id.startswith('uwcourse:uweo'):
-        account_id = getattr(settings, 'CONTINUUM_CANVAS_ACCOUNT_ID')
-    else:
-        account_id = getattr(settings, 'RESTCLIENTS_CANVAS_ACCOUNT_ID')
+    def _can_assign_role_type(role_type, adder_role):
+        return adder_role.permissions.get(
+            f"add_{_label(role_type)}_to_course", {}).get('enabled', True)
 
-    roles_permitted = {
-        'StudentEnrollment': True,
-        'TeacherEnrollment': True,
-        'TaEnrollment': True,
-        'ObserverEnrollment': True,
-        'DesignerEnrollment': True,
-    }
+    def _label(role_type):
+        return role_type.removesuffix('Enrollment').lower()
 
-    # For subaccounts that do not permit adding Student roles, the user
-    # must be a subaccount admin
-    if not canvas_data.is_canvas_administrator:
-        for acct in getattr(
-                settings, 'STUDENT_ROLE_DISALLOWED_SUBACCOUNTS', []):
-            if account_sis_id.startswith(acct):
-                roles_permitted['StudentEnrollment'] = False
-                break
+    base_role_types = [
+        'StudentEnrollment', 'TeacherEnrollment', 'TaEnrollment',
+        'ObserverEnrollment', 'DesignerEnrollment']
 
-    # Global role options for TAs and Designers without an admin role
-    if canvas_data.is_teaching_assistant:
-        roles_permitted['TaEnrollment'] = False
-        roles_permitted['TeacherEnrollment'] = False
-        roles_permitted['DesignerEnrollment'] = False
-    elif canvas_data.is_designer:
-        roles_permitted['StudentEnrollment'] = False
-        roles_permitted['TaEnrollment'] = False
-        roles_permitted['TeacherEnrollment'] = False
-        roles_permitted['ObserverEnrollment'] = False
+    account_id = canvas_data.canvas_account_id
+    all_course_roles = Roles().get_roles_in_account(
+        account_id, {'show_inherited': '1', 'per_page': 100})
 
-    roles = []
-    for r in Roles().get_effective_course_roles_in_account(account_id):
-        if roles_permitted.get(r.base_role_type, True):
-            roles.append({
-                'role': r.label,
-                'id': r.role_id,
-                'base': r.base_role_type,
-            })
-    return roles
+    try:
+        adder_role_labels = list(
+            map(_label, canvas_data.user_roles.split(',')))
+    except AttributeError:
+        adder_role_labels = [r for (r, permitted) in [
+            ('account admin', canvas_data.is_canvas_administrator),
+            ('teacher', canvas_data.is_instructor),
+            ('ta', canvas_data.is_teaching_assistant),
+            ('designer', canvas_data.is_designer)] if permitted]
+
+    adder_roles = [r for r in all_course_roles if (
+        r.label.lower() in adder_role_labels)]
+
+    permitted_role_types = [t for t in base_role_types if _is_permitted(t)]
+
+    return [{
+        'role': added_role.label,
+        'id': added_role.role_id,
+        'base': added_role.base_role_type
+    } for added_role in all_course_roles if (
+        added_role.base_role_type in permitted_role_types)]
 
 
 def valid_group_section(sis_section_id):
