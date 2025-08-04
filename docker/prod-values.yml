@@ -43,6 +43,8 @@ database:
 
 repo: course-users
 instance: prod
+namespace:
+  enabled: true
 
 memcached:
   enabled: true
