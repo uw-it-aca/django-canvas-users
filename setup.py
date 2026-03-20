@@ -19,10 +19,10 @@ setup(
     packages=['canvas_users'],
     include_package_data=True,
     install_requires = [
-        'Django~=4.2',
+        'django~=5.2',
         'django-blti~=3.0',
         'uw-memcached-clients~=1.0',
-        'UW-RestClients-Canvas~=1.2',
+        'uw-restclients-canvas~=1.2',
         'django-cors-headers~=4.5',
     ],
     license='Apache License, Version 2.0',
@@ -31,7 +31,7 @@ setup(
         'aligned with UW policy'),
     long_description=README,
     url='https://github.com/uw-it-aca/django-canvas-users',
-    author = "UW-IT T&LS",
+    author = "UWIT Student & Technology Services",
     author_email = "aca-it@uw.edu",
     classifiers=[
         'Environment :: Web Environment',
