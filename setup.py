@@ -24,6 +24,7 @@ setup(
         'uw-memcached-clients~=1.0',
         'uw-restclients-canvas~=1.2',
         'django-cors-headers~=4.5',
+        'psycopg[c]',
     ],
     license='Apache License, Version 2.0',
     description=(
