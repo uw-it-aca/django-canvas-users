@@ -2,18 +2,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from logging import getLogger
-from django.db import connection
-from uw_canvas.models import CanvasSection, CanvasRole
-from restclients_core.exceptions import DataFailureException
-from canvas_users.dao.canvas import (
-    get_user_by_sis_id, create_user, enroll_course_user)
-from canvas_users.views import UserRESTDispatch
-from canvas_users.models import AddUser, AddUsersImport
-from multiprocessing import Process
 import json
-import sys
 import os
+import sys
+from logging import getLogger
+from multiprocessing import Process
+
+from django.db import connection
+from restclients_core.exceptions import DataFailureException
+from uw_canvas.models import CanvasRole, CanvasSection
+
+from canvas_users.dao.canvas import create_user, enroll_course_user, get_user_by_sis_id
+from canvas_users.models import AddUser, AddUsersImport
+from canvas_users.views import UserRESTDispatch
 
 logger = getLogger(__name__)
 
@@ -36,15 +37,13 @@ class ValidCanvasCourseUsers(UserRESTDispatch):
             })
 
         except Exception as ex:
-            return self.error_response(
-                400, message='Validation Error {}'.format(ex))
+            return self.error_response(400, message=f'Validation Error {ex}')
 
 
 class ImportCanvasCourseUsers(UserRESTDispatch):
     """ Exposes API to manage Canvas users
     """
     def get(self, request, *args, **kwargs):
-        course_id = kwargs['canvas_course_id']
         try:
             import_id = request.GET['import_id']
             imp = AddUsersImport.objects.get(id=import_id)
@@ -104,11 +103,9 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
 
             return self.json_response(imp.json_data())
         except KeyError as ex:
-            return self.error_response(
-                400, message='Incomplete Request: {}'.format(ex))
+            return self.error_response(400, message=f'Incomplete Request: {ex}')
         except Exception as ex:
-            return self.error_response(
-                400, message='Import Error: {}'.format(ex))
+            return self.error_response(400, message=f'Import Error: {ex}')
 
     def _api_import_users(self, import_id, users, role,
                           section, section_only, notify_users):
@@ -123,8 +120,9 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                 except DataFailureException as ex:
                     if ex.status == 404:
                         logger.info(
-                            'CREATE USER "{}", login: {}, reg_id: {}'.format(
-                                u.name, u.login, u.regid))
+                            f'CREATE USER "{u.name}", login: {u.login}, '
+                            f'reg_id: {u.regid}'
+                        )
 
                         # add user as "admin" on behalf of importer
                         canvas_user = create_user(
@@ -133,20 +131,15 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                             sis_user_id=u.regid,
                             email=u.email)
                     else:
-                        raise Exception('Cannot create user {}: {}'.format(
-                            u.login, ex))
+                        raise Exception(f'Cannot create user {u.login}: {ex}')
 
                 logger.info(
-                    '{importer} ADDING {user} ({user_id}) TO {course_id}: '
-                    '{sis_section_id} ({section_id}) AS {role} ({role_id}) '
-                    '- O:{section_only}, N:{notify}'.format(
-                        importer=imp.importer, user=canvas_user.login_id,
-                        user_id=canvas_user.user_id,
-                        course_id=section.course_id,
-                        sis_section_id=section.sis_section_id,
-                        section_id=section.section_id, role=role.label,
-                        role_id=role.role_id, section_only=section_only,
-                        notify=notify_users))
+                    f'{imp.importer} ADDING {canvas_user.login_id} '
+                    f'({canvas_user.user_id}) TO {section.course_id}: '
+                    f'{section.sis_section_id} ({section.section_id}) AS '
+                    f'{role.label} ({role.role_id}) - O:{section_only}, '
+                    f'N:{notify_users}'
+                )
 
                 enroll_course_user(
                     as_user=imp.importer_id,
@@ -162,18 +155,18 @@ class ImportCanvasCourseUsers(UserRESTDispatch):
                 imp.save()
 
         except DataFailureException as ex:
-            logger.info('Request failed: {}'.format(ex))
+            logger.info(f'Request failed: {ex}')
             try:
                 msg = json.loads(ex.msg)
                 imp.import_error = json.dumps({
                     'url': ex.url, 'status': ex.status, 'msg': msg})
             except Exception:
-                imp.import_error = '{}'.format(ex)
+                imp.import_error = f'{ex}'
             imp.save()
 
         except Exception as ex:
-            logger.info('EXCEPTION: {}'.format(ex))
-            imp.import_error = '{}'.format(ex)
+            logger.info(f'EXCEPTION: {ex}')
+            imp.import_error = f'{ex}'
             imp.save()
 
         sys.exit(0)

@@ -2,14 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from uw_canvas.models import CanvasCourse
+import traceback
+from logging import getLogger
+
 from restclients_core.exceptions import DataFailureException
+from uw_canvas.models import CanvasCourse
+
 from canvas_users.dao.canvas import get_course_sections
 from canvas_users.exceptions import MissingSectionException
 from canvas_users.views import UserRESTDispatch
-from logging import getLogger
-import traceback
-
 
 logger = getLogger(__name__)
 
@@ -29,7 +30,7 @@ class CanvasCourseSections(UserRESTDispatch):
                                   name=course_name)
             sections = get_course_sections(course, user_id)
 
-        except MissingSectionException as err:
+        except MissingSectionException:
             msg = 'Adding users to this course not allowed'
             return self.error_response(401, message=msg)
         except DataFailureException as err:
@@ -43,7 +44,7 @@ class CanvasCourseSections(UserRESTDispatch):
             logger.error(f"sections: DataFailureException: {err}")
             return self.error_response(500, message=err.msg)
         except Exception as err:
-            logger.exception(f"sections: Exception: {err}")
+            logger.error(f'sections: Exception: {err}')
             return self.error_response(500, message=traceback.format_exc(err))
 
         return self.json_response({

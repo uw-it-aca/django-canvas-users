@@ -2,12 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+import re
+
 from django.db import models
 from django.utils.timezone import localtime
-from restclients_core.exceptions import DataFailureException
+
 from canvas_users.dao.canvas import get_course_users
 from canvas_users.dao.sis_provisioner import validate_logins
-import re
 
 
 class AddUserManager(models.Manager):
@@ -15,8 +16,7 @@ class AddUserManager(models.Manager):
         self._section_id = str(section_id)
         self._role = role
 
-        self._course_users = dict(
-            (u.sis_user_id, u) for u in get_course_users(course_id))
+        self._course_users = {u.sis_user_id: u for u in get_course_users(course_id)}
 
         return self._get_users_from_logins(logins)
 
@@ -42,9 +42,9 @@ class AddUserManager(models.Manager):
                 if existing_role:
                     # User already has a different role in the course
                     user.status = 'present'
-                    user.comment = 'Already enrolled as {role}'.format(
-                        role=self._format_role(existing_role))
-
+                    user.comment = (
+                        f'Already enrolled as {self._format_role(existing_role)}'
+                    )
                 elif self._user_in_section(user):
                     # User already in selected section with selected role
                     user.status = 'present'

@@ -2,11 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from restclients_core.exceptions import DataFailureException
-from canvas_users.dao.canvas import get_course_roles_in_account
-from canvas_users.views import UserRESTDispatch
 from logging import getLogger
 
+from restclients_core.exceptions import DataFailureException
+
+from canvas_users.dao.canvas import get_course_roles_in_account
+from canvas_users.views import UserRESTDispatch
 
 logger = getLogger(__name__)
 
@@ -31,5 +32,5 @@ class CanvasAccountCourseRoles(UserRESTDispatch):
             logger.error(f"roles: DataFailureException: {err}")
             return self.error_response(500, message=err.msg)
         except Exception as err:
-            logger.exception(f"roles: Exception: {err}")
+            logger.error(f"roles: Exception: {err}")
             return self.error_response(500, err)

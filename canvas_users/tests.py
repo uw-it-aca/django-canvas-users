@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from django.conf import settings
+from unittest import mock
+
 from django.test import TestCase, override_settings
-from canvas_users.models import AddUserManager, AddUser, AddUsersImport
-from canvas_users.dao.canvas import *
-from canvas_users.dao.sis_provisioner import validate_logins
 from uw_canvas.models import CanvasCourse, CanvasRole
-import mock
+
+from canvas_users.dao.canvas import *
+from canvas_users.models import AddUser, AddUserManager, AddUsersImport
 
 
 class CanvasDAOTest(TestCase):
@@ -90,18 +90,18 @@ class CanvasDAOTest(TestCase):
 
     @mock.patch.object(Users, 'get_users_for_course')
     def test_get_course_users(self, mock_method):
-        r = get_course_users('123')
+        _r = get_course_users('123')
         mock_method.assert_called_with(
             '123', params={'per_page': 1000, 'include': ['enrollments']})
 
     @mock.patch('canvas_users.dao.canvas.Enrollments')
     def test_enrollments_constructor(self, mock_object):
-        r = enroll_course_user(as_user='123')
+        _r = enroll_course_user(as_user='123')
         mock_object.assert_called_with(as_user='123')
 
     @mock.patch.object(Enrollments, 'enroll_user')
     def test_enroll_course_user(self, mock_method):
-        r = enroll_course_user(
+        _r = enroll_course_user(
             role_id='1', section_only=True, notify_users=False, section_id='2',
             as_user='3', course_id='4', user_id='5', role_type='abc')
         mock_method.assert_called_with('4', '5', 'abc', params={
@@ -109,7 +109,7 @@ class CanvasDAOTest(TestCase):
             'notify': False, 'limit_privileges_to_course_section': True,
             'role_id': '1'})
 
-        r = enroll_course_user(
+        _r = enroll_course_user(
             role_id='1', section_only=True, notify_users=False,
             as_user='3', course_id='4', user_id='5', role_type='abc')
         mock_method.assert_called_with('4', '5', 'abc', params={
@@ -119,13 +119,13 @@ class CanvasDAOTest(TestCase):
     @mock.patch('canvas_users.dao.canvas.Sections')
     def test_sections_constructor(self, mock_object):
         course = CanvasCourse(course_id='123', sis_course_id='789', name='xyz')
-        r = get_course_sections(course, '456')
+        _r = get_course_sections(course, '456')
         mock_object.assert_called_with(as_user='456')
 
     @mock.patch.object(Sections, 'get_sections_in_course')
     def test_get_course_sections(self, mock_method):
         course = CanvasCourse(course_id='123', sis_course_id='789', name='xyz')
-        r = get_course_sections(course, '456')
+        _r = get_course_sections(course, '456')
         mock_method.assert_called_with('123')
 
     def test_valid_group_section(self):

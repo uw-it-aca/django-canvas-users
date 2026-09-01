@@ -2,16 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from django.conf import settings
-from uw_canvas.users import Users
-from uw_canvas.enrollments import Enrollments
-from uw_canvas.sections import Sections
-from uw_canvas.roles import Roles
-from uw_canvas.models import CanvasCourse, CanvasUser
-from canvas_users.exceptions import MissingSectionException
-from logging import getLogger
 import re
+from logging import getLogger
 
+from uw_canvas.enrollments import Enrollments
+from uw_canvas.models import CanvasCourse, CanvasUser
+from uw_canvas.roles import Roles
+from uw_canvas.sections import Sections
+from uw_canvas.users import Users
+
+from canvas_users.exceptions import MissingSectionException
 
 logger = getLogger(__name__)
 
@@ -70,9 +70,8 @@ def get_course_sections(course, user_id):
 
 def get_course_roles_in_account(canvas_data):
     def _is_permitted(role_type):
-        return any(
-            [_can_assign_role_type(
-                role_type, adder_role) for adder_role in adder_roles])
+        return any(_can_assign_role_type(
+            role_type, adder_role) for adder_role in adder_roles)
 
     def _can_assign_role_type(role_type, adder_role):
         return adder_role.permissions.get(
@@ -113,6 +112,5 @@ def get_course_roles_in_account(canvas_data):
 
 
 def valid_group_section(sis_section_id):
-    return True if (
-        sis_section_id is not None and
-        RE_GROUP_SECTION.match(str(sis_section_id)) is not None) else False
+    return bool(sis_section_id is not None and
+        RE_GROUP_SECTION.match(str(sis_section_id)) is not None)

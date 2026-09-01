@@ -2,11 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+import json
+import os
+from os.path import abspath, dirname
+
 from restclients_core.dao import DAO
 from restclients_core.exceptions import DataFailureException
-from os.path import abspath, dirname
-import os
-import json
 
 
 class SIS_PROVISIONER_DAO(DAO):
@@ -18,10 +19,12 @@ class SIS_PROVISIONER_DAO(DAO):
 
     def _custom_headers(self, method, url, headers, body):
         bearer_key = self.get_service_setting('OAUTH_BEARER', '')
-        return {'Authorization': 'Token {}'.format(bearer_key)}
+        return {'Authorization': f'Token {bearer_key}'}
 
 
-def validate_logins(logins=[]):
+def validate_logins(logins=None):
+    if logins is None:
+        logins = []
     url = '/api/v1/logins'
     headers = {
         'Content-Type': 'application/json',
