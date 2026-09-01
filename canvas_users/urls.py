@@ -2,12 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from django.urls import re_path
-from canvas_users.views import LaunchView, AddUsersView
+
+from canvas_users.views import AddUsersView, LaunchView
 from canvas_users.views.api.account import CanvasAccountCourseRoles
 from canvas_users.views.api.course import (
-    ValidCanvasCourseUsers, ImportCanvasCourseUsers)
+    ImportCanvasCourseUsers,
+    ValidCanvasCourseUsers,
+)
 from canvas_users.views.api.section import CanvasCourseSections
-
 
 urlpatterns = [
     re_path(r'^$', LaunchView.as_view()),

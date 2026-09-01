@@ -1,13 +1,8 @@
 # Copyright 2026 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
-
-from django.conf import settings
-from django.http import HttpResponse
+from blti.views import BLTILaunchView, BLTIView, RESTDispatch
 from django.views.decorators.csrf import csrf_exempt
-from blti.views import BLTIView, BLTILaunchView, RESTDispatch
-from blti import BLTIException
-import re
 
 
 class LaunchView(BLTILaunchView):
@@ -32,7 +27,7 @@ class AddUsersView(BLTIView):
         if self.blti.course_sis_id:
             course_sis_id = self.blti.course_sis_id
         else:
-            course_sis_id = 'course_{}'.format(canvas_course_id)
+            course_sis_id = f'course_{canvas_course_id}'
 
         return {
             'sis_course_id': course_sis_id,
@@ -53,4 +48,4 @@ class UserRESTDispatch(RESTDispatch):
 
     @csrf_exempt
     def dispatch(self, request, *args, **kwargs):
-        return super(UserRESTDispatch, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
