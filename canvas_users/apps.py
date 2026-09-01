@@ -2,9 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+import os
+
 from django.apps import AppConfig
 from restclients_core.dao import MockDAO
-import os
 
 
 class CanvasUsersConfig(AppConfig):
