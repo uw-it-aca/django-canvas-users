@@ -533,14 +533,18 @@
                 $modal,
                 $confirmButton;
 
-            $('head').append('<link rel="stylesheet" type="text/css" href="' +
-                             window.canvas_users.css + '"/>' +
-                             '<style>' +
-                             '.uw-add-user-timedout-icon { background-image: url(' +
-                             window.canvas_users.images + 'circle_bang.png' + ')}' +
-                             '.uw-add-user-problem-icon { background-image: url(' +
-                             window.canvas_users.images + 'circle_bang.png' + ')}' +
-                             '</style>');
+            $('<link>')
+                .attr('rel', 'stylesheet')
+                .attr('type', 'text/css')
+                .attr('href', window.canvas_users.css)
+                .appendTo('head');
+
+            $('<style>')
+                .text('.uw-add-user-timedout-icon { background-image: url(' +
+                      window.canvas_users.images + 'circle_bang.png' + ')}' +
+                      '.uw-add-user-problem-icon { background-image: url(' +
+                      window.canvas_users.images + 'circle_bang.png' + ')}')
+                .appendTo('head');
 
             $modal = $('#uw-add-people-slightofhand');
             $modal.append($(tpl()));
