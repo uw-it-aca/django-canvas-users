@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Canvas-Users-LTI"
+dynamic = ["version"]
+description = "Django LTI application for adding users to Canvas courses aligned with UW policy"
+readme = "README.md"
+license = "Apache-2.0"
+authors = [
+    {name = "UWIT Student & Educational Technology Services", email = "aca-it@uw.edu"}
+]
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+]
+dependencies = [
+    "django~=5.2",
+    "django-blti~=3.0",
+    "uw-memcached-clients~=1.0",
+    "uw-restclients-canvas~=1.2",
+    "django-cors-headers~=4.5",
+    "psycopg[c]",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+]
+
+[tool.setuptools]
+packages = ["canvas_users"]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {file = "canvas_users/VERSION"}
+
+[tool.ruff]
+line-length = 88
+exclude = [
+    "canvas_users/migrations/*",
+    "canvas_users/test/dao/test_notification.py",
+]
+
+[tool.ruff.lint]
+ignore = [
+    "BLE001",  # allow broad Exception catches
+    "TRY002",  # allow raising base Exception
+]
+
+[tool.coverage.run]
+source = ["django-canvas_users"]
+parallel = true
+omit = [
+     "canvas_users/migrations/*",
+     "canvas_users/tests.py"
+]
+
+[tool.coverage.paths]
+source = [
+    "canvas_users/",
+    "/app/canvas_users/",
+]
